@@ -289,7 +289,7 @@ and it hopefully remains that way.
 
 @subsection Clock Driver Ticks Counter
 
-The @dfn{Clock Driver Shell} provide a global variable that is simply a count
+The @dfn{Clock Driver Shell} provides a global variable that is simply a count
 of the number of clock driver interrupt service routines that have occurred.
 This information is valuable when debugging a system.  This variable is
 declared as follows:
