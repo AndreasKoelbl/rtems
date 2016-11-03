@@ -396,8 +396,8 @@ static void my_driver_interrupt_handler(
 @end example
 
 The @code{my_driver_interrupt_write()} function is responsible for telling the
-device that the @code{n} characters at @code{buf} are to be transmitted.  It
-the value @code{n} is zero to indicate that no more characters are to send.
+device that the @code{n} characters at @code{buf} are to be transmitted. The
+value @code{n} is zero to indicate that no more characters are to send.
 The driver can disable the transmit interrupts now.  This routine is invoked
 either from task context with disabled interrupts to start a new transmission
 process with exactly one character in case of an idle output state or from the
