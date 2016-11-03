@@ -182,7 +182,7 @@ three parts.
 
 @enumerate
 
-@item The basic console driver functions using the Termios support.  Add this
+@item The basic console driver functions using the Termios support.  Add this to
 the BSPs Makefile.am:
 
 @example
