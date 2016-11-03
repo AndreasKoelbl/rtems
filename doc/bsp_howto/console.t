@@ -155,7 +155,7 @@ scanf, read, write, etc.),
 
 @item C library (ctx.g. RedHat (formerly Cygnus) Newlib) calls
 the RTEMS system call interface.  This code can be found in the
-@file{cpukit/libcsupport/src} directory.
+ @file{cpukit/libcsupport/src} directory.
 
 @item Glue code calls the serial driver entry routines.
 
