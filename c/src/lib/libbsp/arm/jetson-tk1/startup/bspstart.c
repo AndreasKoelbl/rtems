@@ -1,15 +1,20 @@
-/*
- *  This routine starts the application.  It includes application,
+/**
+ * @file
+ *
+ * @ingroup arm_start
+ *
+ * @brief This routine starts the application.  It includes application,
  *  board, and monitor specific initialization and configuration.
  *  The generic CPU dependent initialization has been performed
  *  before this routine is invoked.
+ */
+
+/*
+ * Copyright (c) OTH Regensburg, 2016
  *
- *  COPYRIGHT (c) 1989-1999.
- *  On-Line Applications Research Corporation (OAR).
- *
- *  The license and distribution terms for this file may be
- *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.org/license/LICENSE.
+ * The license and distribution terms for this file may be
+ * found in the file LICENSE in this distribution or at
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #include <string.h>
@@ -24,4 +29,5 @@
 
 void bsp_start( void )
 {
+  bsp_interrupt_initialize();
 }
