@@ -1,6 +1,6 @@
 /*
  *  This file contains directives for the GNU linker which are specific
- *  to the NO_CPU NO_BSP BOARD.
+ *  to the tegra124 jetson-tk1 board.
  *
  *  COPYRIGHT (c) 1989-1999.
  *  On-Line Applications Research Corporation (OAR).
@@ -12,7 +12,7 @@
 
 MEMORY
 	{
-	ram : org = 0x0, l = 1M
+	ram : org = 0x0, l = 32M
 	}
 
 SECTIONS
@@ -69,3 +69,6 @@ SECTIONS
 	__end = . ;
 	}
 }
+
+/* jetson-tk1 uses armv7ve - This should also work for the moment */
+INCLUDE linkcmds.armv7m
