@@ -1,21 +1,21 @@
-/*  bsp.h
+/**
+ * @file
  *
- *  This include file contains all board IO definitions.
+ * @ingroup arm_jetsontk1
  *
- *  XXX : put yours in here
+ * @brief This include file contains all board IO definitions of the Jetson TK1.
  */
 
 /*
- *  COPYRIGHT (c) 1989-1999.
- *  On-Line Applications Research Corporation (OAR).
+ * Copyright (c) OTH Regensburg, 2016
  *
- *  The license and distribution terms for this file may be
- *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.org/license/LICENSE.
+ * The license and distribution terms for this file may be
+ * found in the file LICENSE in this distribution or at
+ * http://www.rtems.org/license/LICENSE.
  */
 
-#ifndef LIBBSP_NO_CPU_NO_BSP_BSP_H
-#define LIBBSP_NO_CPU_NO_BSP_BSP_H
+#ifndef LIBBSP_ARM_JETSONTK1_BSP_H
+#define LIBBSP_ARM_JETSONTK1_BSP_H
 
 #include <bspopts.h>
 #include <bsp/default-initial-extension.h>
@@ -39,5 +39,4 @@ rtems_isr_entry set_vector(                     /* returns old vector */
 #ifdef __cplusplus
 }
 #endif
-
-#endif
+#endif /* LIBBSP_ARM_JETSONTK1_BSP_H */

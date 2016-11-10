@@ -1,3 +1,19 @@
+/**
+ * @file
+ *
+ * @ingroup arm_jetson-tk1
+ *
+ * @brief Jetson-TK1 console driver
+ *
+ */
+
+/*
+ * Copyright (c) OTH Regensburg, 2016
+ *
+ * The license and distribution terms for this file may be
+ * found in the file LICENSE in this distribution or at
+ * http://www.rtems.org/license/LICENSE.
+ */
 /*
  *  This file contains the template for a console IO package.
  *
