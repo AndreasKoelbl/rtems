@@ -17,9 +17,8 @@
  * http://www.rtems.org/license/LICENSE.
  */
 
-#include <string.h>
-
 #include <bsp.h>
+#include "../../../shared/include/irq-generic.h"
 
 /*
  *  bsp_start

@@ -25,18 +25,21 @@
 #define NO_BSP_INIT
 
 #include <bsp.h>
-#include <rtems/console.h>
 #include <bsp/fatal.h>
+#include "../include/jetson-tk1.h"
+#include <rtems/console.h>
+#include <rtems/termiostypes.h>
 #include <rtems/libio.h>
 
 #define JAILHOUSE_HC_DEBUG_CONSOLE_PUTC 8
+#define JETSONTK1_BAUD_RATE 115200
 
 /******* modification of jailhouse code *******/
 
 static void hypervisor_putc(char c)
 {
-	register u32 num_res asm("r0") = JAILHOUSE_HC_DEBUG_CONSOLE_PUTC;
-	register u32 arg1 asm("r1") = c;
+	register uint32_t num_res asm("r0") = JAILHOUSE_HC_DEBUG_CONSOLE_PUTC;
+	register uint32_t arg1 asm("r1") = c;
 
 	asm volatile(
 		".arch_extension virt\n\t"
@@ -79,8 +82,10 @@ rtems_device_driver console_initialize(
   void                      *arg
 )
 {
-  const char* hello = "console initialized\n"
+
+  const char* hello = "console initialized\n";
   rtems_status_code status;
+  jetsontk1_driver_context localcontext;
 
   status = rtems_io_register_name(
     "/dev/console",
@@ -91,7 +96,7 @@ rtems_device_driver console_initialize(
   if (status != RTEMS_SUCCESSFUL)
     rtems_fatal_error_occurred(status);
 
-  jailhouse_dbgcon_write(hello, strlen(hello) + 1);
+  jailhouse_dbgcon_write(&localcontext, hello, strlen(hello) + 1);
 
   return RTEMS_SUCCESSFUL;
 }
@@ -279,7 +284,7 @@ const rtems_termios_handler jetsontk1_driver_handler_polled = {
 .stop_remote_tx = NULL,
 .start_remote_tx = NULL,
 .mode = TERMIOS_POLLED
-}
+};
 
 static int jetsontk1_driver_poll_read(rtems_termios_device_context *base)
 {
@@ -294,7 +299,7 @@ static void jetsontk1_driver_interrupt_handler(
 {
   rtems_termios_tty *tty = arg;
   jetsontk1_driver_context *ctx = jetsontk1_termios_get_device_context(tty);
-  char buf[N];
+  char buf[128];
   size_t n;
 
   /*
@@ -349,7 +354,7 @@ static void jetsontk1_driver_interrupt_write(
 }
 
 
-static jetsontk1_driver_context driver_context_table[M] = { /* Some values */ };
+static jetsontk1_driver_context driver_context_table[3] = { /* Some values */ };
 
 rtems_device_driver console_initialize(
   rtems_device_major_number  major,
@@ -368,19 +373,18 @@ rtems_device_driver console_initialize(
   rtems_termios_initialize();
 
   /* Initialize each device */
-  for (
+  /* Deactivated since rtems_termios_device_install has a diff impl
+    for (
     minor = 0;
     minor < RTEMS_ARRAY_SIZE(driver_context_table);
     ++minor
   ) {
     jetsontk1_driver_context *ctx = &driver_context_table[minor];
 
-    /*
      * Install this device in the file system and Termios.  In order
      * to use the console (i.e. being able to do printf, scanf etc.
      * on stdin, stdout and stderr), one device must be registered as
      * "/dev/console" (CONSOLE_DEVICE_NAME).
-     */
     sc = rtems_termios_device_install(
       ctx->device_name,
       major,
@@ -393,6 +397,7 @@ rtems_device_driver console_initialize(
       bsp_fatal(TEGRAK1_BSP_FATAL_CONSOLE_DEVICE_INSTALL);
     }
   }
+  */
 
   return RTEMS_SUCCESSFUL;
 }
@@ -417,7 +422,7 @@ static bool jetsontk1_driver_first_open(
    * the boot loader.  This function accepts only exact Termios baud
    * values.
    */
-  sc = rtems_termios_set_initial_baud(tty, MY_DRIVER_BAUD_RATE);
+  sc = rtems_termios_set_initial_baud(tty, JETSONTK1_BAUD_RATE);
   if (sc != RTEMS_SUCCESSFUL) {
     /* Not a valid Termios baud */
   }
@@ -425,7 +430,7 @@ static bool jetsontk1_driver_first_open(
   /*
    * Alternatively you can set the best baud.
    */
-  rtems_termios_set_best_baud(term, MY_DRIVER_BAUD_RATE);
+  rtems_termios_set_best_baud(term, JETSONTK1_BAUD_RATE);
 
   /*
    * To propagate the initial Termios attributes to the device use

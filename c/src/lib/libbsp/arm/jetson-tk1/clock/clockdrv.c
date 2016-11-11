@@ -16,6 +16,7 @@
  * http://www.rtems.org/license/LICENSE.
  */
 
+#include <rtems/irq-extension.h>
 #include <rtems/config.h>
 //#include <bsp/gic.h>
 #include "../include/gic.h"
@@ -23,7 +24,7 @@
 #define BEATS_PER_SEC 10
 
 static uint64_t ticks_per_beat;
-static volatile uint64_t expected_ticks
+static volatile uint64_t expected_ticks;
 
 static void handle_IRQ(unsigned int irqn)
 {
@@ -100,5 +101,6 @@ static void jetsontk1_support_at_tick( void )
 /* Indicate that this clock driver lacks a proper timecounter in hardware */
 #define CLOCK_DRIVER_USE_DUMMY_TIMECOUNTER
 #define CLOCK_DRIVER_ISRS_PER_TICK 1
+#define CLOCK_DRIVER_ISRS_PER_TICK_VALUE 1
 
 #include "../../../shared/clockdrv_shell.h"

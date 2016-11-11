@@ -23,6 +23,10 @@
 #include <rtems/irq.h>
 #include <rtems/irq-extension.h>
 
+#define BSP_INTERRUPT_VECTOR_MIN    (0)
+/* TODO: Fix random number */
+#define BSP_INTERRUPT_VECTOR_MAX    64
+
 /**
  * @defgroup raspberrypi_interrupt Interrrupt Support
  *

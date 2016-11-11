@@ -19,20 +19,15 @@
 
 #include <bspopts.h>
 #include <stdint.h>
-#include <bsp/utility.h>
+/* #include <bsp/utility.h> */
 #include <rtems/termiostypes.h>
 
-/** Console rtems foo
-*/
-/* Low-level driver specific data structure */
 typedef struct {
   rtems_termios_device_context base;
   const char *device_name;
-  volatile module_register_block *regs;
-/* More stuff */
 } jetsontk1_driver_context;
 
-extern const rtems_termios_handler my_driver_handler_polled;
+/* extern const rtems_termios_handler my_driver_handler_polled; */
 
 /**
  * @defgroup jetson-tk1_reg Register Definitions

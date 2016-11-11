@@ -21,6 +21,7 @@
  */
 
 #include <rtems.h>
+#include <rtems/rtems/intr.h>
 #include <bsp.h>
 
 rtems_isr_entry set_vector(                     /* returns old vector */
