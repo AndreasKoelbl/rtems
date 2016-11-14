@@ -22,10 +22,21 @@
 /* #include <bsp/utility.h> */
 #include <rtems/termiostypes.h>
 
+#define UART0 (0x70006000)
+#define UART0_IRQn 0
+#define ID_UART0 0
+
 typedef struct {
   rtems_termios_device_context base;
   const char *device_name;
 } jetsontk1_driver_context;
+
+typedef struct {
+  uint32_t TX;    /* same as UART_DLL, depends on value in LCR */
+  uint64_t DLM;
+  uint64_t LSR;
+  void *location;
+} Uart;
 
 /* extern const rtems_termios_handler my_driver_handler_polled; */
 
