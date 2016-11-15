@@ -22,7 +22,7 @@
 /* #include <bsp/utility.h> */
 #include <rtems/termiostypes.h>
 
-#define UART0 (0x70006000)
+#define UART0 (struct Uart*) (0x70006000)
 #define UART0_IRQn 0
 #define ID_UART0 0
 

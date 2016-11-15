@@ -56,13 +56,13 @@ static void hypervisor_putc(char c)
 static void jailhouse_dbgcon_write(
   rtems_termios_device_context *base,
   const char                   *buf,
-  size_t                        n
+  size_t                        len
 )
 {
   size_t i;
   jetsontk1_driver_context *ctx = (jetsontk1_driver_context *) base;
 
-	for (i = 0; i < n; i++) {
+	for (i = 0; i < len; i++) {
 		hypervisor_putc(buf[i]);
 	}
 }
@@ -148,7 +148,7 @@ static int jetsontk1_driver_poll_read(rtems_termios_device_context *base)
   return -1;
 }
 
-const rtems_termios_device_handler jetsontk1_uart_handler = {
+static const rtems_termios_device_handler jetsontk1_uart_handler = {
   .first_open = jetsontk1_driver_first_open,
   .last_close = jetsontk1_driver_last_close,
   .poll_read = jetsontk1_driver_poll_read,
@@ -163,16 +163,14 @@ rtems_status_code console_initialize(
   void                      *arg
 )
 {
-
   const char* hello = "console initialized\n";
   rtems_status_code status;
-  jetsontk1_driver_context localcontext;
 
   rtems_termios_initialize();
 
   status = rtems_termios_device_install(
     "/dev/console",
-    jetsontk1_uart_handler,
+    &jetsontk1_uart_handler,
     NULL,
     &jetsontk1_uart_instances[0].base
   );
@@ -180,7 +178,8 @@ rtems_status_code console_initialize(
   if (status != RTEMS_SUCCESSFUL)
     rtems_fatal_error_occurred(status);
 
-  jailhouse_dbgcon_write(&localcontext, hello, strlen(hello) + 1);
+  jailhouse_dbgcon_write((struct rtems_termios_device_context*) arg, \
+                          hello, strlen(hello) + 1);
 
   return RTEMS_SUCCESSFUL;
 }
