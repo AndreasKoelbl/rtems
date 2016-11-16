@@ -6,13 +6,12 @@ include $(top_srcdir)/../../../../automake/compile.am
 #                  Data                                                       #
 ###############################################################################
 
-dist_project_lib_DATA = bsp_specs
-
 #include $(top_srcdir)/../../bsp.am
 
 libbspstart_a_SOURCES = ../shared/start/start.S
 
 dist_project_lib_DATA =
+dist_project_lib_DATA = bsp_specs
 dist_project_lib_DATA += start.$(OBJEXT)
 dist_project_lib_DATA += startup/linkcmds
 
@@ -22,21 +21,26 @@ include_libchip_includedir = $(includedir)/libchip/include
 include_libcpudir = $(includedir)/libcpu
 include_somethin = $(includedir)/lib
 
-
-
-noinst_LIBRARIES = libbsp.a
+###############################################################################
+#                  Header                                                     #
+###############################################################################
 
 include_HEADERS = include/bsp.h
 include_HEADERS += ../../shared/include/tm27.h
 
 nodist_include_HEADERS = ../../shared/include/coverhd.h include/bspopts.h
-nodist_include_bsp_HEADERS = ../../shared/include/bootcard.h
-nodist_include_bsp_HEADERS = ../../shared/include/irq-generic.h
+
+nodist_include_bsp_HEADERS =
+nodist_include_bsp_HEADERS += ../../shared/include/bootcard.h
+
+nodist_include_bsp_HEADERS += ../../shared/include/irq-generic.h
+nodist_include_bsp_HEADERS += ../shared/include/start.h
 nodist_include_bsp_HEADERS += include/irq.h
 nodist_include_bsp_HEADERS += include/shm_driver.h
 nodist_include_bsp_HEADERS += include/gic.h
 nodist_include_bsp_HEADERS += include/jetson-tk1.h
 nodist_include_bsp_HEADERS += include/memaccess.h
+
 
 noinst_PROGRAMS =
 
@@ -68,6 +72,11 @@ libbsp_a_SOURCES += ../../shared/src/irq-shell.c
 libbsp_a_SOURCES += ../shared/armv7m/irq/armv7m-irq.c
 libbsp_a_SOURCES += ../shared/armv7m/irq/armv7m-irq-dispatch.c
 
+###############################################################################
+#                  LibBSP                                                     #
+###############################################################################
+
+noinst_LIBRARIES = libbsp.a
 
 ###############################################################################
 #                  Special Rules                                              #
