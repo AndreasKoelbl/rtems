@@ -6,16 +6,16 @@ include $(top_srcdir)/../../../../automake/compile.am
 #                  Data                                                       #
 ###############################################################################
 
-#include $(top_srcdir)/../../bsp.am
+dist_project_lib_DATA = bsp_specs
+
+noinst_LIBRARIES = libbspstart.a
 
 libbspstart_a_SOURCES = ../shared/start/start.S
 
-dist_project_lib_DATA =
-dist_project_lib_DATA = bsp_specs
-dist_project_lib_DATA += start.$(OBJEXT)
-dist_project_lib_DATA += startup/linkcmds
+project_lib_DATA =
+project_lib_DATA += start.$(OBJEXT)
+project_lib_DATA += startup/linkcmds
 
-include_bspdir = $(includedir)/bsp
 include_libchipdir = $(includedir)/libchip
 include_libchip_includedir = $(includedir)/libchip/include
 include_libcpudir = $(includedir)/libcpu
@@ -25,16 +25,32 @@ include_somethin = $(includedir)/lib
 #                  Header                                                     #
 ###############################################################################
 
-include_HEADERS = include/bsp.h
+include_HEADERS =
 include_HEADERS += ../../shared/include/tm27.h
+include_HEADERS += ../shared/CMSIS/Include/core_cm7.h
+include_HEADERS += ../shared/CMSIS/Include/core_cmInstr.h
+include_HEADERS += ../shared/CMSIS/Include/core_cmFunc.h
+include_HEADERS += ../shared/CMSIS/Include/core_cmSimd.h
+include_HEADERS += ../shared/CMSIS/Include/cmsis_gcc.h
+include_HEADERS += include/bsp.h
 
-nodist_include_HEADERS = ../../shared/include/coverhd.h include/bspopts.h
+nodist_include_HEADERS =
+nodist_include_HEADERS += ../../shared/include/coverhd.h
+nodist_include_HEADERS += include/bspopts.h
+
+include_bspdir = $(includedir)/bsp
 
 nodist_include_bsp_HEADERS =
 nodist_include_bsp_HEADERS += ../../shared/include/bootcard.h
 
-nodist_include_bsp_HEADERS += ../../shared/include/irq-generic.h
-nodist_include_bsp_HEADERS += ../shared/include/start.h
+include_bsp_HEADERS =
+include_bsp_HEADERS += ../../shared/include/utility.h
+include_bsp_HEADERS += ../../shared/include/irq-generic.h
+include_bsp_HEADERS += ../../shared/include/irq-info.h
+include_bsp_HEADERS += ../../shared/include/stackalloc.h
+include_bsp_HEADERS += ../shared/include/start.h
+include_bsp_HEADERS += ../shared/armv7m/include/armv7m-irq.h
+
 nodist_include_bsp_HEADERS += include/irq.h
 nodist_include_bsp_HEADERS += include/shm_driver.h
 nodist_include_bsp_HEADERS += include/gic.h
@@ -46,8 +62,8 @@ noinst_PROGRAMS =
 
 
 # startup
-libbsp_a_SOURCES = ../../shared/bspclean.c ../../shared/bsppredriverhook.c
-libbsp_a_SOURCES += startup/bspstart.c ../../shared/bootcard.c
+libbsp_a_SOURCES = startup/bspstart.c ../../shared/bootcard.c
+libbsp_a_SOURCES += ../../shared/bspclean.c ../../shared/bsppredriverhook.c
 libbsp_a_SOURCES += ../../shared/sbrk.c
 libbsp_a_SOURCES += startup/setvec.c ../../shared/gnatinstallhandler.c
 libbsp_a_SOURCES += ../../shared/bspgetworkarea.c
@@ -76,7 +92,7 @@ libbsp_a_SOURCES += ../shared/armv7m/irq/armv7m-irq-dispatch.c
 #                  LibBSP                                                     #
 ###############################################################################
 
-noinst_LIBRARIES = libbsp.a
+noinst_LIBRARIES += libbsp.a
 
 ###############################################################################
 #                  Special Rules                                              #
