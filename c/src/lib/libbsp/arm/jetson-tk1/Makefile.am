@@ -15,9 +15,9 @@ libbspstart_a_SOURCES = ../shared/start/start.S
 project_lib_DATA =
 project_lib_DATA += start.$(OBJEXT)
 #project_lib_DATA += startup/linkcmds
-project_lib_DATA += startup/linkcmds.jetsontk1
+project_lib_DATA += startup/linkcmds
 
-EXTRA_DIST = startup/linkcmds.jetsontk1
+EXTRA_DIST = startup/linkcmds
 
 include_libchipdir = $(includedir)/libchip
 include_libchip_includedir = $(includedir)/libchip/include
