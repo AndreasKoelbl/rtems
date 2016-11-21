@@ -171,6 +171,18 @@ bsp_start_hyp_vector_table_end:
 /* Start entry */
 
 _start:
+  /*
+   * Very early debug print
+   * save registers to r5,r6 as we know it has to be clean
+   */
+  mov r5,r0
+  mov r6,r1
+  .arch_extension virt
+  mov r0,#8
+  mov r1,#'X'
+
+  mov r0,r5
+  mov r1,r6
 
 	/*
 	 * We do not save the context since we do not return to the boot

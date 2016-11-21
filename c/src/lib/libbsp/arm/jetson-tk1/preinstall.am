@@ -36,9 +36,9 @@ $(PROJECT_LIB)/start.$(OBJEXT): start.$(OBJEXT) $(PROJECT_LIB)/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_LIB)/start.$(OBJEXT)
 TMPINSTALL_FILES += $(PROJECT_LIB)/start.$(OBJEXT)
 
-$(PROJECT_LIB)/linkcmds: startup/linkcmds $(PROJECT_LIB)/$(dirstamp)
-	$(INSTALL_DATA) $< $(PROJECT_LIB)/linkcmds
-TMPINSTALL_FILES += $(PROJECT_LIB)/linkcmds
+$(PROJECT_LIB)/linkcmds.jetsontk1: startup/linkcmds.jetsontk1 $(PROJECT_LIB)/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_LIB)/linkcmds.jetsontk1
+TMPINSTALL_FILES += $(PROJECT_LIB)/linkcmds.jetsontk1
 
 $(PROJECT_INCLUDE)/libchip/$(dirstamp):
 	@$(MKDIR_P) $(PROJECT_INCLUDE)/libchip
