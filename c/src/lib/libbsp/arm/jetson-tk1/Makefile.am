@@ -11,6 +11,7 @@ dist_project_lib_DATA = bsp_specs
 noinst_LIBRARIES = libbspstart.a
 
 libbspstart_a_SOURCES = ../shared/start/start.S
+libbspstart_a_SOURCES += ../shared/armv7m/startup/bspreset.c
 
 project_lib_DATA =
 project_lib_DATA += start.$(OBJEXT)
@@ -36,6 +37,7 @@ include_HEADERS += ../shared/CMSIS/Include/core_cmFunc.h
 include_HEADERS += ../shared/CMSIS/Include/core_cmSimd.h
 include_HEADERS += ../shared/CMSIS/Include/cmsis_gcc.h
 include_HEADERS += include/bsp.h
+include_HEADERS += include/console.h
 
 nodist_include_HEADERS =
 nodist_include_HEADERS += ../../shared/include/coverhd.h
@@ -80,6 +82,7 @@ libbsp_a_SOURCES += clock/clockdrv.c
 
 # Console
 libbsp_a_SOURCES += console/console.c
+libbsp_a_SOURCES += console/debug-console.c
 libbsp_a_SOURCES += ../../shared/console-termios.c
 
 # Timer

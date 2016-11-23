@@ -18,6 +18,7 @@
 #include <bsp.h>
 #include <bsp/fatal.h>
 #include <bsp/irq.h>
+#include <console.h>
 #include <rtems/console.h>
 #include <rtems/termiostypes.h>
 #include <unistd.h>
@@ -40,7 +41,7 @@ static jetsontk1_uart_context jetsontk1_uart_instances[] = { {
 }
 };
 
-static void hypervisor_putc(char c)
+void hypervisor_putc(char c)
 {
 	register uint32_t num_res asm("r0") = JAILHOUSE_HC_DEBUG_CONSOLE_PUTC;
 	register uint32_t arg1 asm("r1") = c;
@@ -53,7 +54,7 @@ static void hypervisor_putc(char c)
 		: "memory");
 }
 
-static void jailhouse_dbgcon_write(
+void jailhouse_dbgcon_write(
   rtems_termios_device_context *base,
   const char                   *buf,
   size_t                        len
