@@ -65,10 +65,14 @@ noinst_PROGRAMS =
 
 
 # startup
-libbsp_a_SOURCES = startup/bspstart.c ../../shared/bootcard.c
-libbsp_a_SOURCES += ../../shared/bspclean.c ../../shared/bsppredriverhook.c
+libbsp_a_SOURCES = startup/bspstart.c
+libbsp_a_SOURCES += startup/bspstarthooks.c
+libbsp_a_SOURCES += startup/setvec.c
+libbsp_a_SOURCES += ../../shared/bootcard.c
+libbsp_a_SOURCES += ../../shared/bspclean.c
+libbsp_a_SOURCES += ../../shared/bsppredriverhook.c
 libbsp_a_SOURCES += ../../shared/sbrk.c
-libbsp_a_SOURCES += startup/setvec.c ../../shared/gnatinstallhandler.c
+libbsp_a_SOURCES += ../../shared/gnatinstallhandler.c
 libbsp_a_SOURCES += ../../shared/bspgetworkarea.c
 
 # Clock
