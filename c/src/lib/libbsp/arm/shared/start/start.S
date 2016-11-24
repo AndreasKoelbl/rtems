@@ -177,12 +177,14 @@ _start:
    */
   mov r5,r0
   mov r6,r1
+/* raspberypi will not compile 
   .arch_extension virt
   mov r0,#8
   mov r1,#'X'
 
   mov r0,r5
   mov r1,r6
+  */
 
 	/*
 	 * We do not save the context since we do not return to the boot

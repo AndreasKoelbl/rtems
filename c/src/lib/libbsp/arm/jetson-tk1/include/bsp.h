@@ -28,8 +28,18 @@
 extern "C" {
 #endif
 
-/* FIXME value copied from altera cyclone, verify it */
+/* FIXME values copied from altera cyclone, verify it */
 #define BSP_ARM_A9MPCORE_SCU_BASE 0xf8f00000
+#define BSP_ARM_GIC_CPUIF_BASE ( BSP_ARM_A9MPCORE_SCU_BASE + 0x00000100 )
+
+#define BSP_ARM_A9MPCORE_GT_BASE ( BSP_ARM_A9MPCORE_SCU_BASE + 0x00000200 )
+
+#define BSP_ARM_GIC_DIST_BASE ( BSP_ARM_A9MPCORE_SCU_BASE + 0x00001000 )
+
+#define BSP_ARM_L2C_310_BASE 0xfffef000
+
+#define BSP_ARM_L2C_310_ID 0x410000c9
+
 
 /* functions */
 

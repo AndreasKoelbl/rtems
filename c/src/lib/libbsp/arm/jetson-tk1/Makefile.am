@@ -97,6 +97,7 @@ libbsp_a_SOURCES += timer/timer.c timer/timerisr.c
 
 # IRQ
 libbsp_a_SOURCES += ../../shared/src/irq-default-handler.c
+libbsp_a_SOURCES += ../shared/arm-cp15-set-exception-handler.c
 libbsp_a_SOURCES += ../../shared/src/irq-generic.c
 libbsp_a_SOURCES += ../../shared/src/irq-info.c
 libbsp_a_SOURCES += ../../shared/src/irq-legacy.c
@@ -104,7 +105,8 @@ libbsp_a_SOURCES += ../../shared/src/irq-server.c
 libbsp_a_SOURCES += ../../shared/src/irq-shell.c
 libbsp_a_SOURCES += ../shared/armv7m/irq/armv7m-irq.c
 libbsp_a_SOURCES += ../shared/armv7m/irq/armv7m-irq-dispatch.c
-libbsp_a_SOURCES += ../shared/arm-gic-irq.c
+# doesn't work for me :(
+#libbsp_a_SOURCES += ../shared/arm-gic-irq.c
 
 ###############################################################################
 #                  LibBSP                                                     #
