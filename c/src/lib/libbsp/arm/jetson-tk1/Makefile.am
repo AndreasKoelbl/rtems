@@ -10,7 +10,7 @@ dist_project_lib_DATA = bsp_specs
 
 noinst_LIBRARIES = libbspstart.a
 
-libbspstart_a_SOURCES = startup/bspreset.c
+libbspstart_a_SOURCES =
 libbspstart_a_SOURCES += ../shared/start/start.S
 
 project_lib_DATA =
@@ -54,6 +54,7 @@ include_bsp_HEADERS += ../../shared/include/irq-generic.h
 include_bsp_HEADERS += ../../shared/include/irq-info.h
 include_bsp_HEADERS += ../../shared/include/stackalloc.h
 include_bsp_HEADERS += ../shared/include/start.h
+include_bsp_HEADERS += ../shared/include/arm-gic.h
 include_bsp_HEADERS += ../shared/armv7m/include/armv7m-irq.h
 
 nodist_include_bsp_HEADERS += include/irq.h
@@ -70,6 +71,7 @@ noinst_PROGRAMS =
 libbsp_a_SOURCES = startup/bspstart.c
 libbsp_a_SOURCES += startup/bspstarthooks.c
 libbsp_a_SOURCES += startup/setvec.c
+libbsp_a_SOURCES += startup/bspreset.c
 libbsp_a_SOURCES += ../../shared/bootcard.c
 libbsp_a_SOURCES += ../../shared/bspclean.c
 libbsp_a_SOURCES += ../../shared/bsppredriverhook.c
@@ -97,6 +99,7 @@ libbsp_a_SOURCES += ../../shared/src/irq-server.c
 libbsp_a_SOURCES += ../../shared/src/irq-shell.c
 libbsp_a_SOURCES += ../shared/armv7m/irq/armv7m-irq.c
 libbsp_a_SOURCES += ../shared/armv7m/irq/armv7m-irq-dispatch.c
+libbsp_a_SOURCES += ../shared/arm-gic-irq.c
 
 ###############################################################################
 #                  LibBSP                                                     #

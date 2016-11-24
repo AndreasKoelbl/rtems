@@ -19,6 +19,7 @@
 
 #include <bsp.h>
 #include <rtems.h>
+#include <bsp/start.h>
 
 /* FIXME: do something productive here */
 BSP_START_TEXT_SECTION __attribute__((flatten)) void bsp_reset(void)
