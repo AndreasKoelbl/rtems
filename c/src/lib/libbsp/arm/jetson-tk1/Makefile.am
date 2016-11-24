@@ -10,8 +10,8 @@ dist_project_lib_DATA = bsp_specs
 
 noinst_LIBRARIES = libbspstart.a
 
-libbspstart_a_SOURCES = ../shared/start/start.S
-libbspstart_a_SOURCES += ../shared/armv7m/startup/bspreset.c
+libbspstart_a_SOURCES = startup/bspreset.c
+libbspstart_a_SOURCES += ../shared/start/start.S
 
 project_lib_DATA =
 project_lib_DATA += start.$(OBJEXT)
