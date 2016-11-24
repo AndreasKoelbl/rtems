@@ -55,7 +55,12 @@ include_bsp_HEADERS += ../../shared/include/irq-info.h
 include_bsp_HEADERS += ../../shared/include/stackalloc.h
 include_bsp_HEADERS += ../shared/include/start.h
 include_bsp_HEADERS += ../shared/include/arm-gic.h
+include_bsp_HEADERS += ../shared/include/arm-gic-regs.h
 include_bsp_HEADERS += ../shared/armv7m/include/armv7m-irq.h
+include_bsp_HEADERS += ../shared/include/arm-gic-irq.h
+
+include_libcpu_HEADERS =
+include_libcpu_HEADERS += ../../../libcpu/arm/shared/include/arm-cp15.h
 
 nodist_include_bsp_HEADERS += include/irq.h
 nodist_include_bsp_HEADERS += include/shm_driver.h

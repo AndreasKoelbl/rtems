@@ -28,6 +28,9 @@
 extern "C" {
 #endif
 
+/* FIXME value copied from altera cyclone, verify it */
+#define BSP_ARM_A9MPCORE_SCU_BASE 0xf8f00000
+
 /* functions */
 
 rtems_isr_entry set_vector(                     /* returns old vector */
