@@ -1,5 +1,6 @@
 ## Process this file with autoconf to produce a configure script.
 
+AUTOMAKE_OPTIONS([subdir-objects])
 AC_PREREQ([2.69])
 AC_INIT([rtems],[_RTEMS_VERSION],[https://devel.rtems.org/newticket])
 AC_CONFIG_SRCDIR([c])

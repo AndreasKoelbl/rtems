@@ -15,9 +15,9 @@
  * found in the file LICENSE in this distribution or at
  * http://www.rtems.org/license/LICENSE.
  */
-
 #include <rtems/irq-extension.h>
 #include <rtems/config.h>
+#include <bsp/fatal.h>
 //#include <bsp/gic.h>
 #include "../include/gic.h"
 
@@ -65,6 +65,10 @@ static void jetsontk1_support_initialize_hardware( void )
   */
 }
 
+static void jetsontk1_support_shutdown_hardware( void )
+{
+}
+
 static void jetsontk1_support_install_isr(rtems_interrupt_handler isr)
 {
   rtems_status_code sc;
@@ -96,6 +100,8 @@ static void jetsontk1_support_at_tick( void )
 #define Clock_driver_support_install_isr( isr, old ) \
   jetsontk1_support_install_isr( isr )
 #define Clock_driver_support_initialize_hardware() \
+  jetsontk1_support_initialize_hardware()
+#define Clock_driver_support_shutdown_hardware() \
   jetsontk1_support_initialize_hardware()
 
 /* Indicate that this clock driver lacks a proper timecounter in hardware */

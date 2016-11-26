@@ -17,8 +17,38 @@
 
 #include <bsp.h>
 #include <console.h>
+#include "../include/jetson-tk1.h"
 #include <rtems/bspIo.h>
 #include <rtems/sysinit.h>
+
+#define JAILHOUSE_HC_DEBUG_CONSOLE_PUTC 8
+
+void hypervisor_putc(char c)
+{
+	register uint32_t num_res asm("r0") = JAILHOUSE_HC_DEBUG_CONSOLE_PUTC;
+	register uint32_t arg1 asm("r1") = c;
+
+	asm volatile(
+		".arch_extension virt\n\t"
+		"hvc #0x4a48\n\t"
+		: "=r" (num_res)
+		: "r" (num_res), "r" (arg1)
+		: "memory");
+}
+
+void jailhouse_dbgcon_write(
+  rtems_termios_device_context *base,
+  const char                   *buf,
+  size_t                        len
+)
+{
+  size_t i;
+  jetsontk1_driver_context *ctx = (jetsontk1_driver_context *) base;
+
+	for (i = 0; i < len; i++) {
+		hypervisor_putc(buf[i]);
+	}
+}
 
 static void jetsontk1_debug_console_out(char c)
 {
