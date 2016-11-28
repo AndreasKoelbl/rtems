@@ -7,12 +7,9 @@
  */
 
 MEMORY {
-  /* Beagleboards and beaglebones all
-   * have either 256M or 512M memory. We just
-   * use 256M for all.
-   */
-  RAM      : ORIGIN = 0x80000000, LENGTH = 256M - 4M
-  RAM_MMU  : ORIGIN = 0x80000000 + 256M - 4M, LENGTH = 16k
+  VECTOR_RAM (AIW)  : ORIGIN = 0x00000000, LENGTH = 16k
+  RAM_MMU           : ORIGIN = 0x00000000 + 16k, LENGTH = 16k
+  RAM               : ORIGIN = 0x00000000 + 32k, LENGTH = 64M - 32k
 }
 
 REGION_ALIAS ("REGION_START",          RAM);
@@ -45,4 +42,4 @@ bsp_translation_table_end = ORIGIN (RAM_MMU) + LENGTH (RAM_MMU);
 
 INCLUDE linkcmds.armv4
 
-HeapSize = 1024 * 1024;
+/* HeapSize = 1024 * 1024; */

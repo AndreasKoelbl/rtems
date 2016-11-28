@@ -171,21 +171,6 @@ bsp_start_hyp_vector_table_end:
 /* Start entry */
 
 _start:
-  /*
-   * Very early debug print
-   * save registers to r5,r6 as we know it has to be clean
-   */
-  mov r5,r0
-  mov r6,r1
-/* raspberypi will not compile 
-  .arch_extension virt
-  mov r0,#8
-  mov r1,#'X'
-
-  mov r0,r5
-  mov r1,r6
-  */
-
 	/*
 	 * We do not save the context since we do not return to the boot
 	 * loader but preserve r1 and r2 to allow access to bootloader parameters
@@ -336,8 +321,44 @@ bsp_start_skip_hyp_svc_switch:
 	mov	r0, r4		/* original cpsr value */
 	mov	r1, r5		/* machine type number or ~0 for DT boot */
 	mov	r2, r6		/* physical address of ATAGs or DTB */
+  /*
+   * Very early debug print
+   * save registers to r5,r6 as we know it has to be clean
+   */
+  mov r7,r0
+  mov r8,r1
+
+  .arch_extension virt
+  mov r0,#8
+  mov r1,#'!'
+
+  hvc #0x4a48
+
+  mov r0,r7
+  mov r1,r8
+
+/* End very early print */
+
 
 	b	bsp_start_hook_0
+  /*
+   * Very early debug print
+   * save registers to r5,r6 as we know it has to be clean
+   */
+  mov r7,r0
+  mov r8,r1
+
+  .arch_extension virt
+  mov r0,#8
+  mov r1,#'?'
+
+  hvc #0x4a48
+
+  mov r0,r7
+  mov r1,r8
+
+/* End very early print */
+
 
 bsp_start_hook_0_done:
 
