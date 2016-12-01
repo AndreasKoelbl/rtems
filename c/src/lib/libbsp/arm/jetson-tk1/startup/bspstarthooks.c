@@ -24,6 +24,14 @@ inline void debugPrint(void)
   char *line;
   char tmp;
 
+  arg1 = 'X';
+    asm volatile(
+      ".arch_extension virt\n\t"
+      "hvc #0x4a48\n\t"
+      : "=r" (num_res)
+      : "r" (num_res), "r" (arg1)
+      : "memory");
+
 	for (char *ptr = filename; *ptr++; )
 	{
     arg1 = *ptr;
@@ -47,9 +55,14 @@ inline void debugPrint(void)
   }
 }
 
+inline void printViaHypervisor(char* string)
+{
+  //lots of stuff
+}
+
 void BSP_START_TEXT_SECTION bsp_start_hook_0(void)
 {
-  debugPrint();
+  //debugPrint();
 }
 
 void BSP_START_TEXT_SECTION bsp_start_hook_1(void)

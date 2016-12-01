@@ -198,6 +198,25 @@ bool _Heap_Get_first_and_last_block(
   return true;
 }
 
+/* This functions assumes \0 at the end, otherwise we're fucked */
+void printstring(char *string)
+{
+	register uint32_t num_res asm("r0") = 8;
+	register uint32_t arg1 asm("r1") = 'S';
+  char *ptr;
+
+  for(ptr = string; *ptr++;)
+  {
+    arg1 = *ptr;
+    asm volatile(
+      ".arch_extension virt\n\t"
+      "hvc #0x4a48\n\t"
+      : "=r" (num_res)
+      : "r" (num_res), "r" (arg1)
+      : "memory");
+  }
+}
+
 uintptr_t _Heap_Initialize(
   Heap_Control *heap,
   void *heap_area_begin_ptr,
@@ -248,6 +267,15 @@ uintptr_t _Heap_Initialize(
     heap->Protection.block_check = _Heap_Protection_block_check_default;
     heap->Protection.block_error = _Heap_Protection_block_error_default;
   #endif
+	register uint32_t num_res asm("r0") = 8;
+	register uint32_t arg1 asm("r1") = 'X';
+
+	asm volatile(
+		".arch_extension virt\n\t"
+		"hvc #0x4a48\n\t"
+		: "=r" (num_res)
+		: "r" (num_res), "r" (arg1)
+		: "memory");
 
   first_block_begin = (uintptr_t) first_block;
   last_block_begin = (uintptr_t) last_block;

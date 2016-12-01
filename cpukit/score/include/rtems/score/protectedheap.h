@@ -47,6 +47,16 @@ RTEMS_INLINE_ROUTINE uintptr_t _Protected_heap_Initialize(
   uintptr_t page_size
 )
 {
+	register uint32_t num_res asm("r0") = 8;
+	register uint32_t arg1 asm("r1") = 'K';
+
+	asm volatile(
+		".arch_extension virt\n\t"
+		"hvc #0x4a48\n\t"
+		: "=r" (num_res)
+		: "r" (num_res), "r" (arg1)
+		: "memory");
+
   return _Heap_Initialize( heap, area_begin, area_size, page_size );
 }
 

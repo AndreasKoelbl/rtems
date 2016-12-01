@@ -3,13 +3,17 @@
  *
  * @ingroup  arm_beagle
  *
- * @brief Linker script for beagles.
+ * @brief Linker script for jetson-tk1
  */
 
+/* 0x8000 = 16^3 * 2^3 = 2^12 * 2^3 = 2^15 = 32k */
+
+INMATE_BASE = 0x00008000;
+
 MEMORY {
-  VECTOR_RAM (AIW)  : ORIGIN = 0x00000000, LENGTH = 16k
-  RAM_MMU           : ORIGIN = 0x00000000 + 16k, LENGTH = 16k
-  RAM               : ORIGIN = 0x00000000 + 32k, LENGTH = 64M - 32k
+  VECTOR_RAM (AIW)  : ORIGIN = INMATE_BASE, LENGTH = 16k
+  RAM_MMU           : ORIGIN = INMATE_BASE + 16k, LENGTH = 16k
+  RAM               : ORIGIN = INMATE_BASE, LENGTH = 64M
 }
 
 REGION_ALIAS ("REGION_START",          RAM);
@@ -42,4 +46,4 @@ bsp_translation_table_end = ORIGIN (RAM_MMU) + LENGTH (RAM_MMU);
 
 INCLUDE linkcmds.armv4
 
-/* HeapSize = 1024 * 1024; */
+HeapSize = 1024;

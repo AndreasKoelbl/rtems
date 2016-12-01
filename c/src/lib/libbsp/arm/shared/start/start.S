@@ -175,6 +175,25 @@ _start:
 	 * We do not save the context since we do not return to the boot
 	 * loader but preserve r1 and r2 to allow access to bootloader parameters
 	 */
+  /*
+   * Very early debug print
+   * save registers to r5,r6 as we know it has to be clean
+   */
+  mov r7,r0
+  mov r8,r1
+
+  .arch_extension virt
+  mov r0,#8
+  mov r1,#'L'
+
+  hvc #0x4a48
+
+  mov r0,r7
+  mov r1,r8
+
+/* End very early print */
+
+
 #ifndef BSP_START_NEEDS_REGISTER_INITIALIZATION
 	mov	r5, r1		/* machine type number or ~0 for DT boot */
 	mov	r6, r2		/* physical address of ATAGs or DTB */
@@ -321,7 +340,7 @@ bsp_start_skip_hyp_svc_switch:
 	mov	r0, r4		/* original cpsr value */
 	mov	r1, r5		/* machine type number or ~0 for DT boot */
 	mov	r2, r6		/* physical address of ATAGs or DTB */
-  /*
+/*
    * Very early debug print
    * save registers to r5,r6 as we know it has to be clean
    */
@@ -330,7 +349,7 @@ bsp_start_skip_hyp_svc_switch:
 
   .arch_extension virt
   mov r0,#8
-  mov r1,#'!'
+  mov r1,#'A'
 
   hvc #0x4a48
 
@@ -350,7 +369,7 @@ bsp_start_skip_hyp_svc_switch:
 
   .arch_extension virt
   mov r0,#8
-  mov r1,#'?'
+  mov r1,#'B'
 
   hvc #0x4a48
 

@@ -28,6 +28,8 @@
 extern "C" {
 #endif
 
+#define INMATE_BASE 0x00008000
+
 /* FIXME values copied from altera cyclone, verify it */
 #define BSP_ARM_A9MPCORE_SCU_BASE 0xf8f00000
 #define BSP_ARM_GIC_CPUIF_BASE ( BSP_ARM_A9MPCORE_SCU_BASE + 0x00000100 )
