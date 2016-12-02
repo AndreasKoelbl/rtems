@@ -140,6 +140,14 @@ $(PROJECT_INCLUDE)/bsp/arm-gic-irq.h: ../shared/include/arm-gic-irq.h $(PROJECT_
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/arm-gic-irq.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/arm-gic-irq.h
 
+$(PROJECT_INCLUDE)/bsp/arm-cp15-start.h: ../shared/include/arm-cp15-start.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/arm-cp15-start.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/arm-cp15-start.h
+
+$(PROJECT_INCLUDE)/bsp/mm.h: ../../../libbsp/shared/include/mm.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/mm.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/mm.h
+
 $(PROJECT_INCLUDE)/libcpu/arm-cp15.h: ../../../libcpu/arm/shared/include/arm-cp15.h $(PROJECT_INCLUDE)/libcpu/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/libcpu/arm-cp15.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/libcpu/arm-cp15.h

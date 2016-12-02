@@ -58,6 +58,8 @@ include_bsp_HEADERS += ../shared/include/arm-gic.h
 include_bsp_HEADERS += ../shared/include/arm-gic-regs.h
 include_bsp_HEADERS += ../shared/armv7m/include/armv7m-irq.h
 include_bsp_HEADERS += ../shared/include/arm-gic-irq.h
+include_bsp_HEADERS += ../shared/include/arm-cp15-start.h
+include_bsp_HEADERS += ../../../libbsp/shared/include/mm.h
 
 include_libcpu_HEADERS =
 include_libcpu_HEADERS += ../../../libcpu/arm/shared/include/arm-cp15.h
@@ -116,6 +118,11 @@ libbsp_a_SOURCES += ../../../libcpu/shared/src/cache_manager.c
 libbsp_a_SOURCES += ../shared/include/arm-cache-l1.h
 libbsp_a_SOURCES += ../shared/armv467ar-basic-cache/cache_.h
 libbsp_a_CPPFLAGS = -I$(srcdir)/../shared/armv467ar-basic-cache
+
+# Memory Management
+libbsp_a_SOURCES += ../shared/mminit.c
+libbsp_a_SOURCES += startup/mm_config_table.c
+libbsp_a_SOURCES += ../shared/startup/bsp-start-memcpy.S
 
 ###############################################################################
 #                  LibBSP                                                     #

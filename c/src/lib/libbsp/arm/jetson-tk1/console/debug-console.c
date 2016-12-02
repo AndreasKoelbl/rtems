@@ -17,7 +17,7 @@
 
 #include <bsp.h>
 #include <console.h>
-#include "../include/jetson-tk1.h"
+#include <bsp/jetson-tk1.h>
 #include <rtems/bspIo.h>
 #include <rtems/sysinit.h>
 

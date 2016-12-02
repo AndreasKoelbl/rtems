@@ -14,23 +14,21 @@
 
 #include <bsp.h>
 #include <bsp/start.h>
+#include <libcpu/arm-cp15.h>
+
+#ifdef RTEMS_SMP
+#include <rtems/score/smp.h>
+#endif
 
 inline void debugPrint(void)
 {
+/*
 	register uint32_t num_res asm("r0") = 8;
 	register uint32_t arg1 asm("r1") = '\0';
 
 	char *filename = __FILE__;
   char *line;
   char tmp;
-
-  arg1 = 'X';
-    asm volatile(
-      ".arch_extension virt\n\t"
-      "hvc #0x4a48\n\t"
-      : "=r" (num_res)
-      : "r" (num_res), "r" (arg1)
-      : "memory");
 
 	for (char *ptr = filename; *ptr++; )
 	{
@@ -53,6 +51,7 @@ inline void debugPrint(void)
       : "r" (num_res), "r" (arg1)
       : "memory");
   }
+  */
 }
 
 inline void printViaHypervisor(char* string)
@@ -60,11 +59,75 @@ inline void printViaHypervisor(char* string)
   //lots of stuff
 }
 
+#undef RTEMS_SMP
+
 void BSP_START_TEXT_SECTION bsp_start_hook_0(void)
 {
-  //debugPrint();
-}
+  uint32_t sctlr_val;
+#ifdef RTEMS_SMP
+  uint32_t cpu_index_self = _SMP_Get_current_processor();
+#endif /* RTEMS_SMP */
 
+  sctlr_val = arm_cp15_get_control();
+
+  /*
+   * Current U-boot loader seems to start kernel image
+   * with I and D caches on and MMU enabled.
+   * If RTEMS application image finds that cache is on
+   * during startup then disable caches.
+   */
+  if (sctlr_val & (ARM_CP15_CTRL_I | ARM_CP15_CTRL_C | ARM_CP15_CTRL_M)) {
+    if (sctlr_val & (ARM_CP15_CTRL_C | ARM_CP15_CTRL_M)) {
+      /*
+       * If the data cache is on then ensure that it is clean
+       * before switching off to be extra carefull.
+       */
+#ifdef RTEMS_SMP
+      if (cpu_index_self != 0) {
+        arm_cp15_data_cache_clean_level(0);
+        arm_cp15_cache_invalidate_level(0, 0);
+      } else
+#endif /* RTEMS_SMP */
+      {
+        rtems_cache_flush_entire_data();
+        rtems_cache_invalidate_entire_data();
+      }
+    }
+    arm_cp15_flush_prefetch_buffer();
+    sctlr_val &= ~(ARM_CP15_CTRL_I | ARM_CP15_CTRL_C | ARM_CP15_CTRL_M | ARM_CP15_CTRL_A);
+    arm_cp15_set_control(sctlr_val);
+  }
+#ifdef RTEMS_SMP
+  if (cpu_index_self != 0) {
+    arm_cp15_cache_invalidate_level(0, 0);
+  } else
+#endif /* RTEMS_SMP */
+  {
+    rtems_cache_invalidate_entire_data();
+  }
+  rtems_cache_invalidate_entire_instruction();
+  arm_cp15_branch_predictor_invalidate_all();
+  arm_cp15_tlb_invalidate();
+  arm_cp15_flush_prefetch_buffer();
+
+  /* Clear Translation Table Base Control Register */
+  arm_cp15_set_translation_table_base_control_register(0);
+
+  /* Clear Secure or Non-secure Vector Base Address Register */
+  arm_cp15_set_vector_base_address(0x8000);
+
+#ifdef RTEMS_SMP
+  if (cpu_index_self == 0) {
+    rpi_ipi_initialize();
+  } else {
+    rpi_start_rtems_on_secondary_processor();
+  }
+#endif
+}
 void BSP_START_TEXT_SECTION bsp_start_hook_1(void)
 {
+  bsp_start_copy_sections();
+  bsp_memory_management_initialize();
+  bsp_start_clear_bss();
+  debugPrint();
 }
