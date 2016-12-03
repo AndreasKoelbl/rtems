@@ -68,25 +68,54 @@ static void writechar(char out)
 		: "memory");
 }
 
-void int2bin(int value, char *placeholder)
+void swap(char *first, char *second)
 {
- char *tmp;
- int cnt = 31;
- tmp = placeholder;
- while ( cnt > -1 ){
-      placeholder[cnt]= '0';
-      cnt --;
- }
- cnt = 31;
- while (value  > 0){
-    if (value % 2 == 1){
-      placeholder[cnt] = '1';
-    }
-    cnt--;
-    value = value/2 ;
- }
- return;
+  char temp = *first;
+  *first = *second;
+  *second = temp;
+}
 
+void reverse(char str[], int length)
+{
+    int start = 0;
+    int end = length -1;
+    while (start < end)
+    {
+        swap(*(str+start), *(str+end));
+        start++;
+        end--;
+    }
+}
+
+// Implementation of itoa()
+char* itoa(uint32_t num, char* str, uint32_t base)
+{
+    int i = 0;
+
+    /* Handle 0 explicitely, otherwise empty string is printed for 0 */
+    if (num == 0)
+    {
+        str[i++] = '0';
+        str[i] = '\0';
+        return str;
+    }
+
+    // In standard itoa(), negative numbers are handled only with
+    // base 10. Otherwise numbers are considered unsigned.
+    // Process individual digits
+    while (num != 0)
+    {
+        int rem = num % base;
+        str[i++] = (rem > 9)? (rem-10) + 'a' : rem + '0';
+        num = num/base;
+    }
+
+    str[i] = '\0'; // Append string terminator
+
+    // Reverse the string
+    reverse(str, i);
+
+    return str;
 }
 
 /*
@@ -107,6 +136,7 @@ void boot_card(
   register uint32_t framepointer asm("fp");
 
   char target[32];
+  char* result;
   /*
    *  Make sure interrupts are disabled.
    */
@@ -117,13 +147,13 @@ void boot_card(
 
   writechar('I');
 
-  int2bin(stackpointer, target);
+  result = itoa(stackpointer, target, 16);
   for (uint8_t j = 0; j < 32; j++)
   {
     writechar(target[j]);
   }
 
-  int2bin(framepointer, target);
+  result = itoa(framepointer, target, 16);
   for (uint8_t j = 0; j < 32; j++)
   {
     writechar(target[j]);
