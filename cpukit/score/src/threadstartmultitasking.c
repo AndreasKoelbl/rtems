@@ -38,7 +38,6 @@ void _Thread_Start_multitasking( void )
 {
   Per_CPU_Control *cpu_self = _Per_CPU_Get();
   Thread_Control  *heir;
-  writechar('M');
 
 #if defined(RTEMS_SMP)
   _Per_CPU_State_change( cpu_self, PER_CPU_STATE_UP );
@@ -77,4 +76,5 @@ void _Thread_Start_multitasking( void )
 #else
   _CPU_Context_Restart_self( &heir->Registers );
 #endif
+  writechar('O');
 }

@@ -184,7 +184,7 @@ _start:
 
   .arch_extension virt
   mov r0,#8
-  mov r1,#'L'
+  mov r1,#'A'
 
   hvc #0x4a48
 
