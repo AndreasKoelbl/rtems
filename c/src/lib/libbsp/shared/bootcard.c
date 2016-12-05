@@ -31,6 +31,12 @@
 #include <rtems.h>
 #include <rtems/sysinit.h>
 
+#define JMP(addr) \
+    asm volatile("mov pc,%0" \
+            : /*output*/ \
+            : /*input*/ \
+            "r" (addr) \
+           );
 /*
  *  At most a single pointer to the cmdline for those target
  *  short on memory and not supporting a command line.
@@ -140,6 +146,7 @@ void boot_card(
 
   register uint32_t stackpointer asm("sp");
   register uint32_t framepointer asm("fp");
+  register uint32_t linkregister asm("lr");
 
   char target[32];
   char* result;
@@ -150,6 +157,7 @@ void boot_card(
   rtems_interrupt_local_disable( bsp_isr_level );
 
   bsp_boot_cmdline = cmdline;
+  writechar('\n');
 
   writechar(' ');
   writechar('0');
@@ -160,6 +168,7 @@ void boot_card(
   {
     writechar(result[j]);
   }
+  writechar('\n');
 
   writechar(' ');
   writechar('0');
@@ -172,6 +181,18 @@ void boot_card(
   }
   writechar('\n');
 
+  writechar(' ');
+  writechar('0');
+  writechar('x');
+
+  result = itoa(linkregister, target, 16, &size);
+  for (uint8_t j = 0; j < size; j++)
+  {
+    writechar(result[j]);
+  }
+  writechar('\n');
+
+  asm volatile("mov pc,%0" : : "r" (0xe14c) );
   rtems_initialize_executive();
 
   /***************************************************************
