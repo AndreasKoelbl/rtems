@@ -88,7 +88,7 @@ void reverse(char str[], int length)
 }
 
 // Implementation of itoa()
-char* itoa(uint32_t num, char* str, uint32_t base)
+char* itoa(uint32_t num, char* str, uint32_t base, int* size)
 {
     int i = 0;
 
@@ -100,20 +100,30 @@ char* itoa(uint32_t num, char* str, uint32_t base)
         return str;
     }
 
-    // In standard itoa(), negative numbers are handled only with
-    // base 10. Otherwise numbers are considered unsigned.
-    // Process individual digits
+    else {
+      str[i++] = '0';
+      str[i++] = 'x';
+    }
+
     while (num != 0)
     {
         int rem = num % base;
-        str[i++] = (rem > 9)? (rem-10) + 'a' : rem + '0';
-        num = num/base;
+        if (rem > 9)
+        {
+          str[i++] = 'A' + (rem - 10);
+        }
+        else
+        {
+          str[i++] = '0' + rem;
+        }
+        num /= base;
     }
 
     str[i] = '\0'; // Append string terminator
 
     // Reverse the string
     reverse(str, i);
+    *size = i;
 
     return str;
 }
@@ -129,13 +139,14 @@ void boot_card(
 )
 {
   rtems_interrupt_level  bsp_isr_level;
+  int size;
 
   register uint32_t num_res asm("r0") = 8;
 
   register uint32_t stackpointer asm("sp");
   register uint32_t framepointer asm("fp");
 
-  char target[32];
+  char target[34];
   char* result;
   /*
    *  Make sure interrupts are disabled.
@@ -147,14 +158,14 @@ void boot_card(
 
   writechar('I');
 
-  result = itoa(stackpointer, target, 16);
-  for (uint8_t j = 0; j < 32; j++)
+  result = itoa(stackpointer, target, 16, &size);
+  for (uint8_t j = 0; j < size; j++)
   {
     writechar(target[j]);
   }
 
-  result = itoa(framepointer, target, 16);
-  for (uint8_t j = 0; j < 32; j++)
+  result = itoa(framepointer, target, 16, &size);
+  for (uint8_t j = 0; j < size; j++)
   {
     writechar(target[j]);
   }
