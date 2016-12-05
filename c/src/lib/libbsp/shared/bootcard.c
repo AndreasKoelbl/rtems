@@ -100,11 +100,6 @@ char* itoa(uint32_t num, char* str, uint32_t base, int* size)
         return str;
     }
 
-    else {
-      str[i++] = '0';
-      str[i++] = 'x';
-    }
-
     while (num != 0)
     {
         int rem = num % base;
@@ -146,7 +141,7 @@ void boot_card(
   register uint32_t stackpointer asm("sp");
   register uint32_t framepointer asm("fp");
 
-  char target[34];
+  char target[32];
   char* result;
   /*
    *  Make sure interrupts are disabled.
@@ -156,21 +151,26 @@ void boot_card(
 
   bsp_boot_cmdline = cmdline;
 
-  writechar('I');
+  writechar(' ');
+  writechar('0');
+  writechar('x');
 
   result = itoa(stackpointer, target, 16, &size);
   for (uint8_t j = 0; j < size; j++)
   {
-    writechar(target[j]);
+    writechar(result[j]);
   }
+
+  writechar(' ');
+  writechar('0');
+  writechar('x');
 
   result = itoa(framepointer, target, 16, &size);
   for (uint8_t j = 0; j < size; j++)
   {
-    writechar(target[j]);
+    writechar(result[j]);
   }
-
-
+  writechar('\n');
 
   rtems_initialize_executive();
 
