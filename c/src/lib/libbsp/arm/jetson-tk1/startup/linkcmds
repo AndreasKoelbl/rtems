@@ -8,12 +8,12 @@
 
 /* 0x8000 = 16^3 * 2^3 = 2^12 * 2^3 = 2^15 = 32k */
 
-INMATE_BASE = 0x00008000;
+INMATE_BASE = 0x00000000;
 
 MEMORY {
   VECTOR_RAM (AIW)  : ORIGIN = INMATE_BASE, LENGTH = 16k
   RAM_MMU           : ORIGIN = INMATE_BASE + 16k, LENGTH = 16k
-  RAM               : ORIGIN = INMATE_BASE, LENGTH = 64M
+  RAM               : ORIGIN = INMATE_BASE + 32k, LENGTH = 64M - 32k
 }
 
 REGION_ALIAS ("REGION_START",          RAM);
@@ -42,9 +42,8 @@ bsp_section_rwbarrier_align = DEFINED (bsp_section_rwbarrier_align) ? bsp_sectio
 bsp_vector_table_in_start_section = 1;
 
 bsp_translation_table_base = ORIGIN (RAM_MMU);
-bsp_translation_table_end = ORIGIN (RAM_MMU) + LENGTH (RAM_MMU);
+bsp_translation_table_end = ORIGIN (RAM_MMU) + 0x4000;
 
 INCLUDE linkcmds.armv7m
 
 HeapSize = DEFINED(HeapSize) ? HeapSize : 1024*1024;
-StackSize = DEFINED(StackSize) ? StackSize : 1024*1024;
