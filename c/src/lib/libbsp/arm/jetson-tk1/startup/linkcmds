@@ -1,7 +1,7 @@
 /**
  * @file
  *
- * @ingroup  arm_beagle
+ * @ingroup  arm_jetsontk1
  *
  * @brief Linker script for jetson-tk1
  */
@@ -46,4 +46,5 @@ bsp_translation_table_end = ORIGIN (RAM_MMU) + LENGTH (RAM_MMU);
 
 INCLUDE linkcmds.armv7m
 
-HeapSize = 1024;
+HeapSize = DEFINED(HeapSize) ? HeapSize : 1024*1024;
+StackSize = DEFINED(StackSize) ? StackSize : 1024*1024;
