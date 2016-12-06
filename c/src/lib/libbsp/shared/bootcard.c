@@ -61,74 +61,6 @@ RTEMS_SYSINIT_ITEM(
   RTEMS_SYSINIT_ORDER_MIDDLE
 );
 
-static void writechar(char out)
-{
-  register uint32_t num_res asm("r0") = 8;
-	register uint32_t arg1 asm("r1") = out;
-
-	asm volatile(
-		".arch_extension virt\n\t"
-		"hvc #0x4a48\n\t"
-		: "=r" (num_res)
-		: "r" (num_res), "r" (arg1)
-		: "memory");
-}
-
-static void swap(char *first, char *second)
-{
-  char temp = *first;
-  *first = *second;
-  *second = temp;
-}
-
-static void reverse(char str[], int length)
-{
-    int start = 0;
-    int end = length -1;
-    while (start < end)
-    {
-        swap(*(str+start), *(str+end));
-        start++;
-        end--;
-    }
-}
-
-// Implementation of itoa()
-char* myitoa(uint32_t num, char* str, uint32_t base, int* size)
-{
-    int i = 0;
-
-    /* Handle 0 explicitely, otherwise empty string is printed for 0 */
-    if (num == 0)
-    {
-        str[i++] = '0';
-        str[i] = '\0';
-        return str;
-    }
-
-    while (num != 0)
-    {
-        int rem = num % base;
-        if (rem > 9)
-        {
-          str[i++] = 'A' + (rem - 10);
-        }
-        else
-        {
-          str[i++] = '0' + rem;
-        }
-        num /= base;
-    }
-
-    str[i] = '\0'; // Append string terminator
-
-    // Reverse the string
-    reverse(str, i);
-    *size = i;
-
-    return str;
-}
-
 /*
  *  This is the initialization framework routine that weaves together
  *  calls to RTEMS and the BSP in the proper sequence to initialize
@@ -140,16 +72,6 @@ void boot_card(
 )
 {
   rtems_interrupt_level  bsp_isr_level;
-  int size;
-
-  register uint32_t num_res asm("r0") = 8;
-
-  register uint32_t stackpointer asm("sp");
-  register uint32_t framepointer asm("fp");
-  register uint32_t linkregister asm("lr");
-
-  char target[16];
-  char* result;
 
   /*
    *  Make sure interrupts are disabled.
@@ -158,46 +80,6 @@ void boot_card(
   rtems_interrupt_local_disable( bsp_isr_level );
 
   bsp_boot_cmdline = cmdline;
-
-  writechar('\n');
-
-  writechar(' ');
-  writechar('0');
-  writechar('x');
-
-  result = myitoa(stackpointer, target, 16, &size);
-  for (uint8_t j = 0; j < size; j++)
-  {
-    writechar(result[j]);
-  }
-  writechar('\n');
-
-  writechar(' ');
-  writechar('0');
-  writechar('x');
-
-  result = myitoa(framepointer, target, 16, &size);
-  for (uint8_t j = 0; j < size; j++)
-  {
-    writechar(result[j]);
-  }
-  writechar('\n');
-
-  writechar(' ');
-  writechar('0');
-  writechar('x');
-
-  result = myitoa(linkregister, target, 16, &size);
-  for (uint8_t j = 0; j < size; j++)
-  {
-    writechar(result[j]);
-  }
-
-  writechar('\n');
-
-  /* This will never get executed */
-//  asm volatile("mov pc,%0" : : "r" (0xe140) );
-//  writechar('|');
   rtems_initialize_executive();
 
   /***************************************************************

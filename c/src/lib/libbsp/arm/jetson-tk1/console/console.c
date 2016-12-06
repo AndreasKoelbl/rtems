@@ -41,6 +41,73 @@ static jetsontk1_uart_context jetsontk1_uart_instances[] = { {
 }
 };
 
+static void writechar(char out)
+{
+  register uint32_t num_res asm("r0") = 8;
+	register uint32_t arg1 asm("r1") = out;
+
+	asm volatile(
+		".arch_extension virt\n\t"
+		"hvc #0x4a48\n\t"
+		: "=r" (num_res)
+		: "r" (num_res), "r" (arg1)
+		: "memory");
+}
+
+static void swap(char *first, char *second)
+{
+  char temp = *first;
+  *first = *second;
+  *second = temp;
+}
+
+static void reverse(char str[], int length)
+{
+    int start = 0;
+    int end = length -1;
+    while (start < end)
+    {
+        swap(*(str+start), *(str+end));
+        start++;
+        end--;
+    }
+}
+
+char* myitoa(uint32_t num, char* str, uint32_t base, int* size)
+{
+    int i = 0;
+
+    /* Handle 0 explicitely, otherwise empty string is printed for 0 */
+    if (num == 0)
+    {
+        str[i++] = '0';
+        str[i] = '\0';
+        return str;
+    }
+
+    while (num != 0)
+    {
+        int rem = num % base;
+        if (rem > 9)
+        {
+          str[i++] = 'A' + (rem - 10);
+        }
+        else
+        {
+          str[i++] = '0' + rem;
+        }
+        num /= base;
+    }
+
+    str[i] = '\0'; // Append string terminator
+
+    // Reverse the string
+    reverse(str, i);
+    *size = i;
+
+    return str;
+}
+
 void hypervisor_putc(char c)
 {
 	register uint32_t num_res asm("r0") = JAILHOUSE_HC_DEBUG_CONSOLE_PUTC;
