@@ -16,6 +16,7 @@ libbspstart_a_SOURCES += ../shared/start/start.S
 project_lib_DATA =
 project_lib_DATA += start.$(OBJEXT)
 project_lib_DATA += startup/linkcmds
+project_lib_DATA += ../shared/startup/linkcmds.base
 project_lib_DATA += ../shared/startup/linkcmds.armv7m
 
 EXTRA_DIST = startup/linkcmds

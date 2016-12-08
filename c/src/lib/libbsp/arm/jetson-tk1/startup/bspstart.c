@@ -18,7 +18,7 @@
  */
 
 #include <bsp.h>
-#include "../../../shared/include/irq-generic.h"
+#include <bsp/irq-generic.h>
 
 /*
  *  bsp_start
