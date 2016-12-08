@@ -141,7 +141,7 @@
  * the specified section.
  */
 #if defined(__GNUC__)
-  #define RTEMS_SECTION( _section ) __attribute__((__section__(_section)))
+  #define RTEMS_SECTION( _section ) __attribute__((aligned(32))) __attribute__((__section__(_section)))
 #else
   #define RTEMS_SECTION( _section )
 #endif

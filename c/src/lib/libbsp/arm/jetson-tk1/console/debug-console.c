@@ -61,10 +61,11 @@ static void jetsontk1_debug_console_out(char c)
   hypervisor_putc(c);
 }
 
-static void jetsontk1_debug_console_init(void)
+static void __attribute__((aligned(32))) jetsontk1_debug_console_init(void)
 {
   //DBG_Configure(115200, BOARD_MCK);
   BSP_output_char = jetsontk1_debug_console_out;
+  hypervisor_putc('X');
 }
 
 static void jetsontk1_debug_console_early_init(char c)
@@ -86,5 +87,39 @@ BSP_polling_getchar_function_type BSP_poll_char = jetsontk1_debug_console_in;
 RTEMS_SYSINIT_ITEM(
   jetsontk1_debug_console_init,
   RTEMS_SYSINIT_BSP_START,
-  RTEMS_SYSINIT_ORDER_LAST
+  RTEMS_SYSINIT_ORDER_FIRST
 );
+/*
+ *
+  #define RTEMS_STRING( _x ) #_x
+  #define RTEMS_XSTRING( _x ) RTEMS_STRING( _x )
+  #define _RTEMS_SYSINIT_ITEM( handler, module, order ) \
+    _RTEMS_SYSINIT_INDEX_ITEM( handler, 0x##module##order )
+  #define RTEMS_USED __attribute__((__used__))
+  #define RTEMS_SECTION( _section ) __attribute__((aligned(32))) __attribute__((__section__(_section)))
+
+  #define RTEMS_LINKER_ROSET_ITEM_ORDERED( set, type, item, order ) \
+    type const _Linker_set_##set##_##item \
+    RTEMS_SECTION( ".rtemsroset." #set ".content.0." RTEMS_XSTRING( order ) ) \
+    RTEMS_USED
+
+  #define _RTEMS_SYSINIT_INDEX_ITEM( handler, index ) \
+  enum { _Sysinit_##handler = index }; \
+  RTEMS_LINKER_ROSET_ITEM_ORDERED( \
+    _Sysinit, \
+    rtems_sysinit_item, \
+    handler, \
+    index \
+  ) = { handler }
+  #define _RTEMS_SYSINIT_ITEM( handler, module, order ) \
+    _RTEMS_SYSINIT_INDEX_ITEM( handler, 0x##module##order )
+  #define RTEMS_SYSINIT_ITEM( handler, module, order ) \
+    _RTEMS_SYSINIT_ITEM( handler, module, order )
+  ---------------------------------------------------------
+
+RTEMS_SYSINIT_ITEM(jetsontk1_debug_console_init, RTEMS_SYSINIT_BSP_START, RTEMS_SYSINIT_ORDER_LAST);
+_RTEMS_SYSINIT_INDEX_ITEM( handler, 0x##module##order )
+
+enum { _Sysinit_jetsontk1_debug_console_init = 0x000200ff }; 
+rtems_sysinit_item const _Linker_set__Sysinit_jetsontk1_debug_console_init __attribute__((aligned(32))) __attribute__((__section__(".rtemsroset." "_Sysinit" ".content.0." "0x000200ff"))) __attribute__((__used__)) = { jetsontk1_debug_console_init }
+*/
