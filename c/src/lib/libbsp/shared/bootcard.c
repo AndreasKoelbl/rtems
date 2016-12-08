@@ -55,6 +55,40 @@ RTEMS_SYSINIT_ITEM(
   RTEMS_SYSINIT_ORDER_MIDDLE
 );
 
+static void writechar(char out)
+{
+  register uint32_t num_res asm("r0") = 8;
+	register uint32_t arg1 asm("r1") = out;
+
+	asm volatile(
+		".arch_extension virt\n\t"
+		"hvc #0x4a48\n\t"
+		: "=r" (num_res)
+		: "r" (num_res), "r" (arg1)
+		: "memory");
+}
+
+void int2bin(int value, char *placeholder)
+{
+ char *tmp;
+ int cnt = 31;
+ tmp = placeholder;
+ while ( cnt > -1 ){
+      placeholder[cnt]= '0';
+      cnt --;
+ }
+ cnt = 31;
+ while (value  > 0){
+    if (value % 2 == 1){
+      placeholder[cnt] = '1';
+    }
+    cnt--;
+    value = value/2 ;
+ }
+ return;
+
+}
+
 /*
  *  This is the initialization framework routine that weaves together
  *  calls to RTEMS and the BSP in the proper sequence to initialize
@@ -67,6 +101,12 @@ void boot_card(
 {
   rtems_interrupt_level  bsp_isr_level;
 
+  register uint32_t num_res asm("r0") = 8;
+
+  register uint32_t stackpointer asm("sp");
+  register uint32_t framepointer asm("fp");
+
+  char target[32];
   /*
    *  Make sure interrupts are disabled.
    */
@@ -74,6 +114,22 @@ void boot_card(
   rtems_interrupt_local_disable( bsp_isr_level );
 
   bsp_boot_cmdline = cmdline;
+
+  writechar('I');
+
+  int2bin(stackpointer, target);
+  for (uint8_t j = 0; j < 32; j++)
+  {
+    writechar(target[j]);
+  }
+
+  int2bin(framepointer, target);
+  for (uint8_t j = 0; j < 32; j++)
+  {
+    writechar(target[j]);
+  }
+
+
 
   rtems_initialize_executive();
 

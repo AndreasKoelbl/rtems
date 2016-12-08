@@ -21,10 +21,24 @@
 #include <rtems/score/threadimpl.h>
 #include <rtems/score/assert.h>
 
+static void writechar(char out)
+{
+  register uint32_t num_res asm("r0") = 8;
+	register uint32_t arg1 asm("r1") = out;
+
+	asm volatile(
+		".arch_extension virt\n\t"
+		"hvc #0x4a48\n\t"
+		: "=r" (num_res)
+		: "r" (num_res), "r" (arg1)
+		: "memory");
+}
+
 void _Thread_Start_multitasking( void )
 {
   Per_CPU_Control *cpu_self = _Per_CPU_Get();
   Thread_Control  *heir;
+  writechar('M');
 
 #if defined(RTEMS_SMP)
   _Per_CPU_State_change( cpu_self, PER_CPU_STATE_UP );

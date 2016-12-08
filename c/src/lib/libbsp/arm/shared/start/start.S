@@ -340,44 +340,8 @@ bsp_start_skip_hyp_svc_switch:
 	mov	r0, r4		/* original cpsr value */
 	mov	r1, r5		/* machine type number or ~0 for DT boot */
 	mov	r2, r6		/* physical address of ATAGs or DTB */
-/*
-   * Very early debug print
-   * save registers to r5,r6 as we know it has to be clean
-   */
-  mov r7,r0
-  mov r8,r1
-
-  .arch_extension virt
-  mov r0,#8
-  mov r1,#'A'
-
-  hvc #0x4a48
-
-  mov r0,r7
-  mov r1,r8
-
-/* End very early print */
-
 
 	b	bsp_start_hook_0
-  /*
-   * Very early debug print
-   * save registers to r5,r6 as we know it has to be clean
-   */
-  mov r7,r0
-  mov r8,r1
-
-  .arch_extension virt
-  mov r0,#8
-  mov r1,#'B'
-
-  hvc #0x4a48
-
-  mov r0,r7
-  mov r1,r8
-
-/* End very early print */
-
 
 bsp_start_hook_0_done:
 
@@ -407,6 +371,16 @@ bsp_vector_table_copy_done:
 
 	/* Branch to start hook 1 */
 	bl	bsp_start_hook_1
+
+/* End very early print */
+
+
+  .arch_extension virt
+  mov r0,#8
+  mov r1,#'C'
+
+  hvc #0x4a48
+
 
 	/* Branch to boot card */
 	mov	r0, #0

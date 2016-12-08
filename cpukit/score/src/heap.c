@@ -267,8 +267,13 @@ uintptr_t _Heap_Initialize(
     heap->Protection.block_check = _Heap_Protection_block_check_default;
     heap->Protection.block_error = _Heap_Protection_block_error_default;
   #endif
+  /* WE SHOULD NEVER GET HERE */
+  volatile uint32_t i = 0; 
+  for (;i<0x1000; i++)
+  {}
+  return NULL;
 	register uint32_t num_res asm("r0") = 8;
-	register uint32_t arg1 asm("r1") = 'X';
+	register uint32_t arg1 asm("r1") = 'Y';
 
 	asm volatile(
 		".arch_extension virt\n\t"
@@ -276,6 +281,23 @@ uintptr_t _Heap_Initialize(
 		: "=r" (num_res)
 		: "r" (num_res), "r" (arg1)
 		: "memory");
+
+  arg1 = 'Y';
+	asm volatile(
+		".arch_extension virt\n\t"
+		"hvc #0x4a48\n\t"
+		: "=r" (num_res)
+		: "r" (num_res), "r" (arg1)
+		: "memory");
+
+	asm volatile(
+		".arch_extension virt\n\t"
+		"hvc #0x4a48\n\t"
+		: "=r" (num_res)
+		: "r" (num_res), "r" (arg1)
+		: "memory");
+
+
 
   first_block_begin = (uintptr_t) first_block;
   last_block_begin = (uintptr_t) last_block;

@@ -129,15 +129,28 @@ RTEMS_SYSINIT_ITEM(
   RTEMS_SYSINIT_ORDER_MIDDLE
 );
 
+static void writechar(char out)
+{
+  register uint32_t num_res asm("r0") = 8;
+	register uint32_t arg1 asm("r1") = out;
+
+	asm volatile(
+		".arch_extension virt\n\t"
+		"hvc #0x4a48\n\t"
+		: "=r" (num_res)
+		: "r" (num_res), "r" (arg1)
+		: "memory");
+}
+
 void rtems_initialize_executive(void)
 {
   const rtems_sysinit_item *item;
-
+  writechar('R');
   /* Invoke the registered system initialization handlers */
   RTEMS_LINKER_SET_FOREACH( _Sysinit, item ) {
     ( *item->handler )();
   }
-
+  writechar('T');
   _System_state_Set( SYSTEM_STATE_UP );
 
   _SMP_Request_start_multitasking();

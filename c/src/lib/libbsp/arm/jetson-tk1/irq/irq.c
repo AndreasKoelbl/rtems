@@ -1,5 +1,8 @@
 #include <bsp.h>
 #include <bsp/irq.h>
+#include <console.h>
+
+extern void hypervisor_putc(char c);
 
 inline uint32_t mmio_read32(void *address)
 {
@@ -33,11 +36,11 @@ rtems_status_code bsp_interrupt_facility_initialize(void)
   /* copy interrupts to (*(0x0)) */
   uint8_t i;
 
-/*  for (i = 0; i < 0x40; i += 4)
+  //hypervisor_putc('I');
+  for (i = 0; i < 0x40; i += 4)
   {
     mmio_write32((void*) i, mmio_read32((void*) INMATE_BASE + i));
   }
-  */
 
   return RTEMS_SUCCESSFUL;
 }
