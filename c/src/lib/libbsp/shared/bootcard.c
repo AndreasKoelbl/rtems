@@ -74,14 +74,14 @@ static void writechar(char out)
 		: "memory");
 }
 
-void swap(char *first, char *second)
+static void swap(char *first, char *second)
 {
   char temp = *first;
   *first = *second;
   *second = temp;
 }
 
-void reverse(char str[], int length)
+static void reverse(char str[], int length)
 {
     int start = 0;
     int end = length -1;
@@ -94,7 +94,7 @@ void reverse(char str[], int length)
 }
 
 // Implementation of itoa()
-char* itoa(uint32_t num, char* str, uint32_t base, int* size)
+char* myitoa(uint32_t num, char* str, uint32_t base, int* size)
 {
     int i = 0;
 
@@ -148,8 +148,9 @@ void boot_card(
   register uint32_t framepointer asm("fp");
   register uint32_t linkregister asm("lr");
 
-  char target[32];
+  char target[16];
   char* result;
+
   /*
    *  Make sure interrupts are disabled.
    */
@@ -157,13 +158,14 @@ void boot_card(
   rtems_interrupt_local_disable( bsp_isr_level );
 
   bsp_boot_cmdline = cmdline;
+
   writechar('\n');
 
   writechar(' ');
   writechar('0');
   writechar('x');
 
-  result = itoa(stackpointer, target, 16, &size);
+  result = myitoa(stackpointer, target, 16, &size);
   for (uint8_t j = 0; j < size; j++)
   {
     writechar(result[j]);
@@ -174,7 +176,7 @@ void boot_card(
   writechar('0');
   writechar('x');
 
-  result = itoa(framepointer, target, 16, &size);
+  result = myitoa(framepointer, target, 16, &size);
   for (uint8_t j = 0; j < size; j++)
   {
     writechar(result[j]);
@@ -185,14 +187,17 @@ void boot_card(
   writechar('0');
   writechar('x');
 
-  result = itoa(linkregister, target, 16, &size);
+  result = myitoa(linkregister, target, 16, &size);
   for (uint8_t j = 0; j < size; j++)
   {
     writechar(result[j]);
   }
+
   writechar('\n');
 
-  asm volatile("mov pc,%0" : : "r" (0xe14c) );
+  /* This will never get executed */
+//  asm volatile("mov pc,%0" : : "r" (0xe140) );
+//  writechar('|');
   rtems_initialize_executive();
 
   /***************************************************************

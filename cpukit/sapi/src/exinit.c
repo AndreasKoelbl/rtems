@@ -40,6 +40,7 @@
 #include <rtems/score/todimpl.h>
 #include <rtems/score/wkspace.h>
 
+extern char* myitoa(uint32_t num, char* str, uint32_t base, int* size);
 const char _Copyright_Notice[] =
 "COPYRIGHT (c) 1989-2008.\n\
 On-Line Applications Research Corporation (OAR).\n";
