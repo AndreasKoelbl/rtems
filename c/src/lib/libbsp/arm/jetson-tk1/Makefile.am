@@ -125,6 +125,7 @@ libbsp_a_SOURCES += timer/timer.c timer/timerisr.c
 
 # IRQ
 #libbsp_a_SOURCES += ../../shared/src/irq-default-handler.c
+libbsp_a_SOURCES += ../shared/arm-cp15-set-exception-handler.c
 libbsp_a_SOURCES += ../../shared/src/irq-generic.c
 libbsp_a_SOURCES += ../../shared/src/irq-info.c
 libbsp_a_SOURCES += ../../shared/src/irq-legacy.c
@@ -136,13 +137,14 @@ libbsp_a_SOURCES += ../shared/armv7m/irq/armv7m-irq-dispatch.c
 libbsp_a_SOURCES += irq/irq.c
 
 # doesn't work for me :(
-#libbsp_a_SOURCES += ../shared/arm-gic-irq.c
+
+libbsp_a_SOURCES += ../../shared/gpio.c
 
 # Cache
 libbsp_a_SOURCES += ../../../libcpu/shared/src/cache_manager.c
 libbsp_a_SOURCES += ../shared/include/arm-cache-l1.h
 libbsp_a_SOURCES += ../shared/armv467ar-basic-cache/cache_.h
-libbsp_a_CPPFLAGS = -I$(srcdir)/../shared/armv467ar-basic-cache
+libbsp_a_CPPFLAGS = -I$(srcdir)/../shared/armv7m
 
 # Memory Management
 libbsp_a_SOURCES += ../shared/mminit.c
