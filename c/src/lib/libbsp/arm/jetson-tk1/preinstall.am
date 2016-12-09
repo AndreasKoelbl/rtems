@@ -112,6 +112,10 @@ $(PROJECT_INCLUDE)/bsp/bootcard.h: ../../shared/include/bootcard.h $(PROJECT_INC
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/bootcard.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/bootcard.h
 
+$(PROJECT_INCLUDE)/bsp/mm.h: ../../../libbsp/shared/include/mm.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/mm.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/mm.h
+
 $(PROJECT_INCLUDE)/bsp/utility.h: ../../shared/include/utility.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/utility.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/utility.h
@@ -127,6 +131,18 @@ PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/irq-info.h
 $(PROJECT_INCLUDE)/bsp/stackalloc.h: ../../shared/include/stackalloc.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/stackalloc.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/stackalloc.h
+
+$(PROJECT_INCLUDE)/bsp/uart-output-char.h: ../../shared/include/uart-output-char.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/uart-output-char.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/uart-output-char.h
+
+$(PROJECT_INCLUDE)/bsp/gpio.h: ../../shared/include/gpio.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/gpio.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/gpio.h
+
+$(PROJECT_INCLUDE)/bsp/linker-symbols.h: ../shared/include/linker-symbols.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/linker-symbols.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/linker-symbols.h
 
 $(PROJECT_INCLUDE)/bsp/start.h: ../shared/include/start.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/start.h
@@ -151,6 +167,22 @@ PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/arm-gic-irq.h
 $(PROJECT_INCLUDE)/bsp/arm-cp15-start.h: ../shared/include/arm-cp15-start.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/arm-cp15-start.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/arm-cp15-start.h
+
+$(PROJECT_INCLUDE)/bsp/arm-errata.h: ../shared/include/arm-errata.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/arm-errata.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/arm-errata.h
+
+$(PROJECT_INCLUDE)/bsp/lpc-timer.h: ../shared/lpc/include/lpc-timer.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/lpc-timer.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/lpc-timer.h
+
+$(PROJECT_INCLUDE)/bsp/lpc-dma.h: ../shared/lpc/include/lpc-dma.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/lpc-dma.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/lpc-dma.h
+
+$(PROJECT_INCLUDE)/bsp/arm-release-id.h: ../shared/include/arm-release-id.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/arm-release-id.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/arm-release-id.h
 
 $(PROJECT_INCLUDE)/bsp/mm.h: ../../../libbsp/shared/include/mm.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/mm.h
