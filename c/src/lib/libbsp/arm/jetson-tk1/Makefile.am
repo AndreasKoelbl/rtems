@@ -98,15 +98,24 @@ libbsp_a_SOURCES += startup/bspreset.c
 libbsp_a_SOURCES += ../../shared/bootcard.c
 libbsp_a_SOURCES += ../../shared/bspclean.c
 libbsp_a_SOURCES += ../../shared/bsppredriverhook.c
-libbsp_a_SOURCES += ../../shared/sbrk.c
+libbsp_a_SOURCES += ../../shared/cpucounterread.c
+libbsp_a_SOURCES += ../../shared/cpucounterdiff.c
 libbsp_a_SOURCES += ../../shared/gnatinstallhandler.c
+libbsp_a_SOURCES += ../../shared/sbrk.c
 libbsp_a_SOURCES += ../../shared/bspgetworkarea.c
+libbsp_a_SOURCES += ../../shared/src/stackalloc.c
+libbsp_a_SOURCES += ../shared/startup/bsp-start-memcpy.S
+libbsp_a_SOURCES += ../shared/arm-cp15-set-ttb-entries.c
 
 # Clock
 libbsp_a_SOURCES += ../shared/armv7m/clock/armv7m-clock-config.c
 libbsp_a_SOURCES += clock/clockdrv.c
 
 # Console
+libbsp_a_SOURCES += ../../shared/console.c
+libbsp_a_SOURCES += ../../shared/console_control.c
+libbsp_a_SOURCES += ../../shared/console_read.c
+libbsp_a_SOURCES += ../../shared/console_write.c
 libbsp_a_SOURCES += console/console.c
 libbsp_a_SOURCES += console/debug-console.c
 libbsp_a_SOURCES += ../../shared/console-termios.c
