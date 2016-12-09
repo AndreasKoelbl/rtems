@@ -24,7 +24,12 @@
 #define LIBBSP_ARM_SHARED_ARM_GIC_H
 
 #include <bsp/arm-gic-regs.h>
+#ifdef JAILHOUSE_ENABLE
+extern uint32_t jailhouse_cpu_list[1];
+extern uint32_t jailhouse_irq_list[
+  1 + NS8250_CONSOLE_USE_INTERRUPTS + NS8250_USE_SECONDARY_CONSOLE];
 
+#endif
 #include <stdbool.h>
 
 #ifdef __cplusplus
@@ -121,6 +126,27 @@ static inline void gic_id_set_targets(
   uint8_t targets
 )
 {
+#ifdef JAILHOUSE_ENABLE
+  unsigned int i;
+  bool success = false;
+  for (i = 0; i < RTEMS_ARRAY_SIZE(jailhouse_cpu_list); i++) {
+    if (jailhouse_cpu_list[i] == targets) {
+      success = true;
+      break;
+    }
+  }
+  if (!success)
+    return;
+  success = false;
+  for (i = 0; i < RTEMS_ARRAY_SIZE(jailhouse_irq_list); i++) {
+    if (jailhouse_irq_list[i] == id) {
+      success = true;
+      break;
+    }
+  }
+  if (!success)
+    return;
+#endif
   dist->icdiptr[id] = targets;
 }
 

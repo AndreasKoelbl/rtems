@@ -1,0 +1,22 @@
+BSP for the Jetson tk1 ARM board
+
+This BSP currently supports the following devices:
+  - Console using UART-D on DB9 connector and UART-A on the J3A2 Pin header
+  - Clock using the ARM internal timer
+  - Benchmark timer using the Nvidia Generic Timer TimerUS
+
+Checkout the options described in include/bspopts.h.in in order to configure
+the second console, make the console interrupt driven or run the RTEMS
+application inside a jailhouse cell.
+
+Additionally running as jailhouse inmate the following IRQs have to get configured:
+  - 122 (if configured NS8250_CONSOLE_USE_INTERRUPTS=1)
+  - 68 (if configured NS8250_USE_SECONDARY_CONSOLE=1)
+  - 119 for the GPIO_6 bank (PU0 - PU6)
+
+Also allow the following memory regions:
+  - UARTA and UARTD  0x70006000+0x1000,
+  - Nvidia Timers 0x60005000+0x1000,
+  - RAM 0xf8000000+0x4000000 (64MB, this could also be shrinked modifying
+    the linkcmds file)
+  - PINMUX AUX 0x70003000+0x1000
