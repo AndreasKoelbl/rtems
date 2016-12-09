@@ -21,6 +21,9 @@
 #include <bsp/irq.h>
 #include <bsp/irq-generic.h>
 #include <bsp/start.h>
+#ifdef JAILHOUSE_ENABLE
+#include <bsp/jailhouse.h>
+#endif
 
 #define GIC_CPUIF ((volatile gic_cpuif *) BSP_ARM_GIC_CPUIF_BASE)
 
@@ -100,9 +103,16 @@ rtems_status_code bsp_interrupt_facility_initialize(void)
     gic_id_set_priority(dist, id, PRIORITY_DEFAULT);
   }
 
+#ifdef JAILHOUSE_ENABLE
+  for (id = 0; id < RTEMS_ARRAY_SIZE(jailhouse_irq_list); id++) {
+    gic_id_set_targets(dist, jailhouse_irq_list[id], PRIMARY_CPU);
+    gic_id_set_targets(dist, jailhouse_irq_list[id], PRIMARY_CPU);
+  }
+#else
   for (id = 32; id < id_count; ++id) {
     gic_id_set_targets(dist, id, 0x01);
   }
+#endif
 
   cpuif->iccpmr = GIC_CPUIF_ICCPMR_PRIORITY(0xff);
   cpuif->iccbpr = GIC_CPUIF_ICCBPR_BINARY_POINT(0x0);
