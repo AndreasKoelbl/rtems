@@ -1,0 +1,4 @@
+BSP for the Jetson tk1 ARM board using the Jailhouse Hypervisor
+Assign IRQ 68 and 122 to the cell config (UARTA and UARTD)
+Assign 0x60005000+0x1000, 0x70006000+0x1000, and 0xf8000000+0x4000000 (64MB) to
+the cell config, load RTEMS at address 0x0 and start it
