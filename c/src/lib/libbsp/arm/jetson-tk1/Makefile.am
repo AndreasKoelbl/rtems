@@ -1,3 +1,10 @@
+##
+#
+# @file
+#
+# @brief Makefile of LibBSP for the jetson-tk1 board.
+#
+
 ACLOCAL_AMFLAGS = -I ../../../../aclocal
 
 include $(top_srcdir)/../../../../automake/compile.am
