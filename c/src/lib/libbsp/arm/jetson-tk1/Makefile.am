@@ -57,16 +57,24 @@ nodist_include_bsp_HEADERS =
 nodist_include_bsp_HEADERS += ../../shared/include/bootcard.h
 
 include_bsp_HEADERS =
+include_bsp_HEADERS += ../../../libbsp/shared/include/mm.h
 include_bsp_HEADERS += ../../shared/include/utility.h
 include_bsp_HEADERS += ../../shared/include/irq-generic.h
 include_bsp_HEADERS += ../../shared/include/irq-info.h
 include_bsp_HEADERS += ../../shared/include/stackalloc.h
+include_bsp_HEADERS += ../../shared/include/uart-output-char.h
+include_bsp_HEADERS += ../../shared/include/gpio.h
+include_bsp_HEADERS += ../shared/include/linker-symbols.h
 include_bsp_HEADERS += ../shared/include/start.h
 include_bsp_HEADERS += ../shared/include/arm-gic.h
 include_bsp_HEADERS += ../shared/include/arm-gic-regs.h
 include_bsp_HEADERS += ../shared/armv7m/include/armv7m-irq.h
 include_bsp_HEADERS += ../shared/include/arm-gic-irq.h
 include_bsp_HEADERS += ../shared/include/arm-cp15-start.h
+include_bsp_HEADERS += ../shared/include/arm-errata.h
+include_bsp_HEADERS += ../shared/lpc/include/lpc-timer.h
+include_bsp_HEADERS += ../shared/lpc/include/lpc-dma.h
+include_bsp_HEADERS += ../shared/include/arm-release-id.h
 include_bsp_HEADERS += ../../../libbsp/shared/include/mm.h
 
 include_libcpu_HEADERS =
