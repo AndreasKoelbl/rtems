@@ -1,0 +1,9 @@
+BSP for the Jetson TK1 ARM board
+
+This BSP currently supports the following devices:
+  - Console using UART-D on DB9 connector and UART-A on the J3A2 Pin header
+  - Clock using the ARM internal CP15 timer
+  - Benchmark timer using the Nvidia Generic Timer TimerUS
+
+Checkout the options described in include/bspopts.h.in in order to configure
+the second console or let the consoles operate interrupt driven.
