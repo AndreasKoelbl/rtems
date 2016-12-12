@@ -42,6 +42,7 @@ include_bsp_HEADERS += ../shared/lpc/include/lpc-dma.h
 include_bsp_HEADERS += ../shared/include/arm-release-id.h
 
 include_bsp_HEADERS += include/jetson-tk1.h
+include_bsp_HEADERS += include/console.h
 
 include_bsp_HEADERS += include/irq.h
 include_bsp_HEADERS += include/mmu.h
@@ -113,6 +114,9 @@ libbsp_a_SOURCES += ../../shared/console.c
 libbsp_a_SOURCES += ../../shared/console_control.c
 libbsp_a_SOURCES += ../../shared/console_read.c
 libbsp_a_SOURCES += ../../shared/console_write.c
+
+libbsp_a_SOURCES += console/debug-console.c
+
 libbsp_a_SOURCES += console/console-config.c
 libbsp_a_SOURCES += console/console_select.c
 libbsp_a_SOURCES += console/usart.c
