@@ -40,6 +40,9 @@ include_bsp_HEADERS += ../shared/include/arm-errata.h
 include_bsp_HEADERS += ../shared/lpc/include/lpc-timer.h
 include_bsp_HEADERS += ../shared/lpc/include/lpc-dma.h
 include_bsp_HEADERS += ../shared/include/arm-release-id.h
+
+include_bsp_HEADERS += include/jetson-tk1.h
+
 include_bsp_HEADERS += include/irq.h
 include_bsp_HEADERS += include/mmu.h
 include_bsp_HEADERS += include/usart.h
