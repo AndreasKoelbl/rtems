@@ -46,7 +46,6 @@ include_bsp_HEADERS += include/console.h
 
 include_bsp_HEADERS += include/irq.h
 include_bsp_HEADERS += include/mmu.h
-include_bsp_HEADERS += include/usart.h
 include_bsp_HEADERS += include/raspberrypi.h
 
 include_libcpu_HEADERS =  ../../../libcpu/arm/shared/include/arm-cp15.h
@@ -110,20 +109,9 @@ libbsp_a_SOURCES += ../../shared/src/irq-shell.c
 libbsp_a_SOURCES += irq/irq.c
 
 # Console
-libbsp_a_SOURCES += ../../shared/console.c
-libbsp_a_SOURCES += ../../shared/console_control.c
-libbsp_a_SOURCES += ../../shared/console_read.c
-libbsp_a_SOURCES += ../../shared/console_write.c
-
+libbsp_a_SOURCES += ../../shared/console-termios.c
+libbsp_a_SOURCES += console/console.c
 libbsp_a_SOURCES += console/debug-console.c
-
-libbsp_a_SOURCES += console/console-config.c
-libbsp_a_SOURCES += console/console_select.c
-libbsp_a_SOURCES += console/usart.c
-
-# Mailbox
-
-# VideoCore
 
 # clock
 libbsp_a_SOURCES += clock/clockdrv.c ../../../shared/clockdrv_shell.h

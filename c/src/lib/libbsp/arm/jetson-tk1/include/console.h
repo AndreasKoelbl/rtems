@@ -20,6 +20,10 @@
 
 #include <rtems/termiostypes.h>
 
+#define UART0 (Uart*) (0x70006000)
+/* FIXME: wrong IRQ number, this is the timer */
+#define UART0_IRQn 27
+
 static void hypervisor_putc(char c);
 static void jailhouse_dbgcon_write(
   rtems_termios_device_context *base,
@@ -53,4 +57,4 @@ rtems_status_code console_initialize(
   void                      *arg
 );
 
-#endif /* LIBBSP_ARM_JETSONTK1_CONSOLE_H */
+#endif
