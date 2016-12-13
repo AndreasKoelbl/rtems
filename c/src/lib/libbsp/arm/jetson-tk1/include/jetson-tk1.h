@@ -21,10 +21,6 @@
 #include <stdint.h>
 #include <rtems/termiostypes.h>
 
-#define UART0 (Uart*) (0x70006000)
-/* FIXME: wrong IRQ number, this is the timer */
-#define UART0_IRQn 27
-
 typedef struct {
   rtems_termios_device_context base;
   const char *device_name;

@@ -130,10 +130,6 @@ $(PROJECT_INCLUDE)/bsp/mmu.h: include/mmu.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/mmu.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/mmu.h
 
-$(PROJECT_INCLUDE)/bsp/usart.h: include/usart.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
-	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/usart.h
-PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/usart.h
-
 $(PROJECT_INCLUDE)/bsp/raspberrypi.h: include/raspberrypi.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/raspberrypi.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/raspberrypi.h
