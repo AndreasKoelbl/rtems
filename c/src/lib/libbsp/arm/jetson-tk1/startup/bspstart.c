@@ -15,13 +15,7 @@
  *  http://www.rtems.org/license/LICENSE
  */
 
-#include <bsp.h>
-#include <bsp/bootcard.h>
 #include <bsp/irq-generic.h>
-#include <bsp/irq.h>
-#include <bsp/linker-symbols.h>
-#include <bsp/stackalloc.h>
-#include <bsp/raspberrypi.h>
 
 void bsp_start(void)
 {
