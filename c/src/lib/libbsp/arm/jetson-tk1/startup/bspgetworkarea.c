@@ -24,7 +24,6 @@
 #include <string.h>
 #include <bsp.h>
 #include <bsp/bootcard.h>
-#include <bsp/vc.h>
 #ifdef BSP_INTERRUPT_STACK_AT_WORK_AREA_BEGIN
   #include <rtems/config.h>
 #endif
@@ -52,11 +51,6 @@ void bsp_work_area_initialize(void)
 {
   uintptr_t work_base = (uintptr_t) WorkAreaBase;
   uintptr_t ram_end;
-  bcm2835_get_vc_memory_entries vc_entry;
-  /*
-   * bcm2835_get_arm_memory_entries arm_entry;
-   * is another alternative how to obtain usable memory size
-   */
 
   #ifdef USE_UBOOT
     ram_end = (uintptr_t) bsp_uboot_board_info.bi_memstart +
@@ -69,10 +63,5 @@ void bsp_work_area_initialize(void)
     work_base += rtems_configuration_get_interrupt_stack_size();
   #endif
 
-  memset( &vc_entry, 0, sizeof(vc_entry) );
-  if (bcm2835_mailbox_get_vc_memory( &vc_entry ) >= 0) {
-    if (vc_entry.base > 10 * 1024 *1024)
-      ram_end = ram_end > vc_entry.base? vc_entry.base: ram_end;
-  }
   bsp_work_area_initialize_default( (void *) work_base, ram_end - work_base );
 }
