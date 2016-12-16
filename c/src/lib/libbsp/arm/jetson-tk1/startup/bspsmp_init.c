@@ -37,18 +37,6 @@
 void rpi_ipi_initialize(void)
 {
   uint32_t cpu_index_self = _SMP_Get_current_processor();
-
-  /*
-   * Includes support only for mailbox 3 interrupt.
-   * Further interrupt support has to be added. This will have to be integrated
-   * with existing interrupt support for Raspberry Pi
-   */
-
-  /* reset mailbox 3 contents to zero */
-  BCM2835_REG(BCM2836_MAILBOX_3_READ_CLEAR_BASE + 0x10 * cpu_index_self) = 0xffffffff;
-
-  BCM2835_REG(BCM2836_MAILBOX_IRQ_CTRL(cpu_index_self)) =
-    BCM2836_MAILBOX_IRQ_CTRL_MBOX3_IRQ;
 }
 
 void rpi_start_rtems_on_secondary_processor(void)
