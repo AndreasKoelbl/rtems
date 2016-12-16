@@ -38,7 +38,7 @@ console_tbl Console_Configuration_Ports [] = {
       .ulCtrlPort1 = BCM2835_UART0_BASE,
       .ulCtrlPort2 = 0,
       .ulClock = USART0_DEFAULT_BAUD,
-      .ulIntVector = BCM2835_IRQ_ID_UART
+      .ulIntVector = 27
     },
     {
       .sDeviceName ="/dev/fbcons",
