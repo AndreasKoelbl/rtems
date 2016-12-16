@@ -17,15 +17,17 @@
  */
 
 #include <bsp.h>
+#include <bsp/irq.h>
+#include <bsp/memory.h>
 #include <rtems.h>
 #include <rtems/btimer.h>
-#include <bsp/jetson-tk1.h>
 
 #define TIMER_IRQ 27
+#define BEATS_PER_SEC 10
 
 static bool benchmark_timer_find_average_overhead = false;
 
-static uint32_t benchmark_timer_base;
+static uint64_t benchmark_timer_base;
 
 static uint32_t getTimerValue( uint32_t irqn )
 {
@@ -55,10 +57,11 @@ void benchmark_timer_initialize( void )
 {
   /* TODO: get timer value */
   benchmark_timer_base = 0;
-	u64 pct64;
 
-	arm_read_sysreg(CNTPCT_EL0, pct64);
-	return pct64;
+  gic_enable_irq(TIMER_IRQ);
+
+	//arm_read_sysreg(CNTPCT_EL0, benchmark_timer_base);
+	return benchmark_timer_base;
 
 }
 
