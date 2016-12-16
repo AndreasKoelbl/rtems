@@ -44,6 +44,7 @@ include_bsp_HEADERS += ../shared/include/arm-gic-tm27.h
 include_bsp_HEADERS += ../shared/include/arm-release-id.h
 
 include_bsp_HEADERS += include/jetson-tk1.h
+include_bsp_HEADERS += include/memory.h
 include_bsp_HEADERS += include/console.h
 
 include_bsp_HEADERS += include/irq.h
