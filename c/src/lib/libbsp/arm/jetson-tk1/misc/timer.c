@@ -19,7 +19,7 @@
 #include <bsp.h>
 #include <rtems.h>
 #include <rtems/btimer.h>
-#include <bsp/raspberrypi.h>
+#include <bsp/jetson-tk1.h>
 
 static bool benchmark_timer_find_average_overhead = false;
 
