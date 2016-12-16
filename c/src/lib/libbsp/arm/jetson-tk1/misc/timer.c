@@ -21,17 +21,56 @@
 #include <rtems/btimer.h>
 #include <bsp/jetson-tk1.h>
 
+#define TIMER_IRQ 27
+
 static bool benchmark_timer_find_average_overhead = false;
 
-static uint64_t benchmark_timer_base;
+static uint32_t benchmark_timer_base;
+
+static uint32_t getTimerValue( uint32_t irqn )
+{
+  static u64 min_delta = ~0ULL, max_delta = 0;
+	u64 delta;
+
+	if (irqn != TIMER_IRQ)
+		return;
+
+	delta = timer_get_ticks() - expected_ticks;
+	if (delta < min_delta)
+		min_delta = delta;
+	if (delta > max_delta)
+		max_delta = delta;
+
+	printk("Timer fired, jitter: %6ld ns, min: %6ld ns, max: %6ld ns\n",
+	       (long)timer_ticks_to_ns(delta),
+	       (long)timer_ticks_to_ns(min_delta),
+	       (long)timer_ticks_to_ns(max_delta));
+
+	expected_ticks = timer_get_ticks() + ticks_per_beat;
+	timer_start(ticks_per_beat);
+  return 0;
+}
 
 void benchmark_timer_initialize( void )
 {
+  /* TODO: get timer value */
+  benchmark_timer_base = 0;
+	u64 pct64;
+
+	arm_read_sysreg(CNTPCT_EL0, pct64);
+	return pct64;
+
 }
 
 benchmark_timer_t benchmark_timer_read( void )
 {
-  return 0;
+  uint32_t delta = getTimerValue() - benchmark_timer_base;
+
+  if ( benchmark_timer_find_average_overhead ) {
+    return delta;
+  } else {
+    return getTimerValue();
+  }
 }
 
 void benchmark_timer_disable_subtracting_average_overhead(
