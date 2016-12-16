@@ -23,7 +23,9 @@
 #include <rtems/irq.h>
 #include <rtems/irq-extension.h>
 
-#define BSP_INTERRUPT_VECTOR_MIN    (0)
+#define TIMER_IRQ                   27
+
+#define BSP_INTERRUPT_VECTOR_MIN    0
 /* TODO: Fix random number */
 #define BSP_INTERRUPT_VECTOR_MAX    64
 
@@ -34,10 +36,6 @@
  *
  * @brief Interrupt support.
  */
-
-/* TODO: GICv2 support */
-void mmio_write32(void *address, uint32_t value);
-inline uint32_t mmio_read32(void *address);
 
 #endif /* ASM */
 #endif /* LIBBSP_ARM_JETSONTK1_IRQ_H */
