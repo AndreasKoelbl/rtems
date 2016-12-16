@@ -27,18 +27,11 @@ static uint64_t benchmark_timer_base;
 
 void benchmark_timer_initialize( void )
 {
-  benchmark_timer_base = BCM2835_REG( BCM2835_GPU_TIMER_CLO );
 }
 
 benchmark_timer_t benchmark_timer_read( void )
 {
-  uint32_t delta = BCM2835_REG( BCM2835_GPU_TIMER_CLO ) - benchmark_timer_base;
-
-  if ( benchmark_timer_find_average_overhead ) {
-    return delta;
-  } else {
-    return BCM2835_REG( BCM2835_GPU_TIMER_CLO );
-  }
+  return 0;
 }
 
 void benchmark_timer_disable_subtracting_average_overhead(
