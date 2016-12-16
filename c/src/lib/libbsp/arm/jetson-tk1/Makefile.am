@@ -26,8 +26,6 @@ nodist_include_HEADERS = ../../shared/include/coverhd.h \
 
 nodist_include_bsp_HEADERS = ../../shared/include/bootcard.h
 
-noinst_HEADERS = console/font_data.h
-
 include_bsp_HEADERS =
 include_bsp_HEADERS += ../../../libbsp/shared/include/mm.h
 include_bsp_HEADERS += ../../shared/include/utility.h
@@ -35,7 +33,6 @@ include_bsp_HEADERS += ../../shared/include/irq-generic.h
 include_bsp_HEADERS += ../../shared/include/irq-info.h
 include_bsp_HEADERS += ../../shared/include/stackalloc.h
 include_bsp_HEADERS += ../../shared/include/uart-output-char.h
-include_bsp_HEADERS += ../../shared/include/gpio.h
 include_bsp_HEADERS += ../shared/include/linker-symbols.h
 include_bsp_HEADERS += ../shared/include/start.h
 include_bsp_HEADERS += ../shared/include/arm-cp15-start.h
@@ -47,13 +44,6 @@ include_bsp_HEADERS += include/irq.h
 include_bsp_HEADERS += include/mmu.h
 include_bsp_HEADERS += include/usart.h
 include_bsp_HEADERS += include/raspberrypi.h
-include_bsp_HEADERS += include/rpi-gpio.h
-include_bsp_HEADERS += include/i2c.h
-include_bsp_HEADERS += include/spi.h
-include_bsp_HEADERS += include/mailbox.h
-include_bsp_HEADERS += include/vc.h
-include_bsp_HEADERS += include/rpi-fb.h
-include_bsp_HEADERS += console/fbcons.h
 
 include_libcpu_HEADERS =  ../../../libcpu/arm/shared/include/arm-cp15.h
 
@@ -97,7 +87,6 @@ endif
 
 # Startup
 libbsp_a_SOURCES += startup/bspstart.c
-libbsp_a_SOURCES += startup/cmdline.c
 libbsp_a_SOURCES += startup/bspgetworkarea.c
 if HAS_SMP
 libbsp_a_SOURCES += startup/bspsmp.c
@@ -124,15 +113,10 @@ libbsp_a_SOURCES += ../../shared/console_write.c
 libbsp_a_SOURCES += console/console-config.c
 libbsp_a_SOURCES += console/console_select.c
 libbsp_a_SOURCES += console/usart.c
-libbsp_a_SOURCES += console/fb.c
-libbsp_a_SOURCES += console/fbcons.c
-libbsp_a_SOURCES += console/outch.c
 
 # Mailbox
-libbsp_a_SOURCES += misc/mailbox.c
 
 # VideoCore
-libbsp_a_SOURCES += misc/vc.c
 
 # clock
 libbsp_a_SOURCES += clock/clockdrv.c ../../../shared/clockdrv_shell.h
@@ -142,17 +126,14 @@ libbsp_a_SOURCES += misc/timer.c
 
 # GPIO
 libbsp_a_SOURCES += ../../shared/gpio.c
-libbsp_a_SOURCES += gpio/rpi-gpio.c
 
 # RTC
 
 # SSP
 
 # I2C
-libbsp_a_SOURCES += i2c/i2c.c
 
 # SPI
-libbsp_a_SOURCES += spi/spi.c
 
 # Cache
 libbsp_a_SOURCES += ../../../libcpu/shared/src/cache_manager.c

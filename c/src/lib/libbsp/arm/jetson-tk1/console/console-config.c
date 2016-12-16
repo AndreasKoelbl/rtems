@@ -26,7 +26,6 @@
 #include <bsp/irq.h>
 #include <bsp/usart.h>
 #include <bsp/raspberrypi.h>
-#include <bsp/fbcons.h>
 
 console_tbl Console_Configuration_Ports [] = {
     {
@@ -39,13 +38,6 @@ console_tbl Console_Configuration_Ports [] = {
       .ulCtrlPort2 = 0,
       .ulClock = USART0_DEFAULT_BAUD,
       .ulIntVector = 27
-    },
-    {
-      .sDeviceName ="/dev/fbcons",
-      .deviceType = SERIAL_CUSTOM,
-      .pDeviceFns = &fbcons_fns,
-      .deviceProbe = fbcons_probe,
-      .pDeviceFlow = NULL,
     },
 };
 

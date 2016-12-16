@@ -26,7 +26,6 @@
 #include <rtems/termiostypes.h>
 #include <libchip/serial.h>
 #include "../../../shared/console_private.h"
-#include <bsp/rpi-fb.h>
 
 rtems_device_minor_number BSPPrintkPort = 0;
 
@@ -79,35 +78,4 @@ static rtems_device_minor_number bsp_First_Available_Device( void )
 
 void bsp_console_select( void )
 {
-  /*
-   *  Reset Console_Port_Minor and
-   *  BSPPrintkPort here if desired.
-   *
-   *  This default version allows the bsp to set these
-   *  values at creation and will not touch them again
-   *  unless the selected port number is not available.
-   */
-  const char *opt;
-
-  Console_Port_Minor = BSP_CONSOLE_UART0;
-  BSPPrintkPort = BSP_CONSOLE_UART0;
-
-  opt = rpi_cmdline_get_arg( "--console=" );
-
-  if ( opt ) {
-    if ( strncmp( opt, "fbcons", sizeof( "fbcons" - 1 ) ) == 0 ) {
-      if ( rpi_video_is_initialized() > 0 ) {
-        Console_Port_Minor = BSP_CONSOLE_FB;
-        BSPPrintkPort = BSP_CONSOLE_FB;
-      }
-    }
-  }
-
-  /*
-   * If the device that was selected isn't available then
-   * let the user know and select the first available device.
-   */
-  if ( !bsp_Is_Available( Console_Port_Minor ) ) {
-    Console_Port_Minor = bsp_First_Available_Device();
-  }
 }
