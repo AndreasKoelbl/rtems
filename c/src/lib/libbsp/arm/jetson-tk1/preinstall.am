@@ -118,6 +118,10 @@ $(PROJECT_INCLUDE)/bsp/jetson-tk1.h: include/jetson-tk1.h $(PROJECT_INCLUDE)/bsp
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/jetson-tk1.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/jetson-tk1.h
 
+$(PROJECT_INCLUDE)/bsp/memory.h: include/memory.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/memory.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/memory.h
+
 $(PROJECT_INCLUDE)/bsp/console.h: include/console.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/console.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/console.h
@@ -133,6 +137,10 @@ PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/mmu.h
 $(PROJECT_INCLUDE)/bsp/raspberrypi.h: include/raspberrypi.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/raspberrypi.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/raspberrypi.h
+
+$(PROJECT_INCLUDE)/bsp/arm-gic-tm27.h: ../shared/include/arm-gic-tm27.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/arm-gic-tm27.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/arm-gic-tm27.h
 
 $(PROJECT_INCLUDE)/libcpu/arm-cp15.h: ../../../libcpu/arm/shared/include/arm-cp15.h $(PROJECT_INCLUDE)/libcpu/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/libcpu/arm-cp15.h

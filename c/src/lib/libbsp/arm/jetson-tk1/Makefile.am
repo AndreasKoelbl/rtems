@@ -48,9 +48,9 @@ include_bsp_HEADERS += include/console.h
 include_bsp_HEADERS += include/irq.h
 include_bsp_HEADERS += include/mmu.h
 include_bsp_HEADERS += include/raspberrypi.h
+include_bsp_HEADERS += ../shared/include/arm-gic-tm27.h
 
 include_libcpu_HEADERS =  ../../../libcpu/arm/shared/include/arm-cp15.h
-
 ###############################################################################
 # Data                                                       #
 ###############################################################################
