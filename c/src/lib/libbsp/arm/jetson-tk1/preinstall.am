@@ -118,6 +118,10 @@ $(PROJECT_INCLUDE)/bsp/jetson-tk1.h: include/jetson-tk1.h $(PROJECT_INCLUDE)/bsp
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/jetson-tk1.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/jetson-tk1.h
 
+$(PROJECT_INCLUDE)/bsp/memory.h: include/memory.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/memory.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/memory.h
+
 $(PROJECT_INCLUDE)/bsp/console.h: include/console.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/console.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/console.h
@@ -125,6 +129,10 @@ PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/console.h
 $(PROJECT_INCLUDE)/bsp/irq.h: include/irq.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/irq.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/irq.h
+
+$(PROJECT_INCLUDE)/bsp/gic.h: include/gic.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/gic.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/gic.h
 
 $(PROJECT_INCLUDE)/bsp/mmu.h: include/mmu.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/mmu.h

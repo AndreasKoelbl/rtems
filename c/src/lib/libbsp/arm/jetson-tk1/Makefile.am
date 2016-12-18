@@ -46,6 +46,7 @@ include_bsp_HEADERS += include/memory.h
 include_bsp_HEADERS += include/console.h
 
 include_bsp_HEADERS += include/irq.h
+include_bsp_HEADERS += include/gic.h
 include_bsp_HEADERS += include/mmu.h
 include_bsp_HEADERS += include/raspberrypi.h
 
@@ -108,6 +109,7 @@ libbsp_a_SOURCES += ../../shared/src/irq-legacy.c
 libbsp_a_SOURCES += ../../shared/src/irq-server.c
 libbsp_a_SOURCES += ../../shared/src/irq-shell.c
 libbsp_a_SOURCES += irq/irq.c
+libbsp_a_SOURCES += irq/gic.c
 
 # Console
 libbsp_a_SOURCES += ../../shared/console-termios.c

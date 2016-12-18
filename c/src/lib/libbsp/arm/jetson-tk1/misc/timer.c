@@ -28,11 +28,13 @@
 static bool benchmark_timer_find_average_overhead = false;
 
 static uint64_t benchmark_timer_base;
+static volatile uint64_t expected_ticks;
+static uint64_t ticks_per_beat;
 
 static uint32_t getTimerValue( uint32_t irqn )
 {
-  static u64 min_delta = ~0ULL, max_delta = 0;
-	u64 delta;
+  static uint64_t min_delta = ~0ULL, max_delta = 0;
+	uint64_t delta;
 
 	if (irqn != TIMER_IRQ)
 		return;
@@ -67,12 +69,12 @@ void benchmark_timer_initialize( void )
 
 benchmark_timer_t benchmark_timer_read( void )
 {
-  uint32_t delta = getTimerValue() - benchmark_timer_base;
+  uint32_t delta = getTimerValue(TIMER_IRQ) - benchmark_timer_base;
 
   if ( benchmark_timer_find_average_overhead ) {
     return delta;
   } else {
-    return getTimerValue();
+    return getTimerValue(TIMER_IRQ);
   }
 }
 
