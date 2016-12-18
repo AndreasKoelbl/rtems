@@ -35,9 +35,5 @@
  * @brief Interrupt support.
  */
 
-/* TODO: GICv2 support */
-void mmio_write32(void *address, uint32_t value);
-inline uint32_t mmio_read32(void *address);
-
 #endif /* ASM */
-#endif /* LIBBSP_ARM_RASPBERRYPI_IRQ_H */
+#endif /* LIBBSP_ARM_JETSONTK1_IRQ_H */

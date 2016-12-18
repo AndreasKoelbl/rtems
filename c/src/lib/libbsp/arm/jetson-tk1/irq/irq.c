@@ -33,14 +33,5 @@ void bsp_interrupt_handler_default(rtems_vector_number vector)
 
 rtems_status_code bsp_interrupt_facility_initialize(void)
 {
-  /* copy interrupts to (*(0x0)) */
-  uint8_t i;
-
-  //hypervisor_putc('I');
-  for (i = 0; i < 0x40; i += 4)
-  {
-    mmio_write32((void*) i, mmio_read32((void*) INMATE_BASE + i));
-  }
-
   return RTEMS_SUCCESSFUL;
 }

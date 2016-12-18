@@ -57,19 +57,18 @@ nodist_include_bsp_HEADERS =
 nodist_include_bsp_HEADERS += ../../shared/include/bootcard.h
 
 include_bsp_HEADERS =
-include_bsp_HEADERS += ../../../libbsp/shared/include/mm.h
 include_bsp_HEADERS += ../../shared/include/utility.h
 include_bsp_HEADERS += ../../shared/include/irq-generic.h
 include_bsp_HEADERS += ../../shared/include/irq-info.h
 include_bsp_HEADERS += ../../shared/include/stackalloc.h
 include_bsp_HEADERS += ../../shared/include/uart-output-char.h
-include_bsp_HEADERS += ../../shared/include/gpio.h
+#include_bsp_HEADERS += ../../shared/include/gpio.h
 include_bsp_HEADERS += ../shared/include/linker-symbols.h
 include_bsp_HEADERS += ../shared/include/start.h
-include_bsp_HEADERS += ../shared/include/arm-gic.h
-include_bsp_HEADERS += ../shared/include/arm-gic-regs.h
+#include_bsp_HEADERS += ../shared/include/arm-gic.h
+#include_bsp_HEADERS += ../shared/include/arm-gic-regs.h
 include_bsp_HEADERS += ../shared/armv7m/include/armv7m-irq.h
-include_bsp_HEADERS += ../shared/include/arm-gic-irq.h
+#include_bsp_HEADERS += ../shared/include/arm-gic-irq.h
 include_bsp_HEADERS += ../shared/include/arm-cp15-start.h
 include_bsp_HEADERS += ../shared/include/arm-errata.h
 include_bsp_HEADERS += ../shared/lpc/include/lpc-timer.h
@@ -112,10 +111,6 @@ libbsp_a_SOURCES += ../shared/armv7m/clock/armv7m-clock-config.c
 libbsp_a_SOURCES += clock/clockdrv.c
 
 # Console
-libbsp_a_SOURCES += ../../shared/console.c
-libbsp_a_SOURCES += ../../shared/console_control.c
-libbsp_a_SOURCES += ../../shared/console_read.c
-libbsp_a_SOURCES += ../../shared/console_write.c
 libbsp_a_SOURCES += console/console.c
 libbsp_a_SOURCES += console/debug-console.c
 libbsp_a_SOURCES += ../../shared/console-termios.c
@@ -138,13 +133,14 @@ libbsp_a_SOURCES += irq/irq.c
 
 # doesn't work for me :(
 
-libbsp_a_SOURCES += ../../shared/gpio.c
+#libbsp_a_SOURCES += ../../shared/gpio.c
 
 # Cache
 libbsp_a_SOURCES += ../../../libcpu/shared/src/cache_manager.c
 libbsp_a_SOURCES += ../shared/include/arm-cache-l1.h
 libbsp_a_SOURCES += ../shared/armv467ar-basic-cache/cache_.h
 libbsp_a_CPPFLAGS = -I$(srcdir)/../shared/armv7m
+libbsp_a_CPPFLAGS += -I$(srcdir)/../shared/armv467ar-basic-cache
 
 # Memory Management
 libbsp_a_SOURCES += ../shared/mminit.c
