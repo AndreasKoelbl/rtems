@@ -41,6 +41,7 @@ include_bsp_HEADERS += ../shared/lpc/include/lpc-timer.h
 include_bsp_HEADERS += ../shared/lpc/include/lpc-dma.h
 include_bsp_HEADERS += ../shared/include/arm-release-id.h
 
+include_bsp_HEADERS += ../shared/armv7m/include/armv7m-irq.h
 include_bsp_HEADERS += include/jetson-tk1.h
 include_bsp_HEADERS += include/memory.h
 include_bsp_HEADERS += include/console.h
@@ -108,6 +109,8 @@ libbsp_a_SOURCES += ../../shared/src/irq-info.c
 libbsp_a_SOURCES += ../../shared/src/irq-legacy.c
 libbsp_a_SOURCES += ../../shared/src/irq-server.c
 libbsp_a_SOURCES += ../../shared/src/irq-shell.c
+libbsp_a_SOURCES += ../shared/armv7m/irq/armv7m-irq.c
+libbsp_a_SOURCES += ../shared/armv7m/irq/armv7m-irq-dispatch.c
 libbsp_a_SOURCES += irq/irq.c
 libbsp_a_SOURCES += irq/gic.c
 
