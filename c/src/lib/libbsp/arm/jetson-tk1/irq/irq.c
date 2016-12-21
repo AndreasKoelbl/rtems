@@ -53,6 +53,18 @@ void gic_setup(irq_handler_t handler)
 
 void bsp_interrupt_handler_default(rtems_vector_number vector)
 {
+	uint32_t irqn;
+
+	while (1) {
+		irqn = gic_read_ack();
+		if (irqn == 0x3ff)
+			break;
+
+		if (irq_handler)
+			irq_handler(irqn);
+
+		gic_write_eoi(irqn);
+	}
 }
 
 void bsp_interrupt_dispatch(void)
@@ -73,9 +85,12 @@ rtems_status_code bsp_interrupt_vector_disable(rtems_vector_number vector)
 
 rtems_status_code bsp_interrupt_facility_initialize(void)
 {
+  writeText("before gic_setup\n");
   //gic_setup(bsp_interrupt_handler_default);
+  //gic_enable_irq(TIMER_IRQ);
 
 	mmio_write32(GICC_V2_BASE + GICC_CTLR, GICC_CTLR_GRPEN1);
 	//mmio_write32(GICC_V2_BASE + GICC_PMR, GICC_PMR_DEFAULT);
+  writeText("after gic_setup\n");
   return RTEMS_SUCCESSFUL;
 }

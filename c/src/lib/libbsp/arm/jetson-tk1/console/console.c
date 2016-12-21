@@ -39,7 +39,15 @@ static jetsontk1_uart_context jetsontk1_uart_instances[] = { {
 }
 };
 
-static void writechar(char out)
+void writeText(char* buf, size_t len)
+{
+  size_t i;
+	for (i = 0; (buf[i] != '\0') && (i < 255); i++) {
+		hypervisor_putc(buf[i]);
+	}
+}
+
+void writechar(char out)
 {
   register uint32_t num_res asm("r0") = 8;
 	register uint32_t arg1 asm("r1") = out;
