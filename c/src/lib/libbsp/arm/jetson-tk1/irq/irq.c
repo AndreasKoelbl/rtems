@@ -20,8 +20,6 @@
 #include <bsp/memory.h>
 #include <bsp/jetson-tk1.h>
 
-/* begin copy of jailhouse */
-
 irq_handler_t irq_handler = (irq_handler_t)NULL;
 
 void vector_irq(void)
@@ -47,9 +45,6 @@ void gic_setup(irq_handler_t handler)
 
 	gic_setup_irq_stack();
 }
-
-
-/* end copy of jailhouse */
 
 void bsp_interrupt_handler_default(rtems_vector_number vector)
 {
