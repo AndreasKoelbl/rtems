@@ -40,6 +40,10 @@
 
 _ARMV4_Exception_undef_default:
 
+  .arch_extension virt
+  mov r0,#8
+  mov r1,#'a'
+  hvc #0x4a48
 	/* Save context and load vector */
 	sub	sp, #MORE_CONTEXT_SIZE
 	stmdb	sp!, {r0-r12}
@@ -49,6 +53,10 @@ _ARMV4_Exception_undef_default:
 
 _ARMV4_Exception_swi_default:
 
+  .arch_extension virt
+  mov r0,#8
+  mov r1,#'b'
+  hvc #0x4a48
 	/* Save context and load vector */
 	sub	sp, #MORE_CONTEXT_SIZE
 	stmdb	sp!, {r0-r12}
@@ -58,6 +66,10 @@ _ARMV4_Exception_swi_default:
 
 _ARMV4_Exception_pref_abort_default:
 
+  .arch_extension virt
+  mov r0,#8
+  mov r1,#'c'
+  hvc #0x4a48
 	/* Save context and load vector */
 	sub	sp, #MORE_CONTEXT_SIZE
 	stmdb	sp!, {r0-r12}
@@ -67,7 +79,12 @@ _ARMV4_Exception_pref_abort_default:
 
 _ARMV4_Exception_data_abort_default:
 
+  .arch_extension virt
+  mov r0,#8
+  mov r1,#'d'
+  hvc #0x4a48
 	/* Save context and load vector */
+
 	sub	sp, #MORE_CONTEXT_SIZE
 	stmdb	sp!, {r0-r12}
 	mov	r4, #4
@@ -76,6 +93,10 @@ _ARMV4_Exception_data_abort_default:
 
 _ARMV4_Exception_reserved_default:
 
+  .arch_extension virt
+  mov r0,#8
+  mov r1,#'e'
+  hvc #0x4a48
 	/* Save context and load vector */
 	sub	sp, #MORE_CONTEXT_SIZE
 	stmdb	sp!, {r0-r12}
@@ -85,6 +106,10 @@ _ARMV4_Exception_reserved_default:
 
 _ARMV4_Exception_irq_default:
 
+  .arch_extension virt
+  mov r0,#8
+  mov r1,#'f'
+  hvc #0x4a48
 	/* Save context and load vector */
 	sub	sp, #MORE_CONTEXT_SIZE
 	stmdb	sp!, {r0-r12}
@@ -94,6 +119,10 @@ _ARMV4_Exception_irq_default:
 
 _ARMV4_Exception_fiq_default:
 
+  .arch_extension virt
+  mov r0,#8
+  mov r1,#'g'
+  hvc #0x4a48
 	/* Save context and load vector */
 	sub	sp, #MORE_CONTEXT_SIZE
 	stmdb	sp!, {r0-r12}
