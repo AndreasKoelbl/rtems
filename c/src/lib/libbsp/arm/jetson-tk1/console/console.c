@@ -66,16 +66,16 @@ static void reverse(char str[], int length)
     }
 }
 
-char* myitoa(uint32_t num, char* str, uint32_t base, int* size)
+void myitoa(uint32_t num, char* dest, uint32_t base, int* size)
 {
     int i = 0;
 
     /* Handle 0 explicitely, otherwise empty string is printed for 0 */
     if (num == 0)
     {
-        str[i++] = '0';
-        str[i] = '\0';
-        return str;
+        dest[i++] = '0';
+        dest[i] = '\0';
+        return;
     }
 
     while (num != 0)
@@ -83,22 +83,20 @@ char* myitoa(uint32_t num, char* str, uint32_t base, int* size)
         int rem = num % base;
         if (rem > 9)
         {
-          str[i++] = 'A' + (rem - 10);
+          dest[i++] = 'A' + (rem - 10);
         }
         else
         {
-          str[i++] = '0' + rem;
+          dest[i++] = '0' + rem;
         }
         num /= base;
     }
 
-    str[i] = '\0'; // Append string terminator
+    dest[i] = '\0';
 
     // Reverse the string
-    reverse(str, i);
+    reverse(dest, i);
     *size = i;
-
-    return str;
 }
 
 void hypervisor_putc(char c)
@@ -113,6 +111,18 @@ void hypervisor_putc(char c)
 		: "r" (num_res), "r" (arg1)
 		: "memory");
 }
+
+void printHex(uint32_t num)
+{
+  uint8_t size = 0;
+  char str[9];
+  rtems_termios_device_context debugContext;
+
+  myitoa(num, str, 16, &size);
+  jailhouse_dbgcon_write(&debugContext, str, size);
+}
+
+
 
 void jailhouse_dbgcon_write(
   rtems_termios_device_context *base,
