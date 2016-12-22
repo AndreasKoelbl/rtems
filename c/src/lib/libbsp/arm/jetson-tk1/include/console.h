@@ -24,7 +24,7 @@
 /* FIXME: wrong IRQ number, this is the timer */
 #define UART0_IRQn 27
 
-static void hypervisor_putc(char c);
+void hypervisor_putc(char c);
 static void jailhouse_dbgcon_write(
   rtems_termios_device_context *base,
   const char                   *buf,
