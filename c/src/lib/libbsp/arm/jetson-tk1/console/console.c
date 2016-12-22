@@ -47,19 +47,6 @@ void writeText(char* buf, size_t len)
 	}
 }
 
-void writechar(char out)
-{
-  register uint32_t num_res asm("r0") = 8;
-	register uint32_t arg1 asm("r1") = out;
-
-	asm volatile(
-		".arch_extension virt\n\t"
-		"hvc #0x4a48\n\t"
-		: "=r" (num_res)
-		: "r" (num_res), "r" (arg1)
-		: "memory");
-}
-
 static void swap(char *first, char *second)
 {
   char temp = *first;
