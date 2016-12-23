@@ -78,6 +78,14 @@ const arm_cp15_start_section_config arm_cp15_start_mmu_config_table[] = {
     .begin = (uint32_t) bsp_section_stack_begin,
     .end = (uint32_t) bsp_section_stack_end,
     .flags = ARMV7_MMU_DATA_READ_WRITE_CACHED
+  }, {
+    .begin = (uint32_t) BSP_ARM_GIC_DIST_BASE,
+    .end = (uint32_t) (BSP_ARM_GIC_DIST_BASE + 0x1000),
+    .flags = ARMV7_MMU_DEVICE
+  }, {
+    .begin = (uint32_t) BSP_ARM_GIC_CPUIF_BASE,
+    .end = (uint32_t) (BSP_ARM_GIC_CPUIF_BASE + 0x1000),
+    .flags = ARMV7_MMU_DEVICE
   }
 };
 
