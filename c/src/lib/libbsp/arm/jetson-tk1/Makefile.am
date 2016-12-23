@@ -121,11 +121,11 @@ libbsp_a_SOURCES += console/debug-console.c
 # clock
 libbsp_a_SOURCES += clock/clockdrv.c ../../../shared/clockdrv_shell.h
 
-# Timer
-libbsp_a_SOURCES += misc/timer.c
-
 # GPIO
 libbsp_a_SOURCES += ../../shared/gpio.c
+
+# Timer
+libbsp_a_SOURCES += ../../shared/timerstub.c
 
 # RTC
 
