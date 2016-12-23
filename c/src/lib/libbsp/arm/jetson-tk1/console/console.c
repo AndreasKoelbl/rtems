@@ -47,6 +47,19 @@ void writeText(char* buf, size_t len)
 	}
 }
 
+void writechar(char out)
+{
+  register uint32_t num_res asm("r0") = 8;
+	register uint32_t arg1 asm("r1") = out;
+
+	asm volatile(
+		".arch_extension virt\n\t"
+		"hvc #0x4a48\n\t"
+		: "=r" (num_res)
+		: "r" (num_res), "r" (arg1)
+		: "memory");
+}
+
 static void swap(char *first, char *second)
 {
   char temp = *first;
@@ -60,22 +73,22 @@ static void reverse(char str[], int length)
     int end = length -1;
     while (start < end)
     {
-        swap(str+start, str+end);
+        swap(*(str+start), *(str+end));
         start++;
         end--;
     }
 }
 
-void myitoa(uint32_t num, char* dest, uint32_t base, int* size)
+char* myitoa(uint32_t num, char* str, uint32_t base, int* size)
 {
     int i = 0;
 
     /* Handle 0 explicitely, otherwise empty string is printed for 0 */
     if (num == 0)
     {
-        dest[i++] = '0';
-        dest[i] = '\0';
-        return;
+        str[i++] = '0';
+        str[i] = '\0';
+        return str;
     }
 
     while (num != 0)
@@ -83,20 +96,22 @@ void myitoa(uint32_t num, char* dest, uint32_t base, int* size)
         int rem = num % base;
         if (rem > 9)
         {
-          dest[i++] = 'A' + (rem - 10);
+          str[i++] = 'A' + (rem - 10);
         }
         else
         {
-          dest[i++] = '0' + rem;
+          str[i++] = '0' + rem;
         }
         num /= base;
     }
 
-    dest[i] = '\0';
+    str[i] = '\0'; // Append string terminator
 
     // Reverse the string
-    reverse(dest, i);
+    reverse(str, i);
     *size = i;
+
+    return str;
 }
 
 void hypervisor_putc(char c)
@@ -111,18 +126,6 @@ void hypervisor_putc(char c)
 		: "r" (num_res), "r" (arg1)
 		: "memory");
 }
-
-void printHex(uint32_t num)
-{
-  uint8_t size = 0;
-  char str[9];
-  rtems_termios_device_context debugContext;
-
-  myitoa(num, str, 16, &size);
-  jailhouse_dbgcon_write(&debugContext, str, size);
-}
-
-
 
 void jailhouse_dbgcon_write(
   rtems_termios_device_context *base,

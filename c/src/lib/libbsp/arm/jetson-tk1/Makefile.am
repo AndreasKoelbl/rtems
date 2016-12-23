@@ -37,14 +37,17 @@ include_bsp_HEADERS += ../shared/include/linker-symbols.h
 include_bsp_HEADERS += ../shared/include/start.h
 include_bsp_HEADERS += ../shared/include/arm-cp15-start.h
 include_bsp_HEADERS += ../shared/include/arm-errata.h
-include_bsp_HEADERS += ../shared/lpc/include/lpc-timer.h
-include_bsp_HEADERS += ../shared/lpc/include/lpc-dma.h
+include_bsp_HEADERS += ../shared/include/arm-gic.h
+include_bsp_HEADERS += ../shared/include/arm-gic-irq.h
+include_bsp_HEADERS += ../shared/include/arm-gic-regs.h
+include_bsp_HEADERS += ../shared/include/arm-gic-tm27.h
 include_bsp_HEADERS += ../shared/include/arm-release-id.h
 
 include_bsp_HEADERS += include/jetson-tk1.h
 include_bsp_HEADERS += include/console.h
 
 include_bsp_HEADERS += include/irq.h
+include_bsp_HEADERS += include/gic.h
 include_bsp_HEADERS += include/mmu.h
 include_bsp_HEADERS += include/raspberrypi.h
 
@@ -101,12 +104,13 @@ libbsp_a_SOURCES += startup/bspreset.c
 
 # IRQ
 libbsp_a_SOURCES += ../shared/arm-cp15-set-exception-handler.c
+libbsp_a_SOURCES += ../../shared/src/irq-default-handler.c
 libbsp_a_SOURCES += ../../shared/src/irq-generic.c
 libbsp_a_SOURCES += ../../shared/src/irq-info.c
 libbsp_a_SOURCES += ../../shared/src/irq-legacy.c
 libbsp_a_SOURCES += ../../shared/src/irq-server.c
 libbsp_a_SOURCES += ../../shared/src/irq-shell.c
-libbsp_a_SOURCES += irq/irq.c
+libbsp_a_SOURCES += ../shared/arm-gic-irq.c
 
 # Console
 libbsp_a_SOURCES += ../../shared/console-termios.c
