@@ -79,7 +79,7 @@ static void reverse(char str[], int length)
     }
 }
 
-void myItoa(uint32_t num, char* str, uint32_t base, int* size)
+void myItoa(uint32_t num, char* str, uint32_t base)
 {
     int i = 0;
 
@@ -109,7 +109,6 @@ void myItoa(uint32_t num, char* str, uint32_t base, int* size)
 
     // Reverse the string
     reverse(str, i);
-    *size = i;
 }
 
 void hypervisor_putc(char c)
@@ -131,8 +130,9 @@ void printHex(uint32_t num)
   char str[9];
   rtems_termios_device_context debugContext;
 
-  myItoa(num, str, 16, &size);
-  jailhouse_dbgcon_write(&debugContext, str, size);
+  myItoa(num, str, 16);
+  writeText("0x");
+  jailhouse_dbgcon_write(&debugContext, str, strlen(str) + 1);
 }
 
 void jailhouse_dbgcon_write(

@@ -26,7 +26,7 @@
 
 void writeChar(char out);
 void writeText(char* buf);
-void myItoa(uint32_t num, char* str, uint32_t base, int* size);
+void myItoa(uint32_t num, char* str, uint32_t base);
 void printHex(uint32_t num);
 void hypervisor_putc(char c);
 static void jailhouse_dbgcon_write(
