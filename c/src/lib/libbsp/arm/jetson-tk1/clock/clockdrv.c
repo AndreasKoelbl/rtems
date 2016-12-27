@@ -20,41 +20,81 @@
 */
 
 #include <rtems.h>
+#include <rtems/timecounter.h>
 #include <bsp.h>
+#include <bsp/memory.h>
 #include <bsp/irq.h>
 #include <bsp/irq-generic.h>
-#include <bsp/raspberrypi.h>
-#include <rtems/timecounter.h>
 
+#define BEATS_PER_SEC  10U
 /* This is defined in ../../../shared/clockdrv_shell.h */
 void Clock_isr(rtems_irq_hdl_param arg);
+static struct timecounter clock_tc;
 static uint32_t counter = 0;
+static volatile uint64_t ticks_per_beat;
+static volatile uint64_t expected_ticks;
 
-static uint32_t jetson_clock_get_timecount(struct timecounter *tc)
+static uint64_t jetson_clock_get_timecount(struct timecounter *tc)
 {
-  writeText("clock get timecount");
-  return counter++;
+  uint64_t count;
+  arm_read_sysreg_64(0, c14, count);
+  return count;
 }
 
 static void jetson_clock_at_tick(void)
 {
-  writeText("clock at tick");
 }
 
 static void jetson_clock_handler_install_isr(
   rtems_isr_entry clock_isr
 )
 {
-  writeText("clock handler install isr");
-  printHex((uint32_t) clock_isr);
-  writeText("Itoa end");
-  rtems_fatal_error_occurred(0xdeadbeef);
+  rtems_status_code sc = RTEMS_SUCCESSFUL;
+  printk("Installing %p\n", (uint32_t*)clock_isr);
+
+  if (clock_isr != NULL) {
+    sc = rtems_interrupt_handler_install(
+      TIMER_IRQ,
+      "Clock",
+      RTEMS_INTERRUPT_UNIQUE,
+      (rtems_interrupt_handler) clock_isr,
+      NULL
+    );
+  } else {
+    /* Remove interrupt handler */
+    sc = rtems_interrupt_handler_remove(
+      TIMER_IRQ,
+      (rtems_interrupt_handler) Clock_isr,
+      NULL
+    );
+  }
+  if ( sc != RTEMS_SUCCESSFUL ) {
+    printk("fatal: %p\n", (uint32_t*)clock_isr);
+    rtems_fatal_error_occurred(0xdeadbeef);
+  }
+}
+
+void timer_start(uint64_t timeout)
+{
+	arm_write_sysreg_32(0, c14, c3, 0, timeout);
+	arm_write_sysreg_32(0, c14, c3, 1, 1);
+}
+
+unsigned long timer_get_frequency(void)
+{
+	unsigned long freq;
+	arm_read_sysreg_32(0, c14, c0, 0, freq);
+	return freq;
 }
 
 static void jetson_clock_initialize_hardware(void)
 {
-  writeText("clock init hardware");
-  rtems_fatal_error_occurred(0xdeadbeef);
+	timer_start(timer_get_frequency() / BEATS_PER_SEC);
+  clock_tc.tc_get_timecount = jetson_clock_get_timecount;
+  clock_tc.tc_counter_mask = 0xffffffff;
+  clock_tc.tc_frequency = timer_get_frequency();
+  clock_tc.tc_quality = 100;
+  rtems_timecounter_install(&clock_tc);
 }
 
 static void jetson_clock_cleanup(void)
