@@ -56,7 +56,6 @@ rtems_status_code _Timer_Fire(
 {
   Timer_Control    *the_timer;
   ISR_lock_Context  lock_context;
-  printf("timercreate 1\n");
 
   the_timer = _Timer_Get( id, &lock_context );
   if ( the_timer != NULL ) {
@@ -87,9 +86,7 @@ rtems_status_code _Timer_Fire(
 
     _Timer_Release( cpu, &lock_context );
     return RTEMS_SUCCESSFUL;
-  printf("timercreate 2\n");
   }
-  printf("timercreate 3\n");
 
   return RTEMS_INVALID_ID;
 }
