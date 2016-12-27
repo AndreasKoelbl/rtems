@@ -25,7 +25,7 @@ uint8_t value = 0;
 /* forward declarations to avoid warnings */
 rtems_task Init(rtems_task_argument argument);
 rtems_timer_service_routine Timer_Routine( rtems_id id, void *ignored );
-void myhandler(uint32_t foo);
+void handle_IRQ(uint32_t data);
 
 const char rtems_test_name[] = "HELLO WORLD";
 rtems_printer rtems_test_printer;
@@ -52,20 +52,19 @@ rtems_task Init(
 
   printf( "Hello World\n" );
 
-  status = rtems_timer_fire_after(Timer1, 1, myhandler, NULL);
+  status = rtems_timer_fire_after(Timer1, 10, handle_IRQ, NULL);
 
   rtems_interval interval = rtems_clock_get_ticks_since_boot();
    while (1) {
-    for (uint32_t i = 0; i < 0x10000000; i++)
-    {
-      asm volatile("nop");
-    }
     printf( "before wake\n" );
-    printf("interval: %d\n", interval);
     interval = rtems_clock_get_ticks_since_boot();
+    printf("interval: %d\n", interval);
+    printf("Wait for interrupts\n");
 
-    status = rtems_task_wake_after( 1 );
-    printf("after");
+    while (1)
+      asm volatile("wfi" : : : "memory");
+      status = rtems_task_wake_after( 1 );
+      printf("after");
   }
   rtems_test_end();
   exit( 0 );
@@ -89,15 +88,30 @@ rtems_timer_service_routine Timer_Routine( rtems_id id, void *ignored )
   );
 }
 
-void myhandler(uint32_t foo)
+void handle_IRQ(uint32_t data)
 {
-  printf("foo: %d received\n");
+  static uint32_t flag = 0;
+  rtems_status_code status;
+  if (flag == 0)
+  {
+    flag = 1;
+  }
+  else
+  {
+    flag = 0;
+  }
+  printf("data: %d received, flag: %d, ticks since boot: %d\n", data, flag, rtems_clock_get_ticks_since_boot());
+  status = rtems_timer_fire_after(Timer1, rtems_clock_get_ticks_per_second() * 10, handle_IRQ, NULL);
+  if ( status != RTEMS_SUCCESSFUL )
+  {
+    fprintf(stderr, "Timer1 fire failed\n");
+  }
 }
 
 
 
 /* NOTICE: the clock driver is explicitly disabled */
-#define CONFIGURE_APPLICATION_DOES_NOT_NEED_CLOCK_DRIVER
+#define CONFIGURE_APPLICATION_NEEDS_CLOCK_DRIVER
 #define CONFIGURE_APPLICATION_NEEDS_CONSOLE_DRIVER
 
 #define CONFIGURE_MAXIMUM_TASKS            1
@@ -106,6 +120,7 @@ void myhandler(uint32_t foo)
 #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
 
 #define CONFIGURE_INITIAL_EXTENSIONS RTEMS_TEST_INITIAL_EXTENSION
+#define CONFIGURE_MICROSECONDS_PER_TICK 12
 
 #define CONFIGURE_EXTRA_TASK_STACKS         (3 * RTEMS_MINIMUM_STACK_SIZE)
 #define CONFIGURE_INIT
