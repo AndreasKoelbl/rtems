@@ -21,6 +21,7 @@
 #include <bsp/irq.h>
 #include <bsp/irq-generic.h>
 #include <bsp/start.h>
+#include <bsp/console.h>
 
 #define GIC_CPUIF ((volatile gic_cpuif *) BSP_ARM_GIC_CPUIF_BASE)
 
@@ -47,6 +48,7 @@ void bsp_interrupt_dispatch(void)
 rtems_status_code bsp_interrupt_vector_enable(rtems_vector_number vector)
 {
   rtems_status_code sc = RTEMS_SUCCESSFUL;
+  writeText("Before vector enable\n");
 
   if (bsp_interrupt_is_valid_vector(vector)) {
     volatile gic_dist *dist = ARM_GIC_DIST;
@@ -110,6 +112,7 @@ rtems_status_code bsp_interrupt_facility_initialize(void)
 
   dist->icddcr = GIC_DIST_ICDDCR_ENABLE;
 
+  writeText("Interrupt Facility initialized\n");
   return RTEMS_SUCCESSFUL;
 }
 
