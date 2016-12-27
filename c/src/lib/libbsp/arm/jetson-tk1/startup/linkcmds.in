@@ -45,6 +45,6 @@ bsp_section_robarrier_align = DEFINED (bsp_section_robarrier_align) ? bsp_sectio
 bsp_translation_table_base = ORIGIN (RAM_MMU);
 bsp_translation_table_end = ORIGIN (RAM_MMU) + LENGTH (RAM_MMU);
 
-INCLUDE linkcmds.armv7m
+INCLUDE linkcmds.armv4
 
 HeapSize = DEFINED(HeapSize) ? HeapSize : 1024*1024;
