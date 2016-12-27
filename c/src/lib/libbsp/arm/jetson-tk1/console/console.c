@@ -39,7 +39,7 @@ static jetsontk1_uart_context jetsontk1_uart_instances[] = { {
 }
 };
 
-void writeText(char* buf, size_t len)
+void writeText(char* buf)
 {
   size_t i;
 	for (i = 0; (buf[i] != '\0') && (i < 255); i++) {
@@ -47,7 +47,7 @@ void writeText(char* buf, size_t len)
 	}
 }
 
-void writechar(char out)
+void writeChar(char out)
 {
   register uint32_t num_res asm("r0") = 8;
 	register uint32_t arg1 asm("r1") = out;
@@ -73,13 +73,13 @@ static void reverse(char str[], int length)
     int end = length -1;
     while (start < end)
     {
-        swap(*(str+start), *(str+end));
+        swap(str + start, str + end);
         start++;
         end--;
     }
 }
 
-char* myitoa(uint32_t num, char* str, uint32_t base, int* size)
+void myItoa(uint32_t num, char* str, uint32_t base, int* size)
 {
     int i = 0;
 
@@ -110,8 +110,6 @@ char* myitoa(uint32_t num, char* str, uint32_t base, int* size)
     // Reverse the string
     reverse(str, i);
     *size = i;
-
-    return str;
 }
 
 void hypervisor_putc(char c)
@@ -125,6 +123,16 @@ void hypervisor_putc(char c)
 		: "=r" (num_res)
 		: "r" (num_res), "r" (arg1)
 		: "memory");
+}
+
+void printHex(uint32_t num)
+{
+  uint8_t size = 0;
+  char str[9];
+  rtems_termios_device_context debugContext;
+
+  myItoa(num, str, 16, &size);
+  jailhouse_dbgcon_write(&debugContext, str, size);
 }
 
 void jailhouse_dbgcon_write(
@@ -257,4 +265,3 @@ rtems_status_code console_initialize(
 
   return RTEMS_SUCCESSFUL;
 }
-

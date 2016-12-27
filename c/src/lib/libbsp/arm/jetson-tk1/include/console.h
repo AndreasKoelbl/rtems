@@ -24,6 +24,10 @@
 /* FIXME: wrong IRQ number, this is the timer */
 #define UART0_IRQn 27
 
+void writeChar(char out);
+void writeText(char* buf);
+void myItoa(uint32_t num, char* str, uint32_t base, int* size);
+void printHex(uint32_t num);
 void hypervisor_putc(char c);
 static void jailhouse_dbgcon_write(
   rtems_termios_device_context *base,
