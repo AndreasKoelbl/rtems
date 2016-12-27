@@ -39,6 +39,8 @@
 .arm
 
 _ARMV4_Exception_undef_default:
+  mov r0,lr
+  bl print_hex
 
   .arch_extension virt
   mov r0,#8
@@ -52,6 +54,8 @@ _ARMV4_Exception_undef_default:
 	b	save_more_context
 
 _ARMV4_Exception_swi_default:
+  mov r0,lr
+  bl print_hex
 
   .arch_extension virt
   mov r0,#8
@@ -65,6 +69,8 @@ _ARMV4_Exception_swi_default:
 	b	save_more_context
 
 _ARMV4_Exception_pref_abort_default:
+  mov r0,lr
+  bl print_hex
 
   .arch_extension virt
   mov r0,#8
@@ -78,6 +84,8 @@ _ARMV4_Exception_pref_abort_default:
 	b	save_more_context
 
 _ARMV4_Exception_data_abort_default:
+  mov r0,lr
+  bl print_hex
 
   .arch_extension virt
   mov r0,#8
@@ -92,6 +100,8 @@ _ARMV4_Exception_data_abort_default:
 	b	save_more_context
 
 _ARMV4_Exception_reserved_default:
+  mov r0,lr
+  bl print_hex
 
   .arch_extension virt
   mov r0,#8
@@ -105,6 +115,8 @@ _ARMV4_Exception_reserved_default:
 	b	save_more_context
 
 _ARMV4_Exception_irq_default:
+  mov r0,lr
+  bl print_hex
 
   .arch_extension virt
   mov r0,#8
@@ -118,6 +130,8 @@ _ARMV4_Exception_irq_default:
 	b	save_more_context
 
 _ARMV4_Exception_fiq_default:
+  mov r0,lr
+  bl print_hex
 
   .arch_extension virt
   mov r0,#8
