@@ -30,11 +30,12 @@
 /* This is defined in ../../../shared/clockdrv_shell.h */
 void Clock_isr(rtems_irq_hdl_param arg);
 static struct timecounter clock_tc;
+//static rtems_timecouter_simple clock_tc;
 static uint32_t counter = 0;
 static volatile uint64_t ticks_per_beat;
 static volatile uint64_t expected_ticks;
 
-static uint64_t jetson_clock_get_timecount(struct timecounter *tc)
+uint64_t jetson_clock_get_timecount(struct timecounter *tc)
 {
   uint64_t count;
   arm_read_sysreg_64(0, c14, count);
@@ -89,7 +90,10 @@ unsigned long timer_get_frequency(void)
 
 static void jetson_clock_initialize_hardware(void)
 {
-	timer_start(timer_get_frequency() / BEATS_PER_SEC);
+  uint64_t us_per_tick = rtems_configuration_get_microseconds_per_tick();
+  uint32_t timecounter_ticks_per_clock_tick =
+            ( timer_get_frequency() * us_per_tick ) / 1000000;
+	timer_start(1200000);
   clock_tc.tc_get_timecount = jetson_clock_get_timecount;
   clock_tc.tc_counter_mask = 0xffffffff;
   clock_tc.tc_frequency = timer_get_frequency();
@@ -99,7 +103,16 @@ static void jetson_clock_initialize_hardware(void)
 
 static void jetson_clock_cleanup(void)
 {
-  writeText("clock_cleanup");
+  rtems_status_code sc = RTEMS_SUCCESSFUL;
+
+  sc = rtems_interrupt_handler_remove(
+    TIMER_IRQ,
+    (rtems_interrupt_handler) Clock_isr,
+    NULL
+  );
+  if (sc != RTEMS_SUCCESSFUL) {
+    rtems_fatal_error_occurred(0xdeadbeef);
+  }
 }
 
 #define Clock_driver_support_at_tick() jetson_clock_at_tick()
