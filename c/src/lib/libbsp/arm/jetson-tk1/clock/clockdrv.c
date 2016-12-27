@@ -28,30 +28,38 @@
 
 /* This is defined in ../../../shared/clockdrv_shell.h */
 void Clock_isr(rtems_irq_hdl_param arg);
+static uint32_t counter = 0;
 
 static uint32_t jetson_clock_get_timecount(struct timecounter *tc)
 {
-  return 0;
+  writeText("clock get timecount");
+  return counter++;
 }
 
 static void jetson_clock_at_tick(void)
 {
+  writeText("clock at tick");
 }
 
 static void jetson_clock_handler_install_isr(
   rtems_isr_entry clock_isr
 )
 {
-    rtems_fatal_error_occurred(0xdeadbeef);
+  writeText("clock handler install isr");
+  printHex((uint32_t) clock_isr);
+  writeText("Itoa end");
+  rtems_fatal_error_occurred(0xdeadbeef);
 }
 
 static void jetson_clock_initialize_hardware(void)
 {
+  writeText("clock init hardware");
   rtems_fatal_error_occurred(0xdeadbeef);
 }
 
 static void jetson_clock_cleanup(void)
 {
+  writeText("clock_cleanup");
 }
 
 #define Clock_driver_support_at_tick() jetson_clock_at_tick()
