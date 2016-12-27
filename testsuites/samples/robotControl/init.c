@@ -19,13 +19,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define BEATS_PER_SEC       10
 rtems_id     Timer1;
 uint8_t value = 0;
+
+static uint64_t ticks_per_beat;
+static volatile uint64_t expected_ticks;
 
 /* forward declarations to avoid warnings */
 rtems_task Init(rtems_task_argument argument);
 rtems_timer_service_routine Timer_Routine( rtems_id id, void *ignored );
-void handle_IRQ(uint32_t data);
+void handle_IRQ(rtems_id id, void* data);
 
 const char rtems_test_name[] = "HELLO WORLD";
 rtems_printer rtems_test_printer;
@@ -35,62 +39,33 @@ rtems_task Init(
 )
 {
   rtems_status_code status;
+  ticks_per_beat = timer_get_frequency() / BEATS_PER_SEC;
+  //expected_ticks = rtems_clock_get_ticks_since_boot() + ticks_per_beat;
+  expected_ticks = jetson_clock_get_timecount() + ticks_per_beat;
+
   rtems_print_printer_printf(&rtems_test_printer);
 
   status = rtems_timer_create(rtems_build_name( 'T', 'M', 'R', '1' ), &Timer1);
   if ( status != RTEMS_SUCCESSFUL )
   {
     fprintf(stderr, "Timer1 create failed\n");
+    exit( 0 );
   }
-  else
-  {
-    printf("Timer1 create success\n");
-  }
-
-
-  Timer_Routine(Timer1, NULL);
-
-  printf( "Hello World\n" );
-
-  status = rtems_timer_fire_after(Timer1, 10, handle_IRQ, NULL);
-
-  rtems_interval interval = rtems_clock_get_ticks_since_boot();
-   while (1) {
-    printf( "before wake\n" );
-    interval = rtems_clock_get_ticks_since_boot();
-    printf("interval: %d\n", interval);
+  printf("Initializing the timer...\n");
+  handle_IRQ(Timer1, NULL);
+  while (1) {
     printf("Wait for interrupts\n");
-
-    while (1)
-      asm volatile("wfi" : : : "memory");
-      status = rtems_task_wake_after( 1 );
-      printf("after");
+    /* maybe we should sleep in here: rtems_task_wake_after */
+    asm volatile("wfi" : : : "memory");
   }
   rtems_test_end();
-  exit( 0 );
+  rtems_task_delete( RTEMS_SELF );
 }
 
-rtems_timer_service_routine Timer_Routine( rtems_id id, void *ignored )
-{
-  rtems_status_code status;
-  printf("timer install after: %d\n", 2 * rtems_clock_get_ticks_per_second());
-
-  if ( id == Timer1 )
-    value = 1;
-  else
-    value = 2;
-
-  status = rtems_timer_fire_after(
-    id,
-    1,
-    Timer_Routine,
-    NULL
-  );
-}
-
-void handle_IRQ(uint32_t data)
+void handle_IRQ(rtems_id id, void* data)
 {
   static uint32_t flag = 0;
+  uint64_t delta;
   rtems_status_code status;
   if (flag == 0)
   {
@@ -100,11 +75,13 @@ void handle_IRQ(uint32_t data)
   {
     flag = 0;
   }
-  printf("data: %d received, flag: %d, ticks since boot: %d\n", data, flag, rtems_clock_get_ticks_since_boot());
-  status = rtems_timer_fire_after(Timer1, rtems_clock_get_ticks_per_second() * 10, handle_IRQ, NULL);
+  delta = jetson_clock_get_timecount() - expected_ticks;
+  printf("id: %d data: %p, flag: %d, rtemsticks: %d, delta: %lu\n", id, data, flag, rtems_clock_get_ticks_since_boot(), delta);
+  status = rtems_timer_fire_after(id, ticks_per_beat / 4, handle_IRQ, NULL);
   if ( status != RTEMS_SUCCESSFUL )
   {
     fprintf(stderr, "Timer1 fire failed\n");
+    exit( 0 );
   }
 }
 
@@ -114,8 +91,8 @@ void handle_IRQ(uint32_t data)
 #define CONFIGURE_APPLICATION_NEEDS_CLOCK_DRIVER
 #define CONFIGURE_APPLICATION_NEEDS_CONSOLE_DRIVER
 
-#define CONFIGURE_MAXIMUM_TASKS            1
-#define CONFIGURE_MAXIMUM_TIMERS        2
+#define CONFIGURE_MAXIMUM_TASKS             1
+#define CONFIGURE_MAXIMUM_TIMERS            1
 
 #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
 
