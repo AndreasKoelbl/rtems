@@ -48,7 +48,7 @@ void bsp_interrupt_dispatch(void)
 rtems_status_code bsp_interrupt_vector_enable(rtems_vector_number vector)
 {
   rtems_status_code sc = RTEMS_SUCCESSFUL;
-  writeText("Before vector enable\n");
+  printk("Enabling: %d\n", vector);
 
   if (bsp_interrupt_is_valid_vector(vector)) {
     volatile gic_dist *dist = ARM_GIC_DIST;
