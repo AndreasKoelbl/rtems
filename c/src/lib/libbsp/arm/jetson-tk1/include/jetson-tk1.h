@@ -28,13 +28,6 @@ typedef struct {
   const char *device_name;
 } jetsontk1_driver_context;
 
-typedef struct {
-  uint32_t TX;    /* same as UART_DLL, depends on value in LCR */
-  uint64_t DLM;
-  uint64_t LSR;
-  void *location;
-} Uart;
-
 static inline void cpu_relax(void)
 {
 	asm volatile("" : : : "memory");

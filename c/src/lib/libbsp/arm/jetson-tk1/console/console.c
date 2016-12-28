@@ -31,7 +31,7 @@
 
 typedef struct {
   rtems_termios_device_context base;
-  Uart *regs;
+  void *regs;
   rtems_vector_number irq;
 } jetsontk1_uart_context;
 
@@ -69,7 +69,7 @@ void jetsontk1_driver_write(
       c = '\r';
     } else
     {
-      c = buf[i]; 
+      c = buf[i];
     }
     while (is_busy())
     {
