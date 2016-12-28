@@ -22,6 +22,7 @@
 
 #include <bsp.h>
 #include <bsp/jetson-tk1.h>
+#include <bsp/console.h>
 #include <bsp/arm-cp15-start.h>
 
 /*
