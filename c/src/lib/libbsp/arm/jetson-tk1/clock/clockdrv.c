@@ -79,18 +79,15 @@ void clocks_calc_mult_shift(uint32_t *mult, uint32_t *shift, uint32_t from,
 
 uint64_t jetson_clock_get_timecount(struct timecounter *tc)
 {
-	int32_t value;
+	uint32_t value;
+  uint32_t tsc_ref_freq = 1000000;// tegra_clk_measure_input_freq();
+  clocks_calc_mult_shift(&arch_timer_us_mult, &arch_timer_us_shift,
+    tsc_ref_freq, USEC_PER_SEC, 0);
+
 	asm volatile("mrc p15, 0, %0, c14, c2, 0" : "=r" (value));
-	if (value <= 0)
-  {
-		value = -1;
-  }	else {
-		value = (int64_t)((int64_t)value * arch_timer_us_mult)
-			>> arch_timer_us_shift;
-    printk("value: %d = %ld * %u >> %u\n", value, (int64_t) value,
-           arch_timer_us_mult, arch_timer_us_shift);
-  }
-  return value;
+  value = (uint64_t)((uint64_t)value * arch_timer_us_mult)
+    >> arch_timer_us_shift;
+  return 0xffffffff - value;
 }
 
 static void jetson_clock_at_tick(void)
@@ -141,16 +138,20 @@ unsigned long timer_get_frequency(void)
 
 void init_timer(void)
 {
-  uint32_t tsc_ref_freq = 12000000;// tegra_clk_measure_input_freq();
-  uint32_t reg;
+  uint32_t tsc_ref_freq = 1000000;// tegra_clk_measure_input_freq();
+  uint32_t reg = 1000000;
 
+    clocks_calc_mult_shift(&arch_timer_us_mult, &arch_timer_us_shift,
+      tsc_ref_freq, USEC_PER_SEC, 0);
 
 		/* Set the Timer System Counter (TSC) reference frequency
 		   NOTE: this is a write once register */
 		mmio_write32(TSC_BASE + TSC_CNTFID0, tsc_ref_freq);
 		/* Program CNTFRQ to the same value.
 		   NOTE: this is a write once (per CPU reset) register. */
+    /* This will kill the jetson
 		__asm__("mcr p15, 0, %0, c14, c0, 0\n" : : "r" (tsc_ref_freq));
+    */
 		/* CNTFRQ must agree with the TSC reference frequency. */
 		__asm__("mrc p15, 0, %0, c14, c0, 0\n" : "=r" (reg));
     if (reg != tsc_ref_freq)
@@ -161,9 +162,6 @@ void init_timer(void)
 		reg = mmio_read32(TSC_CNTCR);
 		reg |= TSC_CNTCR_ENABLE | TSC_CNTCR_HDBG;
 		mmio_write32(TSC_BASE + TSC_CNTCR, reg);
-    clocks_calc_mult_shift(&arch_timer_us_mult, &arch_timer_us_shift,
-				tsc_ref_freq, USEC_PER_SEC, 0);
-
 }
 static void jetson_clock_initialize_hardware(void)
 {
@@ -176,7 +174,7 @@ static void jetson_clock_initialize_hardware(void)
 	timer_start(timecounter_ticks_per_clock_tick);
   clock_tc.tc_get_timecount = jetson_clock_get_timecount;
   clock_tc.tc_counter_mask = 0xffffffff;
-  clock_tc.tc_frequency = timer_get_frequency();
+  clock_tc.tc_frequency = 1000000U;
   clock_tc.tc_quality = RTEMS_TIMECOUNTER_QUALITY_CLOCK_DRIVER;
   rtems_timecounter_install( &clock_tc );
 }
