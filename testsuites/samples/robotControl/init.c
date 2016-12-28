@@ -75,7 +75,7 @@ void handle_IRQ(rtems_id id, void* data)
     flag = 0;
   }
   delta = jetson_clock_get_timecount() - expected_ticks;
-  printf("ticks_per_beat / 10: %d id: %d data: %p, flag: %d, rtemsticks: %d, delta: %lu\n", ticks_per_beat / 10, id, data, flag, rtems_clock_get_ticks_since_boot(), delta);
+  printf("count: %lu ticks_per_beat: %d id: %d data: %p, flag: %d, rtemsticks: %d, delta: %lu\n", jetson_clock_get_timecount(), ticks_per_beat, id, data, flag, rtems_clock_get_ticks_since_boot(), delta);
   status = rtems_timer_fire_after(id, ticks_per_beat, handle_IRQ, NULL);
 //  status = rtems_timer_fire_after(id, 1, handle_IRQ, NULL);
   if ( status != RTEMS_SUCCESSFUL )

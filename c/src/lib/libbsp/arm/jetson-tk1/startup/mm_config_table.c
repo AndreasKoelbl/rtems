@@ -80,6 +80,10 @@ const arm_cp15_start_section_config arm_cp15_start_mmu_config_table[] = {
     .end = (uint32_t) bsp_section_stack_end,
     .flags = ARMV7_MMU_DATA_READ_WRITE_CACHED
   }, {
+    .begin = (uint32_t) TSC_BASE,
+    .end   = (uint32_t) TSC_BASE + 0x1000,
+    .flags = ARMV7_MMU_DEVICE
+  }, {
     .begin = (uint32_t) UART0,
     .end = (uint32_t) UART0 + 0x80,
     .flags = ARMV7_MMU_DEVICE
