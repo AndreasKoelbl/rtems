@@ -19,7 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define BEATS_PER_SEC       10
+#define BEATS_PER_SEC       1000
 rtems_id     Timer1;
 uint8_t value = 0;
 
@@ -40,7 +40,6 @@ rtems_task Init(
 {
   rtems_status_code status;
   ticks_per_beat = timer_get_frequency() / BEATS_PER_SEC;
-  //expected_ticks = rtems_clock_get_ticks_since_boot() + ticks_per_beat;
   expected_ticks = jetson_clock_get_timecount() + ticks_per_beat;
 
   rtems_print_printer_printf(&rtems_test_printer);
@@ -76,8 +75,9 @@ void handle_IRQ(rtems_id id, void* data)
     flag = 0;
   }
   delta = jetson_clock_get_timecount() - expected_ticks;
-  printf("id: %d data: %p, flag: %d, rtemsticks: %d, delta: %lu\n", id, data, flag, rtems_clock_get_ticks_since_boot(), delta);
-  status = rtems_timer_fire_after(id, ticks_per_beat / 4, handle_IRQ, NULL);
+  printf("ticks_per_beat / 10: %d id: %d data: %p, flag: %d, rtemsticks: %d, delta: %lu\n", ticks_per_beat / 10, id, data, flag, rtems_clock_get_ticks_since_boot(), delta);
+  status = rtems_timer_fire_after(id, ticks_per_beat, handle_IRQ, NULL);
+//  status = rtems_timer_fire_after(id, 1, handle_IRQ, NULL);
   if ( status != RTEMS_SUCCESSFUL )
   {
     fprintf(stderr, "Timer1 fire failed\n");
@@ -97,7 +97,7 @@ void handle_IRQ(rtems_id id, void* data)
 #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
 
 #define CONFIGURE_INITIAL_EXTENSIONS RTEMS_TEST_INITIAL_EXTENSION
-#define CONFIGURE_MICROSECONDS_PER_TICK 12
+#define CONFIGURE_MICROSECONDS_PER_TICK 1000000
 
 #define CONFIGURE_EXTRA_TASK_STACKS         (3 * RTEMS_MINIMUM_STACK_SIZE)
 #define CONFIGURE_INIT
