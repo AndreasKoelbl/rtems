@@ -33,6 +33,11 @@ typedef struct {
   void *location;
 } Uart;
 
+static inline void cpu_relax(void)
+{
+	asm volatile("" : : : "memory");
+}
+
 /**
  * @defgroup jetson-tk1_reg Register Definitions
  *
