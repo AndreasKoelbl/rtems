@@ -30,7 +30,6 @@
 /* This is defined in ../../../shared/clockdrv_shell.h */
 void Clock_isr(rtems_irq_hdl_param arg);
 static struct timecounter clock_tc;
-//static rtems_timecouter_simple clock_tc;
 static uint32_t counter = 0;
 static volatile uint64_t ticks_per_beat;
 static volatile uint64_t expected_ticks;
@@ -93,12 +92,13 @@ static void jetson_clock_initialize_hardware(void)
   uint64_t us_per_tick = rtems_configuration_get_microseconds_per_tick();
   uint32_t timecounter_ticks_per_clock_tick =
             ( timer_get_frequency() * us_per_tick ) / 1000000;
-	timer_start(1200000);
+  printk("Rtems timer start value: %d\n", timecounter_ticks_per_clock_tick);
+	timer_start(timecounter_ticks_per_clock_tick);
   clock_tc.tc_get_timecount = jetson_clock_get_timecount;
   clock_tc.tc_counter_mask = 0xffffffff;
   clock_tc.tc_frequency = timer_get_frequency();
-  clock_tc.tc_quality = 100;
-  rtems_timecounter_install(&clock_tc);
+  clock_tc.tc_quality = RTEMS_TIMECOUNTER_QUALITY_CLOCK_DRIVER;
+  rtems_timecounter_install( &clock_tc );
 }
 
 static void jetson_clock_cleanup(void)
