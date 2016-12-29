@@ -18,13 +18,16 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 
 #define BEATS_PER_SEC       1000
+#define abs(x) ((x)<0 ? -(x) : (x))
+
 rtems_id     Timer1;
 uint8_t value = 0;
 
-static uint64_t ticks_per_beat;
-static volatile uint64_t expected_ticks;
+static uint32_t ticks_per_beat;
+static volatile uint32_t expected_ticks;
 
 /* forward declarations to avoid warnings */
 rtems_task Init(rtems_task_argument argument);
@@ -40,7 +43,6 @@ rtems_task Init(
 {
   rtems_status_code status;
   ticks_per_beat = timer_get_frequency() / BEATS_PER_SEC;
-  expected_ticks = jetson_clock_get_timecount() + ticks_per_beat;
 
   rtems_print_printer_printf(&rtems_test_printer);
 
@@ -50,7 +52,7 @@ rtems_task Init(
     fprintf(stderr, "Timer1 create failed\n");
     exit( 0 );
   }
-  printf("Initializing the timer...\n");
+  //printf("Initializing the timer...\n");
   handle_IRQ(Timer1, NULL);
   while (1) {
     printf("Wait for interrupts\n");
@@ -63,21 +65,39 @@ rtems_task Init(
 
 void handle_IRQ(rtems_id id, void* data)
 {
-  static uint32_t flag = 0;
-  uint64_t delta;
   rtems_status_code status;
-  if (flag == 0)
+  uint32_t currentTime = jetson_clock_get_timecount();
+  static uint32_t oldTime = 0;
+  static int32_t minDelta = INT_MAX;
+  static int32_t maxDelta = INT_MIN;
+  int32_t delta = 0;
+
+  expected_ticks = 1000000 + ticks_per_beat;
+  if (oldTime < currentTime)
   {
-    flag = 1;
+    delta = (int32_t) (currentTime - oldTime - expected_ticks);
+  } else {
+    delta = (int32_t) (0xffffffff - oldTime + currentTime - expected_ticks);
   }
-  else
+
+  if (abs(delta) < minDelta)
   {
-    flag = 0;
+    minDelta = abs(delta);
   }
-  delta = jetson_clock_get_timecount() - expected_ticks;
-  printf("count: %lu ticks_per_beat: %d id: %d data: %p, flag: %d, rtemsticks: %d, delta: %lu\n", jetson_clock_get_timecount(), ticks_per_beat, id, data, flag, rtems_clock_get_ticks_since_boot(), delta);
-  status = rtems_timer_fire_after(id, ticks_per_beat, handle_IRQ, NULL);
-//  status = rtems_timer_fire_after(id, 1, handle_IRQ, NULL);
+  if ((delta > maxDelta) && (delta < 99999)) //dirty
+  {
+    maxDelta = delta;
+  }
+
+	printf("Timer fired jitter: %6ld ns, min: %6ld ns, max: %6ld ns\n",
+         delta, minDelta, maxDelta);
+  oldTime = currentTime;
+/*  printf("count: %lu ticks_per_beat: %lu id: %d data: %p, rtemsticks: %d, "\
+         "delta: %lu expected_ticks: %lu\n", currentTime, ticks_per_beat, id, data,
+         rtems_clock_get_ticks_since_boot(), delta, expected_ticks);
+         */
+
+  status = rtems_timer_fire_after(id, ticks_per_beat * 2, handle_IRQ, NULL);
   if ( status != RTEMS_SUCCESSFUL )
   {
     fprintf(stderr, "Timer1 fire failed\n");
