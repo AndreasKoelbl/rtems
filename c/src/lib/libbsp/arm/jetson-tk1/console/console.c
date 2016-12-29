@@ -195,8 +195,8 @@ rtems_status_code console_initialize(
   if (status != RTEMS_SUCCESSFUL)
     rtems_fatal_error_occurred(status);
 
-  jetsontk1_driver_write((struct rtems_termios_device_context*) arg, \
-                          hello, strlen(hello) + 1);
+//  jetsontk1_driver_write((struct rtems_termios_device_context*) arg, \
+//                          hello, strlen(hello));
 
   return RTEMS_SUCCESSFUL;
 }
@@ -278,7 +278,6 @@ void myItoa(uint32_t num, char* str, uint32_t base)
 
     str[i] = '\0'; // Append string terminator
 
-    // Reverse the string
     reverse(str, i);
 }
 
