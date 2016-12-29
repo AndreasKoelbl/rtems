@@ -158,7 +158,7 @@ static void jetson_clock_initialize_hardware(void)
   init_timer();
   printk("Rtems timer start value: %d\n\n", timecounter_ticks_per_clock_tick /
          BEATS_PER_SEC);
-	timer_start(timecounter_ticks_per_clock_tick / BEATS_PER_SEC );
+	timer_start(timecounter_ticks_per_clock_tick);
   clock_tc.tc_get_timecount = jetson_clock_get_timecount;
   clock_tc.tc_counter_mask = 0xffffffff;
   clock_tc.tc_frequency = USEC_PER_SEC;

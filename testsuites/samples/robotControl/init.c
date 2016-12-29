@@ -52,8 +52,13 @@ rtems_task Init(
     fprintf(stderr, "Timer1 create failed\n");
     exit( 0 );
   }
-  //printf("Initializing the timer...\n");
-  handle_IRQ(Timer1, NULL);
+  status = rtems_timer_fire_after(Timer1, ticks_per_beat * 2, handle_IRQ, NULL);
+  if ( status != RTEMS_SUCCESSFUL )
+  {
+    fprintf(stderr, "Timer1 fire failed\n");
+    exit( 0 );
+  }
+
   while (1) {
     printf("Wait for interrupts\n");
     /* maybe we should sleep in here: rtems_task_wake_after */
@@ -84,25 +89,20 @@ void handle_IRQ(rtems_id id, void* data)
   {
     minDelta = abs(delta);
   }
-  if ((delta > maxDelta) && (delta < 99999)) //dirty
+  if ((delta > maxDelta) )//  && (delta < 99999))
   {
     maxDelta = delta;
   }
 
-	printf("Timer fired jitter: %6ld ns, min: %6ld ns, max: %6ld ns\n",
-         delta, minDelta, maxDelta);
+//	printf("Timer fired jitter: %6ld ns, min: %6ld ns, max: %6ld ns\n",
+//         delta, minDelta, maxDelta);
   oldTime = currentTime;
-/*  printf("count: %lu ticks_per_beat: %lu id: %d data: %p, rtemsticks: %d, "\
+  printf("count: %lu ticks_per_beat: %lu id: %d data: %p, rtemsticks: %d, "\
          "delta: %lu expected_ticks: %lu\n", currentTime, ticks_per_beat, id, data,
          rtems_clock_get_ticks_since_boot(), delta, expected_ticks);
-         */
 
   status = rtems_timer_fire_after(id, ticks_per_beat * 2, handle_IRQ, NULL);
-  if ( status != RTEMS_SUCCESSFUL )
-  {
-    fprintf(stderr, "Timer1 fire failed\n");
-    exit( 0 );
-  }
+
 }
 
 
