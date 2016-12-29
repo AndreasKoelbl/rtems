@@ -48,7 +48,6 @@ void bsp_interrupt_dispatch(void)
 rtems_status_code bsp_interrupt_vector_enable(rtems_vector_number vector)
 {
   rtems_status_code sc = RTEMS_SUCCESSFUL;
-  printk("Enabling: %d\n", vector);
 
   if (bsp_interrupt_is_valid_vector(vector)) {
     volatile gic_dist *dist = ARM_GIC_DIST;
@@ -92,7 +91,6 @@ rtems_status_code bsp_interrupt_facility_initialize(void)
   volatile gic_dist *dist = ARM_GIC_DIST;
   uint32_t id_count = get_id_count(dist);
   uint32_t id;
-  const char* welcome_msg = "Interrupt Facility initialized\n";
 
   arm_cp15_set_exception_handler(
     ARM_EXCEPTION_IRQ,
@@ -112,8 +110,6 @@ rtems_status_code bsp_interrupt_facility_initialize(void)
   cpuif->iccicr = GIC_CPUIF_ICCICR_ENABLE;
 
   dist->icddcr = GIC_DIST_ICDDCR_ENABLE;
-
-  jetsontk1_driver_write(NULL, welcome_msg, strlen(welcome_msg) + 1);
 
   return RTEMS_SUCCESSFUL;
 }
