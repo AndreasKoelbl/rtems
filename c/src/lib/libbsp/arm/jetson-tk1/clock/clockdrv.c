@@ -81,13 +81,6 @@ uint32_t jetson_clock_get_timecount(struct timecounter *tc)
 {
 	uint32_t value;
 
-  /* Get remaining
-  uint32_t tsc_ref_freq = 1000000;// tegra_clk_measure_input_freq();
-  clocks_calc_mult_shift(&arch_timer_us_mult, &arch_timer_us_shift,
-    tsc_ref_freq, USEC_PER_SEC, 0);
-	asm volatile("mrc p15, 0, %0, c14, c2, 0" : "=r" (value));
-  value = (uint64_t)((uint64_t)value * arch_timer_us_mult)>> arch_timer_us_shift;
-  */
 	asm volatile("mrrc p15, 0, %Q0, %R0, c14" : "=r" (value));
   return value;
 }
@@ -125,7 +118,7 @@ static void jetson_clock_handler_install_isr(
   }
 }
 
-void timer_start(uint64_t timeout)
+void gic_timer_start(uint32_t timeout)
 {
 	arm_write_sysreg_32(0, c14, c3, 0, timeout);
 	arm_write_sysreg_32(0, c14, c3, 1, 1);
@@ -138,30 +131,19 @@ unsigned long timer_get_frequency(void)
 	return freq;
 }
 
-void init_timer(void)
-{
-  uint32_t tsc_ref_freq = USEC_PER_SEC;// tegra_clk_measure_input_freq();
-  uint32_t reg = 1000000;
-
-  /* Enable the TSC. */
-  /*reg = mmio_read32(TSC_CNTCR);
-  reg |= TSC_CNTCR_ENABLE | TSC_CNTCR_HDBG;
-  mmio_write32(TSC_BASE + TSC_CNTCR, reg);
-  */
-}
 static void jetson_clock_initialize_hardware(void)
 {
-  uint64_t us_per_tick = rtems_configuration_get_microseconds_per_tick();
+  uint32_t us_per_tick = rtems_configuration_get_microseconds_per_tick();
   uint32_t timecounter_ticks_per_clock_tick =
             ( timer_get_frequency() * us_per_tick ) / USEC_PER_SEC;
 
-  init_timer();
-  printk("Rtems timer start value: %d\n\n", timecounter_ticks_per_clock_tick /
-         BEATS_PER_SEC);
-	timer_start(timecounter_ticks_per_clock_tick);
+  //4156 * 30213
+  //4156 * 30213
+  printk("Rtems timer start value:  %lu * %lu / %u = %d\n\n", timecounter_ticks_per_clock_tick);
+	gic_timer_start(timecounter_ticks_per_clock_tick);
   clock_tc.tc_get_timecount = jetson_clock_get_timecount;
   clock_tc.tc_counter_mask = 0xffffffff;
-  clock_tc.tc_frequency = USEC_PER_SEC;
+  clock_tc.tc_frequency = FREQUENCY_TSC;
   clock_tc.tc_quality = RTEMS_TIMECOUNTER_QUALITY_CLOCK_DRIVER;
   rtems_timecounter_install( &clock_tc );
 }

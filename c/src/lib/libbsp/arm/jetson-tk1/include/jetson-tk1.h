@@ -23,6 +23,9 @@
 
 #define TSC_BASE 0x60005000
 
+#define FREQUENCY_TSC 1000000L
+#define FREQUENCY_GIC 12000000L
+
 typedef struct {
   rtems_termios_device_context base;
   const char *device_name;
