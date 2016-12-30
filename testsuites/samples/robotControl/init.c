@@ -94,14 +94,15 @@ void handle_IRQ(rtems_id id, void* data)
     maxDelta = delta;
   }
 
-	printf("Timer fired jitter: %6ld ns, min: %6ld ns, max: %6ld ns\n",
-         delta, minDelta, maxDelta);
+//	printf("Timer fired jitter: %6ld ns, min: %6ld ns, max: %6ld ns\n",
+//         delta, minDelta, maxDelta);
+  printf("count: %lu ticks_per_beat: %lu id: %d rtemsticks: %d, delta: %lu,\
+         expected_ticks: %lu\n", currentTime, ticks_per_beat, id,
+         rtems_clock_get_ticks_since_boot(), delta, expected_ticks);
   oldTime = currentTime;
-//  printf("count: %lu ticks_per_beat: %lu id: %d data: %p, rtemsticks: %d, "\
-//         "delta: %lu expected_ticks: %lu\n", currentTime, ticks_per_beat, id, data,
-//         rtems_clock_get_ticks_since_boot(), delta, expected_ticks);
 
-  status = rtems_timer_fire_after(id, 20000, handle_IRQ, NULL);
+  //status = rtems_timer_fire_after(id, 20000, handle_IRQ, NULL);
+  status = rtems_timer_fire_after(id, 1, handle_IRQ, NULL);
 
 }
 
@@ -117,7 +118,7 @@ void handle_IRQ(rtems_id id, void* data)
 #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
 
 #define CONFIGURE_INITIAL_EXTENSIONS RTEMS_TEST_INITIAL_EXTENSION
-#define CONFIGURE_MICROSECONDS_PER_TICK 1000000
+#define CONFIGURE_MICROSECONDS_PER_TICK 10000000
 
 #define CONFIGURE_EXTRA_TASK_STACKS         (3 * RTEMS_MINIMUM_STACK_SIZE)
 #define CONFIGURE_INIT

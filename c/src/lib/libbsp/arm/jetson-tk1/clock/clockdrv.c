@@ -124,7 +124,7 @@ void gic_timer_start(uint32_t timeout)
 	arm_write_sysreg_32(0, c14, c3, 1, 1);
 }
 
-unsigned long timer_get_frequency(void)
+uint32_t timer_get_frequency(void)
 {
 	unsigned long freq;
 	arm_read_sysreg_32(0, c14, c0, 0, freq);
@@ -138,9 +138,14 @@ static void jetson_clock_initialize_hardware(void)
             ( timer_get_frequency() * us_per_tick ) / USEC_PER_SEC;
 
   //4156 * 30213
-  //4156 * 30213
-  printk("Rtems timer start value:  %lu * %lu / %u = %d\n\n", timecounter_ticks_per_clock_tick);
-	gic_timer_start(timecounter_ticks_per_clock_tick);
+  /*printk("Rtems timer start value:  %lu = %lu * %lu / %u\n\n",
+         timecounter_ticks_per_clock_tick, timer_get_frequency(),
+         us_per_tick, USEC_PER_SEC);
+         */
+	//gic_timer_start(timecounter_ticks_per_clock_tick);
+  // we have 12MHZ which equals 12 * 10^6 1/s -> f = 1/12µs per tick
+  printf("%u\n", us_per_tick);
+	gic_timer_start(12 * us_per_tick);
   clock_tc.tc_get_timecount = jetson_clock_get_timecount;
   clock_tc.tc_counter_mask = 0xffffffff;
   clock_tc.tc_frequency = FREQUENCY_TSC;
