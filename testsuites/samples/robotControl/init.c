@@ -42,7 +42,7 @@ rtems_task Init(
 )
 {
   rtems_status_code status;
-  ticks_per_beat = timer_get_frequency() / BEATS_PER_SEC;
+  ticks_per_beat = 10000;
 
   rtems_print_printer_printf(&rtems_test_printer);
 
@@ -60,7 +60,7 @@ rtems_task Init(
   }
 
   while (1) {
-    printf("Wait for interrupts\n");
+    printf("\nWait for interrupts\n");
     /* maybe we should sleep in here: rtems_task_wake_after */
     asm volatile("wfi" : : : "memory");
   }
@@ -94,14 +94,14 @@ void handle_IRQ(rtems_id id, void* data)
     maxDelta = delta;
   }
 
-//	printf("Timer fired jitter: %6ld ns, min: %6ld ns, max: %6ld ns\n",
-//         delta, minDelta, maxDelta);
+	printf("Timer fired jitter: %6ld ns, min: %6ld ns, max: %6ld ns\n",
+         delta, minDelta, maxDelta);
   oldTime = currentTime;
-  printf("count: %lu ticks_per_beat: %lu id: %d data: %p, rtemsticks: %d, "\
-         "delta: %lu expected_ticks: %lu\n", currentTime, ticks_per_beat, id, data,
-         rtems_clock_get_ticks_since_boot(), delta, expected_ticks);
+//  printf("count: %lu ticks_per_beat: %lu id: %d data: %p, rtemsticks: %d, "\
+//         "delta: %lu expected_ticks: %lu\n", currentTime, ticks_per_beat, id, data,
+//         rtems_clock_get_ticks_since_boot(), delta, expected_ticks);
 
-  status = rtems_timer_fire_after(id, ticks_per_beat * 2, handle_IRQ, NULL);
+  status = rtems_timer_fire_after(id, 20000, handle_IRQ, NULL);
 
 }
 
