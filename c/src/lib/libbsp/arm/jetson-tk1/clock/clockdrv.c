@@ -1,5 +1,5 @@
 /**
- * @file
+ * @FILE
  *
  * @ingroup bsp_clock
  *
@@ -27,59 +27,19 @@
 #include <bsp/irq.h>
 #include <bsp/irq-generic.h>
 
-#define BEATS_PER_SEC  10U
 #define USEC_PER_SEC	1000000L
-
-/* Time Stamp Counter (TSC) base address */
-#define TSC_CNTCR		0		/* TSC control registers */
-#define TSC_CNTCR_ENABLE	(1 << 0)	/* Enable*/
-#define TSC_CNTCR_HDBG		(1 << 1)	/* Halt on debug */
-#define TSC_CNTCV0		0x8		/* TSC counter (LSW) */
-#define TSC_CNTCV1		0xC		/* TSC counter (MSW) */
-#define TSC_CNTFID0		0x20		/* TSC freq id 0 */
+#define BEATS_PER_SEC       10U
 
 /* This is defined in ../../../shared/clockdrv_shell.h */
 void Clock_isr(rtems_irq_hdl_param arg);
 static struct timecounter clock_tc;
-static uint32_t counter = 0;
+static uint32_t timecounter_ticks_per_clock_tick;
 static volatile uint64_t ticks_per_beat;
 static volatile uint64_t expected_ticks;
-static uint32_t arch_timer_us_mult, arch_timer_us_shift;
 
-void clocks_calc_mult_shift(uint32_t *mult, uint32_t *shift, uint32_t from,
-                            uint32_t to, uint32_t maxsec)
+uint64_t jetson_clock_get_timecount(struct timecounter *tc)
 {
-	uint64_t tmp;
-	uint32_t sft, sftacc= 32;
-
-	/*
-	 * Calculate the shift factor which is limiting the conversion
-	 * range:
-	 */
-	tmp = ((uint64_t)maxsec * from) >> 32;
-	while (tmp) {
-		tmp >>=1;
-		sftacc--;
-	}
-
-	/*
-	 * Find the conversion shift/mult pair which has the best
-	 * accuracy and fits the maxsec conversion range:
-	 */
-	for (sft = 32; sft > 0; sft--) {
-		tmp = (uint64_t) to << sft;
-		tmp += from / 2;
-		tmp /= from;
-		if ((tmp >> sftacc) == 0)
-			break;
-	}
-	*mult = tmp;
-	*shift = sft;
-}
-
-uint32_t jetson_clock_get_timecount(struct timecounter *tc)
-{
-	uint32_t value;
+	uint64_t value = 0;
 
 	asm volatile("mrrc p15, 0, %Q0, %R0, c14" : "=r" (value));
   return value;
@@ -87,6 +47,7 @@ uint32_t jetson_clock_get_timecount(struct timecounter *tc)
 
 static void jetson_clock_at_tick(void)
 {
+	gic_timer_start(timecounter_ticks_per_clock_tick);
 }
 
 static void jetson_clock_handler_install_isr(
@@ -134,21 +95,22 @@ uint32_t timer_get_frequency(void)
 static void jetson_clock_initialize_hardware(void)
 {
   uint32_t us_per_tick = rtems_configuration_get_microseconds_per_tick();
-  uint32_t timecounter_ticks_per_clock_tick =
-            ( timer_get_frequency() * us_per_tick ) / USEC_PER_SEC;
+  uint32_t frequency = timer_get_frequency();
+  timecounter_ticks_per_clock_tick =
+            ( (uint64_t) frequency * us_per_tick ) / (uint64_t) USEC_PER_SEC;
 
-  //4156 * 30213
   /*printk("Rtems timer start value:  %lu = %lu * %lu / %u\n\n",
          timecounter_ticks_per_clock_tick, timer_get_frequency(),
          us_per_tick, USEC_PER_SEC);
          */
-	//gic_timer_start(timecounter_ticks_per_clock_tick);
-  // we have 12MHZ which equals 12 * 10^6 1/s -> f = 1/12µs per tick
-  printf("%u\n", us_per_tick);
-	gic_timer_start(12 * us_per_tick);
+  char buf[128];
+  //bof
+  sprintf(buf, "ticks_per_clock_tick: %lu\n", timecounter_ticks_per_clock_tick);
+  jailhouse_debug_console_write(buf);
+	gic_timer_start(timecounter_ticks_per_clock_tick);
   clock_tc.tc_get_timecount = jetson_clock_get_timecount;
   clock_tc.tc_counter_mask = 0xffffffff;
-  clock_tc.tc_frequency = FREQUENCY_TSC;
+  clock_tc.tc_frequency = 12000000;
   clock_tc.tc_quality = RTEMS_TIMECOUNTER_QUALITY_CLOCK_DRIVER;
   rtems_timecounter_install( &clock_tc );
 }
