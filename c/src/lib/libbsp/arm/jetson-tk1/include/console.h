@@ -43,8 +43,6 @@ rtems_status_code console_initialize(
   rtems_device_minor_number  minor,
   void                      *arg
 );
-void printHex(uint32_t num);
-void writeText(char* buf);
-void writeChar(char out);
+void print_hex(uint32_t num);
 
 #endif /* LIBBSP_ARM_JETSONTK1_CONSOLE_H */

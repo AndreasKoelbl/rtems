@@ -114,7 +114,7 @@ libbsp_a_SOURCES += ../shared/arm-gic-irq.c
 # Console
 libbsp_a_SOURCES += ../../shared/console-termios.c
 libbsp_a_SOURCES += console/console.c
-libbsp_a_SOURCES += ../../shared/debug-console.c
+libbsp_a_SOURCES += console/debug-console.c
 
 # clock
 libbsp_a_SOURCES += clock/clockdrv.c ../../../shared/clockdrv_shell.h
