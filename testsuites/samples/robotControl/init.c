@@ -20,7 +20,6 @@
 #include <stdlib.h>
 #include <limits.h>
 
-#define BEATS_PER_SEC       1000
 #define abs(x) ((x)<0 ? -(x) : (x))
 
 rtems_id     Timer1;
@@ -33,16 +32,22 @@ static volatile uint32_t expected_ticks;
 rtems_task Init(rtems_task_argument argument);
 rtems_timer_service_routine Timer_Routine( rtems_id id, void *ignored );
 void handle_IRQ(rtems_id id, void* data);
+uint64_t timer_ticks_to_ns(uint64_t ticks);
 
 const char rtems_test_name[] = "HELLO WORLD";
 rtems_printer rtems_test_printer;
+
+uint64_t timer_ticks_to_ns(uint64_t ticks)
+{
+	return (ticks * 1000) / (12000000 / 1000 / 1000);
+}
 
 rtems_task Init(
   rtems_task_argument ignored
 )
 {
   rtems_status_code status;
-  ticks_per_beat = 10000;
+  ticks_per_beat = 1200000;
 
   rtems_print_printer_printf(&rtems_test_printer);
 
@@ -52,7 +57,9 @@ rtems_task Init(
     fprintf(stderr, "Timer1 create failed\n");
     exit( 0 );
   }
-  status = rtems_timer_fire_after(Timer1, ticks_per_beat * 2, handle_IRQ, NULL);
+  //random error removal
+  expected_ticks = jetson_clock_get_timecount() + ticks_per_beat + 138583;
+  status = rtems_timer_fire_after(Timer1, 1, handle_IRQ, NULL);
   if ( status != RTEMS_SUCCESSFUL )
   {
     fprintf(stderr, "Timer1 fire failed\n");
@@ -60,7 +67,6 @@ rtems_task Init(
   }
 
   while (1) {
-    printf("\nWait for interrupts\n");
     /* maybe we should sleep in here: rtems_task_wake_after */
     asm volatile("wfi" : : : "memory");
   }
@@ -71,42 +77,48 @@ rtems_task Init(
 void handle_IRQ(rtems_id id, void* data)
 {
   rtems_status_code status;
-  uint32_t currentTime = jetson_clock_get_timecount();
-  static uint32_t oldTime = 0;
-  static int32_t minDelta = INT_MAX;
-  static int32_t maxDelta = INT_MIN;
-  int32_t delta = 0;
+  uint64_t currentTime = 0;
+  static uint64_t oldTime = 0;
+  static uint64_t minDelta = UINT64_MAX;
+  static uint64_t maxDelta = 0;
+  uint64_t delta = 0;
 
-  expected_ticks = 1000000 + ticks_per_beat;
-  if (oldTime < currentTime)
-  {
-    delta = (int32_t) (currentTime - oldTime - expected_ticks);
+  currentTime = jetson_clock_get_timecount();
+  if (expected_ticks < currentTime) {
+    delta = currentTime - expected_ticks;
+  //printf("delta: %lld = currentTime: %lld - expected_ticks: %lld\n", delta, currentTime, expected_ticks);
   } else {
-    delta = (int32_t) (0xffffffff - oldTime + currentTime - expected_ticks);
+    delta = expected_ticks - currentTime;
   }
 
-  if (abs(delta) < minDelta)
+  if (delta < minDelta)
   {
-    minDelta = abs(delta);
+    minDelta = delta;
   }
-  if ((delta > maxDelta) )//  && (delta < 99999))
+  if (delta > maxDelta)
   {
     maxDelta = delta;
   }
 
-//	printf("Timer fired jitter: %6ld ns, min: %6ld ns, max: %6ld ns\n",
-//         delta, minDelta, maxDelta);
-  printf("count: %lu ticks_per_beat: %lu id: %d rtemsticks: %d, delta: %lu,\
-         expected_ticks: %lu\n", currentTime, ticks_per_beat, id,
-         rtems_clock_get_ticks_since_boot(), delta, expected_ticks);
+/*  printf("count: %lu ticks_per_beat: %lu id: %d rtemsticks: %d, delta: %lu,"\
+         "expected_ticks: %lu\n", (uint32_t) currentTime, ticks_per_beat, id,
+         rtems_clock_get_ticks_since_boot(), (uint32_t) delta, expected_ticks);
+         */
+	printf("Timer fired jitter: %6ld ns, min: %6ld ns, max: %6ld ns\n",
+         (long)timer_ticks_to_ns(delta),
+         (long)timer_ticks_to_ns(minDelta),
+         (long)timer_ticks_to_ns(maxDelta));
+  if (currentTime > UINT64_MAX - ticks_per_beat)
+  {
+    expected_ticks = ticks_per_beat + UINT64_MAX - currentTime;
+  }
+  else
+  {
+    expected_ticks = currentTime + ticks_per_beat;
+  }
   oldTime = currentTime;
-
-  //status = rtems_timer_fire_after(id, 20000, handle_IRQ, NULL);
   status = rtems_timer_fire_after(id, 1, handle_IRQ, NULL);
-
 }
-
-
 
 /* NOTICE: the clock driver is explicitly disabled */
 #define CONFIGURE_APPLICATION_NEEDS_CLOCK_DRIVER
@@ -118,7 +130,7 @@ void handle_IRQ(rtems_id id, void* data)
 #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
 
 #define CONFIGURE_INITIAL_EXTENSIONS RTEMS_TEST_INITIAL_EXTENSION
-#define CONFIGURE_MICROSECONDS_PER_TICK 10000000
+#define CONFIGURE_MICROSECONDS_PER_TICK 100000
 
 #define CONFIGURE_EXTRA_TASK_STACKS         (3 * RTEMS_MINIMUM_STACK_SIZE)
 #define CONFIGURE_INIT
