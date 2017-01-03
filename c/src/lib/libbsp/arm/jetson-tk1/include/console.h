@@ -46,7 +46,6 @@ rtems_status_code console_initialize(
   void                      *arg
 );
 void printHex(uint32_t num);
-void writeText(char* buf);
 void writeChar(char out);
 void myItoa(uint32_t num, char* str, uint32_t base);
 

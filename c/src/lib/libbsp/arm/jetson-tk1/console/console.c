@@ -41,7 +41,7 @@ static jetsontk1_uart_context jetsontk1_uart_instances[] = { {
 }
 };
 
-static uint32_t jetsontk1_driver_console_in(void)
+uint32_t jetsontk1_driver_console_in(void)
 {
   //Read the UART.LSR register to clear interrupts
   mmio_write32( UART0 + UART_LCR_DLAB, 0 );
@@ -201,19 +201,6 @@ rtems_status_code console_initialize(
   return RTEMS_SUCCESSFUL;
 }
 
-void printHex(uint32_t num)
-{
-  uint8_t size = 0;
-  char str[9];
-  const char* prefix = "0x";
-  rtems_termios_device_context debugContext;
-
-  myItoa(num, str, 16);
-
-  jetsontk1_driver_write(&debugContext, prefix, strlen(prefix) + 1);
-  jetsontk1_driver_write(&debugContext, str, strlen(str) + 1);
-}
-
 void writeChar(char out)
 {
   rtems_termios_device_context context;
@@ -231,56 +218,4 @@ void writeChar(char out)
     */
 }
 
-static void swap(char *first, char *second)
-{
-  char temp = *first;
-  *first = *second;
-  *second = temp;
-}
-
-static void reverse(char str[], int length)
-{
-    int start = 0;
-    int end = length -1;
-    while (start < end)
-    {
-        swap(str + start, str + end);
-        start++;
-        end--;
-    }
-}
-
-void myItoa(uint32_t num, char* str, uint32_t base)
-{
-    int i = 0;
-
-    /* Handle 0 explicitely, otherwise empty string is printed for 0 */
-    if (num == 0)
-    {
-        str[i++] = '0';
-        str[i] = '\0';
-        return str;
-    }
-
-    while (num != 0)
-    {
-        int rem = num % base;
-        if (rem > 9)
-        {
-          str[i++] = 'A' + (rem - 10);
-        }
-        else
-        {
-          str[i++] = '0' + rem;
-        }
-        num /= base;
-    }
-
-    str[i] = '\0'; // Append string terminator
-
-    reverse(str, i);
-}
-
-BSP_output_char_function_type BSP_output_char = writeChar;
-
-BSP_polling_getchar_function_type BSP_poll_char = jetsontk1_driver_poll_read;
+BSP_polling_getchar_function_type BSP_poll_char = jetsontk1_driver_console_in;
