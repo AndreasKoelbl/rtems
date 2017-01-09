@@ -41,6 +41,9 @@ extern "C" {
 #define BSP_CONSOLE_UART0   0
 #define BSP_CONSOLE_FB      1
 
+#define BSP_ARM_GIC_DIST_BASE  ((void *)0x50041000)
+#define BSP_ARM_GIC_CPUIF_BASE ((void *)0x50042000)
+
 void rpi_init_cmdline(void);
 const char *rpi_cmdline_get_cached(void);
 const char *rpi_cmdline_get_raw(void);
