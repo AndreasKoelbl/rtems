@@ -67,6 +67,7 @@ minimum/Makefile
 fileio/Makefile
 nsecs/Makefile
 paranoia/Makefile
+jailhouse_sample/Makefile
 ticker/Makefile
 unlimited/Makefile
 base_mp/Makefile
