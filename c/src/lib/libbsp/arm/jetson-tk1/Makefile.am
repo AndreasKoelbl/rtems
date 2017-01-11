@@ -48,8 +48,6 @@ include_bsp_HEADERS += include/memory.h
 include_bsp_HEADERS += include/console.h
 
 include_bsp_HEADERS += include/irq.h
-include_bsp_HEADERS += include/mmu.h
-include_bsp_HEADERS += include/raspberrypi.h
 
 include_libcpu_HEADERS =  ../../../libcpu/arm/shared/include/arm-cp15.h
 
@@ -119,19 +117,8 @@ libbsp_a_SOURCES += console/debug-console.c
 # clock
 libbsp_a_SOURCES += clock/clockdrv.c ../../../shared/clockdrv_shell.h
 
-# GPIO
-libbsp_a_SOURCES += ../../shared/gpio.c
-
 # Timer
 libbsp_a_SOURCES += ../../shared/timerstub.c
-
-# RTC
-
-# SSP
-
-# I2C
-
-# SPI
 
 # Cache
 libbsp_a_SOURCES += ../../../libcpu/shared/src/cache_manager.c
