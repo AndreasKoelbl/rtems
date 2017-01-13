@@ -26,8 +26,8 @@
 #include <rtems/termiostypes.h>
 #include <unistd.h>
 
-#define JAILHOUSE_HC_DEBUG_CONSOLE_PUTC 8
 #define JETSONTK1_BAUD_RATE 115200
+#define JETSONTK1_UART_SPEED 25459200
 
 typedef struct {
   rtems_termios_device_context base;
@@ -161,11 +161,19 @@ rtems_status_code console_initialize(
   rtems_termios_initialize();
 
   /* Setup the divider */
-  mmio_write32( UART0 + UART_LCR, UART_LCR_DLAB);
-	mmio_write32( UART0  + UART_DLL, 25459200 / JETSONTK1_BAUD_RATE);
-	mmio_write32( UART0  + UART_DLM, 0);
-	mmio_write32( UART0  + UART_LCR, UART_LCR_8N1);
+  mmio_write32(UART0 + UART_LCR, UART_LCR_DLAB);
+	mmio_write32(UART0 + UART_DLL, JETSONTK1_UART_SPEED / JETSONTK1_BAUD_RATE);
+	mmio_write32(UART0 + UART_DLM, 0);
+	mmio_write32(UART0 + UART_LCR, UART_LCR_8N1);
 
+  /* Enable interrupts */
+  mmio_write32(UART0 + UART_LCR, mmio_read32(UART0 + UART_LCR) ^ UART_LCR_DLAB);
+  mmio_write32(UART0 + UART_DLL, 1);
+  /*
+   * bit 0 and 2 means interrupt enable, receiver line status and end of
+   * received data
+   */
+  mmio_write32(UART0 + UART_DLL, (1) | (1 << 2) | (1 << 5));
   status = rtems_interrupt_handler_install(
     0x0,
     "Uart",

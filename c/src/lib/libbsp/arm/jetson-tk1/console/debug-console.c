@@ -18,9 +18,11 @@
 #include <rtems/sysinit.h>
 #include <rtems/bspIo.h>
 
+#define JAILHOUSE_HC_DEBUG_CONSOLE_PUTC 8
+
 void jailhouse_debug_console_out(char c)
 {
-  register uint32_t num_res asm("r0") = 8;
+  register uint32_t num_res asm("r0") = JAILHOUSE_HC_DEBUG_CONSOLE_PUTC;
 	register uint32_t arg1 asm("r1") = c;
 
 	asm volatile(
