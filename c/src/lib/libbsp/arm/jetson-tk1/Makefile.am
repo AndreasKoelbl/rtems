@@ -95,8 +95,7 @@ endif
 # Startup
 libbsp_a_SOURCES += startup/bspstart.c
 if HAS_SMP
-libbsp_a_SOURCES += startup/bspsmp.c
-libbsp_a_SOURCES += startup/bspsmp_init.c
+libbsp_a_SOURCES += ../shared/arm-a9mpcore-smp.c
 endif
 
 # Restart
