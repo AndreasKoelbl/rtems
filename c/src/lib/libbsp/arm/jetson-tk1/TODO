@@ -1,0 +1,3 @@
+- SMP
+- Peripheral device drivers
+- native board support (without jailhouse)
