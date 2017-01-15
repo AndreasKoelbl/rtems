@@ -33,6 +33,8 @@ void bsp_interrupt_dispatch(void)
   rtems_vector_number vector = GIC_CPUIF_ICCIAR_ACKINTID_GET(icciar);
   rtems_vector_number spurious = 1023;
 
+  printk("Interrupt: %u\n", vector);
+
   if (vector != spurious) {
     uint32_t psr = _ARMV4_Status_irq_enable();
 
