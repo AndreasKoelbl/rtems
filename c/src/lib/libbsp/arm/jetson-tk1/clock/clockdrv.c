@@ -86,7 +86,7 @@ static void jetson_clock_initialize_hardware(void)
   uint32_t us_per_tick = rtems_configuration_get_microseconds_per_tick();
   uint32_t frequency;
 
-/* Get frequency of Generic Timer (CNTFRQ) */
+  /* Get frequency of Generic Timer (CNTFRQ) */
 	arm_read_sysreg_32(0, c14, c0, 0, frequency);
   timecounter_ticks_per_clock_tick =
             ((uint64_t) frequency * us_per_tick) / (uint64_t) USEC_PER_SEC;
