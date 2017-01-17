@@ -29,6 +29,20 @@ void handle_IRQ(rtems_id id, void* data);
 
 rtems_printer rtems_test_printer;
 
+static void hexdump(void *base, unsigned int size)
+{
+#define LINE_SIZE 16
+  unsigned int i;
+  unsigned int line = 0;
+  while (line*LINE_SIZE < size) {
+    printf("%04u: ", line);
+    for (i = 0; i < LINE_SIZE; i++)
+      printf("%02X ", *(uint8_t*)(base+line*LINE_SIZE+i));
+    printf("\n");
+    line++;
+  }
+}
+
 rtems_task Init(rtems_task_argument ignored)
 {
   rtems_status_code status;
