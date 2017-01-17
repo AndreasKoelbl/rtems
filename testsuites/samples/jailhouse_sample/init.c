@@ -51,9 +51,14 @@ rtems_task Init(rtems_task_argument ignored)
   rtems_print_printer_printf(&rtems_test_printer);
   while (1) {
   printf("please insert: ");
-  fgets(buf, sizeof(buf), stdin);
-  buf[strlen(buf) - 1] = '\0';
-  puts(buf);
+
+  //hexdump((void*)0x50041000, 0x1000);
+  //hexdump((void*)0x50042000, 0x1000);
+
+  for(;;);
+    fgets(buf, sizeof(buf), stdin);
+    buf[strlen(buf) - 1] = '\0';
+    puts(buf);
   }
 /*
   status = rtems_timer_create(rtems_build_name( 'T', 'M', 'R', '1' ), &Timer1);
