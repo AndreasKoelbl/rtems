@@ -21,6 +21,8 @@
 #include <stdint.h>
 #include <rtems/termiostypes.h>
 
+#define JAILHOUSE_ENABLE 1
+
 typedef struct {
   rtems_termios_device_context base;
   const char *device_name;
