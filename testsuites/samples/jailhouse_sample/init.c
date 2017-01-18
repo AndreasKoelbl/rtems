@@ -97,9 +97,9 @@ void handle_IRQ(rtems_id id, void* data)
          , current.tv_nsec, old.tv_nsec, diff.tv_nsec);
   old = current;
   //memset(buf, '\0', sizeof(buf));
-  printf("Please insert num: ");
+ // printf("Please insert num: ");
   //fgets(buf, sizeof(buf), stdin);
-  printf("num: %s", buf);
+//  printf("num: %s", buf);
 
   /* Interrupt me every 1/10 second */
   rtems_timer_fire_after(id, 1, handle_IRQ, NULL);
