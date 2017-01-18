@@ -27,7 +27,7 @@
 #define TIMER_IRQ                   27
 
 #define BSP_INTERRUPT_VECTOR_MIN    0
-#define BSP_INTERRUPT_VECTOR_MAX    95
+#define BSP_INTERRUPT_VECTOR_MAX    128
 
 #endif /* ASM */
 #endif /* LIBBSP_ARM_JETSONTK1_IRQ_H */
