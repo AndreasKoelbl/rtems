@@ -140,11 +140,13 @@ void handle_IRQ(rtems_id id, void* data)
          "Old: %ld\t" \
          "Jitter: %ld\n" \
          , current.tv_nsec, old.tv_nsec, diff.tv_nsec);
+  /*
   printf("Please insert: ");
   fgets(buf, sizeof(buf), stdin);
   buf[strlen(buf) - 1] = '\0';
   scanf("%u", &num);
   printf("%u: num \n", num, buf);
+  */
 
   old = current;
 /*
