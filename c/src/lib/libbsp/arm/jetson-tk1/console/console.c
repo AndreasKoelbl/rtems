@@ -242,7 +242,7 @@ static const rtems_termios_device_handler jetsontk1_driver_handler = {
   .last_close = jetsontk1_driver_last_close,
   .write = jetsontk1_driver_poll_write,
   .set_attributes = jetsontk1_driver_set_attributes,
-#ifdef JETSONTK1_CONSOLE_USE_INTERRUPTS
+#ifndef JETSONTK1_CONSOLE_USE_INTERRUPTS
   .mode = TERMIOS_IRQ_DRIVEN,
 #else
   .poll_read = jetsontk1_driver_poll_read,
