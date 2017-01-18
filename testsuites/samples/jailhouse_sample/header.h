@@ -1,0 +1,1 @@
+#define DATE_STRING "Wed 18 Jan 15:28:13 CET 2017\n"
