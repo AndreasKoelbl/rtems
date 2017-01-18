@@ -22,6 +22,7 @@
 #include <rtems/termiostypes.h>
 
 #define JAILHOUSE_ENABLE 1
+#define _BV(value) (1 << value)
 
 typedef struct {
   rtems_termios_device_context base;
