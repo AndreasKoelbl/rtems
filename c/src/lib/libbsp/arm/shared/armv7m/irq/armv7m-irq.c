@@ -38,6 +38,7 @@ rtems_status_code bsp_interrupt_vector_disable(rtems_vector_number vector)
 
 rtems_status_code bsp_interrupt_facility_initialize(void)
 {
+#error adsf
   int i;
   ARMV7M_Exception_handler *vector_table =
     (ARMV7M_Exception_handler *) bsp_vector_table_begin;

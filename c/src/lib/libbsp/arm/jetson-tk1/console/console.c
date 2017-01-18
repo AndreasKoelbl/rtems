@@ -26,10 +26,15 @@
 #include <rtems/termiostypes.h>
 #include <unistd.h>
 
+#include "../../shared/include/linker-symbols.h"
+
 #define JETSONTK1_BAUD_RATE 115200L
 #define JETSONTK1_UART_SPEED 408000000L
 #define DIVIDER ( (uint32_t)(JETSONTK1_UART_SPEED / \
                             ( JETSONTK1_BAUD_RATE * 16)) )
+
+#define UART_IIR 0x8
+#define UART_MSR 0x18
 
 typedef struct {
   rtems_termios_device_context base;
@@ -38,6 +43,19 @@ typedef struct {
   bool console;
   const char *device_name;
 } jetsontk1_uart_context;
+
+static void hexdump(void *base, unsigned int size)
+{
+  int i = -1;
+  unsigned int line = 0;
+  unsigned int content;
+
+  for (i = 0; i < size/4; i++) {
+    content = *(unsigned int*)(base + 4*i);
+    printk("%d: %08x\n", i, content);
+  }
+  printk("\n");
+}
 
 static jetsontk1_uart_context jetsontk1_uart_instances[] = {
   {
@@ -88,6 +106,20 @@ static void jetsontk1_driver_poll_write(
 #ifdef JETSONTK1_CONSOLE_USE_INTERRUPTS
 static void jetsontk1_driver_interrupt_read(void* arg)
 {
+  mmio_read32((void*)0x70006300);
+  printk("handling UART interrupt\n");
+
+  mmio_write32(((void*)0x70006300) + UART_LCR, 0x3);
+  mmio_write32(((void*)0x70006300) + UART_IER, (1<<0));
+
+  mmio_read32(((void*)0x70006300) + UART_RBR);
+  mmio_read32(((void*)0x70006300) + UART_IIR);
+  mmio_read32(((void*)0x70006300) + UART_LSR);
+  mmio_read32(((void*)0x70006300) + UART_MSR);
+
+  mmio_write32((void*) 0x50041000 + 0, 1);
+  mmio_write32((void*) 0x50041000 + 4, 0xf0);
+  /*
   rtems_termios_tty *tty = arg;
   jetsontk1_uart_context *ctx = rtems_termios_get_device_context(tty);
   char input = mmio_read32(ctx->regs + UART_RBR);
@@ -96,6 +128,7 @@ static void jetsontk1_driver_interrupt_read(void* arg)
   rtems_termios_dequeue_characters(tty, 1);
   // clear interrupt flags
   mmio_read32(ctx->regs + UART_LSR);
+  */
 }
 
 static int jetsontk1_driver_poll_read(rtems_termios_device_context *context)
@@ -173,53 +206,26 @@ static bool jetsontk1_driver_first_open(
   if (!jetsontk1_driver_set_attributes(context, term))
     return false;
 
-#ifdef JETSONTK1_CONSOLE_USE_INTERRUPTS
+  mmio_read32(ctx->regs + UART_RBR);
+  mmio_read32(ctx->regs + UART_IIR);
+  mmio_read32(ctx->regs + UART_LSR);
+  mmio_read32(ctx->regs + UART_MSR);
     status = rtems_interrupt_handler_install(
     ctx->irq,
-    "Uart",
-    RTEMS_INTERRUPT_SHARED,
+    ctx->device_name,
+    RTEMS_INTERRUPT_UNIQUE,
     jetsontk1_driver_interrupt_read,
     tty
   );
   if (status != RTEMS_SUCCESSFUL)
     return false;
 
-  lcr = mmio_read32(ctx->regs + UART_LCR);
-  mmio_write32(ctx->regs + UART_LCR, lcr & ~UART_LCR_DLAB);
-  mmio_write32(ctx->regs + UART_IER, (1<<0)|(1<<2)|(1<<5));
-  //mmio_write32(ctx->regs + UART_LCR, lcr);
 
-#define UART_IIR 0x4
-#define UART_FCR 0x4
-#define UART_MSR 0x18
-  mmio_write32(ctx->regs + UART_FCR, 0x6);
-  mmio_read32(ctx->regs + UART_RBR);
-  mmio_read32(ctx->regs + UART_IIR);
-  mmio_read32(ctx->regs + UART_LSR);
-  mmio_read32(ctx->regs + UART_MSR);
-#endif
+  //lcr = mmio_read32(ctx->regs + UART_LCR);
+  //mmio_write32(ctx->regs + UART_LCR, lcr & ~UART_LCR_DLAB);
+  mmio_write32(ctx->regs + UART_LCR, 0x3);
+  mmio_write32(ctx->regs + UART_IER, 1);
 
-#if 0
-  /* init gic */
-	mmio_write32(0x50042000 + 0, 1);
-	mmio_write32(0x50042000 + 4, 0xf0);
-  /* setup handler...
-   *
-  */
-  /* setup irq stack */
-	static __attribute__((aligned(0x1000))) uint32_t irq_stack[1024];
-	asm volatile (".arch_extension virt\n");
-	asm volatile ("msr	SP_irq, %0\n" : : "r" (irq_stack));
-	asm volatile ("cpsie	i\n");
-
-  /* Enable interrupt 122 */
-  mmio_write32(0x50041000 + 0x100 + ((122 >> 3) & ~0x3),
-           1 << (122 & 0x1f));
-#endif
-
-  printk("Interrupt handlers installed\n");
-  //printk("GICD: %p\n", mmio_read32(BSP_ARM_GIC_DIST_BASE);
-  //printk("GICC: %p\n", BSP_ARM_GIC_CPUIF_BASE);
   return true;
 }
 
@@ -237,7 +243,7 @@ static const rtems_termios_device_handler jetsontk1_driver_handler = {
   .write = jetsontk1_driver_poll_write,
   .set_attributes = jetsontk1_driver_set_attributes,
 #ifdef JETSONTK1_CONSOLE_USE_INTERRUPTS
-  .mode = TERMIOS_IRQ_DRIVEN
+  .mode = TERMIOS_IRQ_DRIVEN,
 #else
   .poll_read = jetsontk1_driver_poll_read,
   .mode = TERMIOS_POLLED

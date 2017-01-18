@@ -34,6 +34,8 @@
 #include <stdlib.h>
 #include <limits.h>
 
+#include "header.h"
+
 #define NUM_TICKS 1
 
 rtems_task Init(rtems_task_argument argument);
@@ -68,6 +70,7 @@ rtems_task Init(rtems_task_argument ignored)
   char buf[32];
 
   rtems_print_printer_printf(&rtems_test_printer);
+  puts(DATE_STRING);
   printf("Hello, world!\n");
 
   status = rtems_timer_create(rtems_build_name( 'T', 'M', 'R', '1' ), &Timer1);
@@ -137,11 +140,16 @@ void handle_IRQ(rtems_id id, void* data)
          "Old: %ld\t" \
          "Jitter: %ld\n" \
          , current.tv_nsec, old.tv_nsec, diff.tv_nsec);
+  printf("Please insert: ");
+  fgets(buf, sizeof(buf), stdin);
+  buf[strlen(buf) - 1] = '\0';
+  scanf("%u", &num);
+  printf("%u: num \n", num, buf);
+
   old = current;
 /*
   memset(buf, '\0', sizeof(buf));
   printf("lease insert string: \n");
-  fgets(buf, sizeof(buf), stdin);
   printf("after: \n");
   buf[strlen(buf) - 1] = '\0';
 //  printf("Please insert num: ");
