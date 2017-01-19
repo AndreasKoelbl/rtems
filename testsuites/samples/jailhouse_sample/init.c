@@ -58,16 +58,54 @@ rtems_task Init(rtems_task_argument ignored)
   int err;
 
   rtems_print_printer_printf(&rtems_test_printer);
+
   printf("Hello, world!\n");
-  printf("foo\n");
 
   err = tcgetattr(STDIN_FILENO, &attribute);
+
   if (err) {
-    printf("error: tcgetattr\n");
+    printf("tcgetattr\n");
     goto task_out;
   }
-
   attribute.c_lflag &= ~(ECHO);
+
+
+  err = cfsetispeed(&attribute, B1200);
+  if (err) {
+    perror("setiBaud 1200");
+    goto task_out;
+  }
+  err = cfsetospeed(&attribute, B1200);
+  if (err) {
+    perror("setoBaud 1200");
+    goto task_out;
+  }
+  err = tcsetattr(STDIN_FILENO, TCSANOW, &attribute);
+  if (err) {
+    perror("tcsetattr");
+    goto task_out;
+  }
+  printf("Hello, world on Baud 1200!\n");
+
+  err = cfsetispeed(&attribute, B115200);
+  if (err) {
+    perror("setiBaud 115200");
+    goto task_out;
+  }
+  err = cfsetospeed(&attribute, B115200);
+  if (err) {
+    perror("setBaud 115200");
+    goto task_out;
+  }
+  err = tcsetattr(STDIN_FILENO, TCSANOW, &attribute);
+  if (err) {
+    perror("tcsetattr");
+    goto task_out;
+  }
+  printf("Hello, world on Baud 115200 again!\n");
+
+  printf("foo\n");
+
   err = tcsetattr(STDIN_FILENO, TCSANOW, &attribute);
   if (err) {
     perror("tcsetattr");
