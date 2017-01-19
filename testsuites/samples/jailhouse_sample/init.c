@@ -33,6 +33,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <termios.h>
 
 #include "header.h"
 
@@ -48,18 +49,30 @@ static struct timespec current, old;
 void handle_timer(rtems_id id, void* data);
 
 rtems_printer rtems_test_printer;
-/*
-
-*/
 
 rtems_task Init(rtems_task_argument ignored)
 {
   rtems_status_code status;
   char buf[32];
+  struct termios attribute;
+  int err;
 
   rtems_print_printer_printf(&rtems_test_printer);
-  puts(DATE_STRING);
   printf("Hello, world!\n");
+  printf("foo\n");
+
+  err = tcgetattr(STDIN_FILENO, &attribute);
+  if (err) {
+    printf("error: tcgetattr\n");
+    goto task_out;
+  }
+
+  attribute.c_lflag &= ~(ECHO);
+  err = tcsetattr(STDIN_FILENO, TCSANOW, &attribute);
+  if (err) {
+    perror("tcsetattr");
+    goto task_out;
+  }
 
   status = rtems_timer_create(rtems_build_name( 'T', 'M', 'R', '1' ), &Timer1);
   if ( status != RTEMS_SUCCESSFUL )
@@ -69,6 +82,14 @@ rtems_task Init(rtems_task_argument ignored)
   }
 
   status = clock_gettime(CLOCK_REALTIME, &old);
+
+  while (1) {
+    printf("foo!\n");
+    fflush(stdout);
+    fgets(buf, sizeof(buf), stdin);
+    puts(buf);
+  }
+
   status = rtems_timer_fire_after(Timer1, NUM_TICKS, handle_timer, NULL);
   if ( status != RTEMS_SUCCESSFUL )
   {
@@ -77,16 +98,10 @@ rtems_task Init(rtems_task_argument ignored)
   }
 
   while (1) {
-    printf("foo!\n");
-    fgets(buf, sizeof(buf), stdin);
-    puts(buf);
-  }
-
-  while (1) {
     asm volatile("wfi" : : : "memory");
   }
 
-  rtems_test_end();
+task_out:
   rtems_task_delete( RTEMS_SELF );
 }
 
