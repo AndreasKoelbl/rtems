@@ -45,23 +45,11 @@ rtems_id Timer1;
 static struct timespec current, old;
 
 
-void handle_IRQ(rtems_id id, void* data);
+void handle_timer(rtems_id id, void* data);
 
 rtems_printer rtems_test_printer;
 /*
-static void hexdump(void *base, unsigned int size)
-{
-#define LINE_SIZE 16
-  unsigned int i;
-  unsigned int line = 0;
-  while (line*LINE_SIZE < size) {
-    printf("%04u: ", line);
-    for (i = 0; i < LINE_SIZE; i++)
-      printf("%02X ", *(uint8_t*)(base+line*LINE_SIZE+i));
-    printf("\n");
-    line++;
-  }
-}
+
 */
 
 rtems_task Init(rtems_task_argument ignored)
@@ -81,7 +69,7 @@ rtems_task Init(rtems_task_argument ignored)
   }
 
   status = clock_gettime(CLOCK_REALTIME, &old);
-  status = rtems_timer_fire_after(Timer1, NUM_TICKS, handle_IRQ, NULL);
+  status = rtems_timer_fire_after(Timer1, NUM_TICKS, handle_timer, NULL);
   if ( status != RTEMS_SUCCESSFUL )
   {
     fprintf(stderr, "Timer1 fire failed\n");
@@ -102,7 +90,7 @@ rtems_task Init(rtems_task_argument ignored)
   rtems_task_delete( RTEMS_SELF );
 }
 
-void handle_IRQ(rtems_id id, void* data)
+void handle_timer(rtems_id id, void* data)
 {
   static unsigned int ctr = 0;
   uint32_t currentTime = 0;
@@ -161,5 +149,5 @@ void handle_IRQ(rtems_id id, void* data)
 */
   /* Interrupt me every 1/10 second */
   if (++ctr < 20)
-    rtems_timer_fire_after(id, NUM_TICKS, handle_IRQ, NULL);
+    rtems_timer_fire_after(id, NUM_TICKS, handle_timer, NULL);
 }

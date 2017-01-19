@@ -119,16 +119,19 @@ static void jetsontk1_driver_interrupt_read(void* arg)
 
   mmio_write32((void*) 0x50041000 + 0, 1);
   mmio_write32((void*) 0x50041000 + 4, 0xf0);
-  /*
+  */
   rtems_termios_tty *tty = arg;
   jetsontk1_uart_context *ctx = rtems_termios_get_device_context(tty);
+  printk("handling UART interrupt with LSR: %d", mmio_read8(ctx->regs + UART_IIR) & 0xf);
   char input = mmio_read32(ctx->regs + UART_RBR);
   rtems_termios_enqueue_raw_characters(tty, &input, 1);
 
   rtems_termios_dequeue_characters(tty, 1);
   // clear interrupt flags
   mmio_read32(ctx->regs + UART_LSR);
-  */
+  //DEBUG: Parity error?
+  uint32_t lcr = UART_LCR_8N1;
+  mmio_write32(ctx->regs + UART_LCR, lcr);
 }
 
 static int jetsontk1_driver_poll_read(rtems_termios_device_context *context)

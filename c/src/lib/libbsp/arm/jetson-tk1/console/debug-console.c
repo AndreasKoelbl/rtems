@@ -85,11 +85,21 @@ void myItoa(uint32_t num, char* str, uint32_t base)
 
 void jailhouse_debug_console_write(char *text)
 {
+  if (text == NULL)
+  {
+    return;
+  }
   do
   {
     jailhouse_debug_console_out(*text);
   } while (*text++);
 }
+
+static void jailhouse_debug_console_init(void)
+{
+  BSP_output_char = jailhouse_debug_console_out;
+}
+
 
 void print_hex(uint32_t num)
 {
@@ -101,11 +111,6 @@ void print_hex(uint32_t num)
 
   jailhouse_debug_console_write(prefix);
   jailhouse_debug_console_write(str);
-}
-
-static void jailhouse_debug_console_init(void)
-{
-  BSP_output_char = jailhouse_debug_console_out;
 }
 
 BSP_output_char_function_type BSP_output_char;

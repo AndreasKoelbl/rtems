@@ -48,4 +48,19 @@ static inline void mmio_write32(void *address, uint32_t value)
 	*(volatile uint32_t *)address = value;
 }
 
+static inline unsigned char mmio_read8(void *address)
+{
+	return *(volatile unsigned char *)address;
+}
+
+static inline void mmio_write8(void *address, unsigned char value)
+{
+	*(volatile unsigned char *)address = value;
+}
+
+static inline void mmio_write16(void *address, unsigned short value)
+{
+	*(volatile unsigned short *)address = value;
+}
+
 #endif /* LIBBSP_ARM_JETSONTK1_MEMORY_H */

@@ -22,6 +22,7 @@
 #include <bsp/irq-generic.h>
 #include <bsp/start.h>
 #include <bsp/memory.h>
+#include <bsp/console.h>
 
 
 #define GICD_CTLR			0x0000
@@ -83,7 +84,8 @@ void bsp_interrupt_dispatch(void)
   if (vector == 1023)
     return;
 //  uint32_t psr = _ARMV4_Status_irq_enable();
-  printk("v: %u\n", vector);
+  mmio_write32(((void*)0x70006300) + UART_IER, (1<<0));
+//  printk("v: %u\n", vector);
   bsp_interrupt_handler_dispatch(vector);
 //  _ARMV4_Status_restore(psr);
 	mmio_write32(BSP_ARM_GIC_CPUIF_BASE + GICC_EOIR, vector);
@@ -93,6 +95,7 @@ rtems_status_code bsp_interrupt_vector_enable(rtems_vector_number vector)
 {
   rtems_status_code sc = RTEMS_SUCCESSFUL;
 
+  printk("enabling: %u\n", vector);
   if (bsp_interrupt_is_valid_vector(vector)) {
     volatile gic_dist *dist = ARM_GIC_DIST;
 
@@ -107,6 +110,7 @@ rtems_status_code bsp_interrupt_vector_enable(rtems_vector_number vector)
 rtems_status_code bsp_interrupt_vector_disable(rtems_vector_number vector)
 {
   rtems_status_code sc = RTEMS_SUCCESSFUL;
+  printk("disable\n");
 
   if (bsp_interrupt_is_valid_vector(vector)) {
     volatile gic_dist *dist = ARM_GIC_DIST;
@@ -163,6 +167,7 @@ rtems_status_code bsp_interrupt_facility_initialize(void)
 }
 
 #ifdef RTEMS_SMP
+#error TODO add SMP
 BSP_START_TEXT_SECTION void arm_gic_irq_initialize_secondary_cpu(void)
 {
   volatile gic_cpuif *cpuif = GIC_CPUIF;
@@ -184,6 +189,7 @@ rtems_status_code arm_gic_irq_set_priority(
 )
 {
   rtems_status_code sc = RTEMS_SUCCESSFUL;
+  printk("set prio %u on %u\n", priority, vector);
 
   if (bsp_interrupt_is_valid_vector(vector)) {
     volatile gic_dist *dist = ARM_GIC_DIST;
@@ -203,6 +209,7 @@ rtems_status_code arm_gic_irq_get_priority(
 {
   rtems_status_code sc = RTEMS_SUCCESSFUL;
 
+  printk("get prio on %u\n", vector);
   if (bsp_interrupt_is_valid_vector(vector)) {
     volatile gic_dist *dist = ARM_GIC_DIST;
 
@@ -220,6 +227,8 @@ rtems_status_code arm_gic_irq_set_affinity(
 )
 {
   rtems_status_code sc = RTEMS_SUCCESSFUL;
+
+  printk("affinity: %u on vector %u\n", targets, vector);
 
   if (bsp_interrupt_is_valid_vector(vector)) {
     volatile gic_dist *dist = ARM_GIC_DIST;
