@@ -36,12 +36,18 @@
 #define UART_IIR 0x8
 #define UART_MSR 0x18
 
+#define UART_IER_IE_RHR (1<<0)
+#define UART_IER_IE_THR (1<<1)
+
 typedef struct {
   rtems_termios_device_context base;
   void *regs;
   rtems_vector_number irq;
   bool console;
   const char *device_name;
+#ifdef JETSONTK1_CONSOLE_USE_INTERRUPTS
+  volatile bool transmitting;
+#endif
 } jetsontk1_uart_context;
 
 static void hexdump(void *base, unsigned int size)
@@ -59,9 +65,12 @@ static void hexdump(void *base, unsigned int size)
 
 static jetsontk1_uart_context jetsontk1_uart_instances[] = {
   {
-    .regs = (void*) UART0,
+    .regs = UART3,
     .irq = 90 + 32,
     .device_name = "/dev/console",
+#ifdef JETSONTK1_CONSOLE_USE_INTERRUPTS
+    .transmitting = false,
+#endif
   }
 };
 
@@ -89,7 +98,7 @@ static void writeChar(void *base, char out)
 }
 
 
-static void jetsontk1_driver_poll_write(
+static void jetsontk1_driver_write(
   rtems_termios_device_context *context,
   const char                   *buf,
   size_t                        len
@@ -98,48 +107,44 @@ static void jetsontk1_driver_poll_write(
   size_t i;
   jetsontk1_uart_context *ctx = (jetsontk1_uart_context *) context;
 
+#ifdef JETSONTK1_CONSOLE_USE_INTERRUPTS
+  if (len) {
+    ctx->transmitting = true;
+    mmio_write32(ctx->regs + UART_TX, buf[0]);
+    mmio_write32(ctx->regs + UART_IER,
+                 mmio_read32(ctx->regs + UART_IER) | UART_IER_IE_THR);
+  } else {
+    mmio_write32(ctx->regs + UART_IER,
+                 mmio_read32(ctx->regs + UART_IER) & ~UART_IER_IE_THR);
+    ctx->transmitting = false;
+  }
+#else
 	for (i = 0; i < len; i++) {
     writeChar(ctx->regs, buf[i]);
 	}
+#endif
 }
 
 #ifdef JETSONTK1_CONSOLE_USE_INTERRUPTS
 static void jetsontk1_driver_interrupt_read(void* arg)
 {
-  mmio_read32((void*)0x70006300);
-  printk("handling UART interrupt\n");
-
-  mmio_write32(((void*)0x70006300) + UART_LCR, 0x3);
-  mmio_write32(((void*)0x70006300) + UART_IER, (1<<0));
-
-  mmio_read32(((void*)0x70006300) + UART_RBR);
-  mmio_read32(((void*)0x70006300) + UART_IIR);
-  mmio_read32(((void*)0x70006300) + UART_LSR);
-  mmio_read32(((void*)0x70006300) + UART_MSR);
-
-  mmio_write32((void*) 0x50041000 + 0, 1);
-  mmio_write32((void*) 0x50041000 + 4, 0xf0);
-  */
   rtems_termios_tty *tty = arg;
   jetsontk1_uart_context *ctx = rtems_termios_get_device_context(tty);
-  printk("handling UART interrupt with LSR: %d", mmio_read8(ctx->regs + UART_IIR) & 0xf);
-  char input = mmio_read32(ctx->regs + UART_RBR);
-  rtems_termios_enqueue_raw_characters(tty, &input, 1);
+  uint32_t lsr = mmio_read32(ctx->regs + UART_LSR);
+  char input;
 
-  rtems_termios_dequeue_characters(tty, 1);
-  // clear interrupt flags
-  mmio_read32(ctx->regs + UART_LSR);
-  //DEBUG: Parity error?
-  uint32_t lcr = UART_LCR_8N1;
-  mmio_write32(ctx->regs + UART_LCR, lcr);
+  if (lsr & UART_LSR_RDR) {
+    input = mmio_read32(ctx->regs + UART_RBR);
+    rtems_termios_enqueue_raw_characters(tty, &input, 1);
+  }
+
+  if (ctx->transmitting && lsr & UART_LSR_THRE) {
+    rtems_termios_dequeue_characters(tty, 1);
+
+  }
 }
+#endif
 
-static int jetsontk1_driver_poll_read(rtems_termios_device_context *context)
-{
-  return -1;
-}
-
-#else
 static int jetsontk1_driver_poll_read(rtems_termios_device_context *context)
 {
   jetsontk1_uart_context *ctx = (jetsontk1_uart_context *) context;
@@ -153,7 +158,6 @@ static int jetsontk1_driver_poll_read(rtems_termios_device_context *context)
   mmio_write32(ctx->regs + UART_LCR_DLAB, 0);
   return result;
 }
-#endif
 
 static bool jetsontk1_driver_set_attributes(
   rtems_termios_device_context  *context,
@@ -192,16 +196,13 @@ static bool jetsontk1_driver_first_open(
 #ifdef JETSONTK1_CONSOLE_USE_INTERRUPTS
   rtems_status_code status;
   jetsontk1_uart_context *ctx = (jetsontk1_uart_context *) context;
-  uint32_t lcr;
 #endif
 
   /*uint32_t gate_nr = (65 % 32);
   void *clock_reg = 0x60006000 + 0x330;*/
 
-#if 0
 #ifndef JAILHOUSE_ENABLE
   mmio_write32(clock_reg, mmio_read32(clock_reg) | (1 << gate_nr));
-#endif
 #endif
 
   rtems_termios_set_initial_baud(tty, JETSONTK1_BAUD_RATE);
@@ -209,6 +210,7 @@ static bool jetsontk1_driver_first_open(
   if (!jetsontk1_driver_set_attributes(context, term))
     return false;
 
+#ifdef JETSONTK1_CONSOLE_USE_INTERRUPTS
   mmio_read32(ctx->regs + UART_RBR);
   mmio_read32(ctx->regs + UART_IIR);
   mmio_read32(ctx->regs + UART_LSR);
@@ -223,12 +225,9 @@ static bool jetsontk1_driver_first_open(
   if (status != RTEMS_SUCCESSFUL)
     return false;
 
-
-  //lcr = mmio_read32(ctx->regs + UART_LCR);
-  //mmio_write32(ctx->regs + UART_LCR, lcr & ~UART_LCR_DLAB);
-  mmio_write32(ctx->regs + UART_LCR, 0x3);
-  mmio_write32(ctx->regs + UART_IER, 1);
-
+  mmio_write32(ctx->regs + UART_LCR, UART_LCR_8N1);
+  mmio_write32(ctx->regs + UART_IER, UART_IER_IE_RHR);
+#endif
   return true;
 }
 
@@ -243,9 +242,9 @@ static void jetsontk1_driver_last_close(
 static const rtems_termios_device_handler jetsontk1_driver_handler = {
   .first_open = jetsontk1_driver_first_open,
   .last_close = jetsontk1_driver_last_close,
-  .write = jetsontk1_driver_poll_write,
+  .write = jetsontk1_driver_write,
   .set_attributes = jetsontk1_driver_set_attributes,
-#ifndef JETSONTK1_CONSOLE_USE_INTERRUPTS
+#ifdef JETSONTK1_CONSOLE_USE_INTERRUPTS
   .mode = TERMIOS_IRQ_DRIVEN,
 #else
   .poll_read = jetsontk1_driver_poll_read,
