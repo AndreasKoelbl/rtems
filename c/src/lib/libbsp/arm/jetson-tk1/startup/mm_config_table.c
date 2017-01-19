@@ -84,8 +84,8 @@ const arm_cp15_start_section_config arm_cp15_start_mmu_config_table[] = {
     .end = (uint32_t) 0x60006000 + 0x1000,
     .flags = ARMV7_MMU_DEVICE
   }, {
-    .begin = (uint32_t) UART0,
-    .end = (uint32_t) UART0 + 0x80,
+    .begin = (uint32_t) UART3,
+    .end = (uint32_t) UART3 + 0x80,
     .flags = ARMV7_MMU_DEVICE
   }, {
     .begin = (uint32_t) BSP_ARM_GIC_DIST_BASE,
