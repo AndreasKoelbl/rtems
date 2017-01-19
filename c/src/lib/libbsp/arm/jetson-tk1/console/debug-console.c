@@ -17,8 +17,11 @@
 
 #include <rtems/sysinit.h>
 #include <rtems/bspIo.h>
+#include <bsp/console.h>
+#include <bsp/memory.h>
 
 #define JAILHOUSE_HC_DEBUG_CONSOLE_PUTC 8
+#define JETSONTK1_UART_SPEED 408000000L
 
 void jailhouse_debug_console_out(char c)
 {
@@ -98,6 +101,14 @@ void jailhouse_debug_console_write(char *text)
 static void jailhouse_debug_console_init(void)
 {
   BSP_output_char = jailhouse_debug_console_out;
+
+  mmio_write32(UART3 + UART_LCR, UART_LCR_DLAB);
+	mmio_write32(
+    UART3 + UART_DLL, (JETSONTK1_UART_SPEED / (115200 * 16))
+    & 0xff
+  );
+	mmio_write32(UART3 + UART_DLM, 0);
+  mmio_write32(UART3 + UART_LCR, UART_LCR_8N1);
 }
 
 
@@ -107,6 +118,7 @@ void print_hex(uint32_t num)
   char str[9];
   const char* prefix = "0x";
 
+  jailhouse_debug_console_init();
   myItoa(num, str, 16);
 
   jailhouse_debug_console_write(prefix);
