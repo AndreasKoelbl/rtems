@@ -21,7 +21,7 @@
 #include <rtems/termiostypes.h>
 #include <bsp/jetson-tk1.h>
 
-#define UART0  (0x70006300)
+#define UART3  ((void*) 0x70006300)
 #define JETSONTK1_CONSOLE_USE_INTERRUPTS 1
 
 #define UART_TX			      0x0 // Also known as THR
@@ -42,11 +42,6 @@
 #define UART_LSR_BREAK_CONDITION        _BV(4)
 #define UART_LSR_THRE                   _BV(5)
 
-void jetsontk1_driver_write(
-  rtems_termios_device_context *base,
-  const char                   *buf,
-  size_t                        len
-);
 rtems_status_code console_initialize(
   rtems_device_major_number  major,
   rtems_device_minor_number  minor,
