@@ -167,19 +167,15 @@ static bool jetsontk1_driver_set_attributes(
   jetsontk1_uart_context *ctx = (jetsontk1_uart_context *) context;
   rtems_termios_baud_t baud;
   unsigned int lcr;
+  uint16_t divider;
 
+  baud = rtems_termios_baud_to_number(term->c_cflag);
+  divider =  JETSONTK1_UART_SPEED / (baud * 16);
   lcr = mmio_read32(ctx->regs + UART_LCR) | UART_LCR_DLAB;
   mmio_write32(ctx->regs + UART_LCR, lcr);
 
-  baud = rtems_termios_baud_to_number(term->c_cflag);
-	mmio_write32(
-    ctx->regs + UART_DLL, (JETSONTK1_UART_SPEED / (baud * 16))
-    & 0xff
-  );
-	mmio_write32(
-    ctx->regs + UART_DLM,
-    (JETSONTK1_UART_SPEED / (baud * 16)) >> 8 & 0xff
-  );
+	mmio_write32(ctx->regs + UART_DLL, divider & 0xff);
+	mmio_write32(ctx->regs + UART_DLM, (divider >> 8) & 0xff);
   lcr = UART_LCR_8N1;
   mmio_write32(ctx->regs + UART_LCR, lcr);
 
