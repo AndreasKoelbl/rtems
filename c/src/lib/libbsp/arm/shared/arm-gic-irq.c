@@ -22,8 +22,6 @@
 #include <bsp/irq-generic.h>
 #include <bsp/start.h>
 #include <bsp/memory.h>
-#include <bsp/console.h>
-
 
 #define GICD_CTLR			0x0000
 # define GICD_CTLR_ARE_NS		(1 << 4)
@@ -62,13 +60,10 @@
 
 void bsp_interrupt_dispatch(void)
 {
-  /*
   volatile gic_cpuif *cpuif = GIC_CPUIF;
   uint32_t icciar = cpuif->icciar;
   rtems_vector_number vector = GIC_CPUIF_ICCIAR_ACKINTID_GET(icciar);
   rtems_vector_number spurious = 1023;
-
-  printk("Interrupt: %u\n", vector);
 
   if (vector != spurious) {
     uint32_t psr = _ARMV4_Status_irq_enable();
@@ -79,16 +74,6 @@ void bsp_interrupt_dispatch(void)
 
     cpuif->icceoir = icciar;
   }
-  */
-  uint32_t vector = mmio_read32(BSP_ARM_GIC_CPUIF_BASE + GICC_IAR);
-  if (vector == 1023)
-    return;
-//  uint32_t psr = _ARMV4_Status_irq_enable();
-  mmio_write32(((void*)0x70006300) + UART_IER, (1<<0));
-//  printk("v: %u\n", vector);
-  bsp_interrupt_handler_dispatch(vector);
-//  _ARMV4_Status_restore(psr);
-	mmio_write32(BSP_ARM_GIC_CPUIF_BASE + GICC_EOIR, vector);
 }
 
 rtems_status_code bsp_interrupt_vector_enable(rtems_vector_number vector)
@@ -146,21 +131,28 @@ rtems_status_code bsp_interrupt_facility_initialize(void)
   );
   mmio_write32((void*) BSP_ARM_GIC_CPUIF_BASE + GICC_CTLR, GICC_CTLR_GRPEN1);
   mmio_write32((void*) BSP_ARM_GIC_CPUIF_BASE + GICC_PMR, GICC_PMR_DEFAULT);
-
-  /*
+/*
   for (id = 0; id < id_count; ++id) {
+    if (id == 90 || id == 122) {
+      continue;
+    }
     gic_id_set_priority(dist, id, PRIORITY_DEFAULT);
   }
 
   for (id = 32; id < id_count; ++id) {
+    print_hex(id);
     gic_id_set_targets(dist, id, 0x01);
   }
 
   cpuif->iccpmr = GIC_CPUIF_ICCPMR_PRIORITY(0xff);
   cpuif->iccbpr = GIC_CPUIF_ICCBPR_BINARY_POINT(0x0);
   cpuif->iccicr = GIC_CPUIF_ICCICR_ENABLE;
-
+  */
+  /*
   dist->icddcr = GIC_DIST_ICDDCR_ENABLE;
+  jailhouse_debug_console_write("id_count would have been: ");
+  print_hex(id_count);
+  jailhouse_debug_console_write("\n");
   */
 
   return RTEMS_SUCCESSFUL;
