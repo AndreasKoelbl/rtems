@@ -75,7 +75,7 @@ static void jetson_clock_handler_install_isr(rtems_isr_entry clock_isr)
     );
   }
   if (sc != RTEMS_SUCCESSFUL) {
-    printk("fatal: %p\n", (uint32_t*)clock_isr);
+    printk("fatal: %p\n", (uint32_t*) clock_isr);
     rtems_fatal_error_occurred(0xdeadbeef);
   }
 }
