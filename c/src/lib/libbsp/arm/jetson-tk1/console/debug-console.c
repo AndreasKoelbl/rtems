@@ -15,13 +15,15 @@
  *  http://www.rtems.org/license/LICENSE.
  */
 
-#include <rtems/sysinit.h>
-#include <rtems/bspIo.h>
 #include <bsp/console.h>
 #include <bsp/memory.h>
+#include <rtems/bspIo.h>
 
 #define JAILHOUSE_HC_DEBUG_CONSOLE_PUTC 8
-#define JETSONTK1_UART_SPEED 408000000L
+#define UART_LSR                        0x14
+#define  UART_LSR_RDR     (1<<0)
+
+#define UART_RBR          (0<<0)
 
 void jailhouse_debug_console_out(char c)
 {
@@ -34,6 +36,18 @@ void jailhouse_debug_console_out(char c)
 		: "=r" (num_res)
 		: "r" (num_res), "r" (arg1)
 		: "memory");
+}
+
+static int jetsontk1_debug_console_in(void)
+{
+  int result;
+  while ( !(mmio_read32(UARTD + UART_LSR) & UART_LSR_RDR) ) {
+    cpu_relax();
+  }
+  result = mmio_read32(UARTD + UART_RBR);
+  /* Clear interrupts */
+  mmio_write32(UARTD + UART_LSR, 0);
+  return result;
 }
 
 static void swap(char *first, char *second)
@@ -98,37 +112,17 @@ void jailhouse_debug_console_write(char *text)
   } while (*text++);
 }
 
-static void jailhouse_debug_console_init(void)
-{
-  BSP_output_char = jailhouse_debug_console_out;
-
-  mmio_write32(UART3 + UART_LCR, UART_LCR_DLAB);
-	mmio_write32(
-    UART3 + UART_DLL, (JETSONTK1_UART_SPEED / (115200 * 16))
-    & 0xff
-  );
-	mmio_write32(UART3 + UART_DLM, 0);
-  mmio_write32(UART3 + UART_LCR, UART_LCR_8N1);
-}
-
-
 void print_hex(uint32_t num)
 {
   uint8_t size = 0;
   char str[9];
   const char* prefix = "0x";
 
-  jailhouse_debug_console_init();
   myItoa(num, str, 16);
 
   jailhouse_debug_console_write(prefix);
   jailhouse_debug_console_write(str);
 }
 
-BSP_output_char_function_type BSP_output_char;
-
-RTEMS_SYSINIT_ITEM(
-  jailhouse_debug_console_init,
-  RTEMS_SYSINIT_BSP_START,
-  RTEMS_SYSINIT_ORDER_LAST
-);
+BSP_output_char_function_type BSP_output_char = jailhouse_debug_console_out;
+BSP_polling_getchar_function_type BSP_poll_char = jetsontk1_debug_console_in;
