@@ -12,23 +12,6 @@
 
 #include <bsp.h>
 
-/* move to header */
-#define CONFIGURE_APPLICATION_NEEDS_CLOCK_DRIVER
-#define CONFIGURE_APPLICATION_NEEDS_CONSOLE_DRIVER
-
-#define CONFIGURE_MAXIMUM_TASKS             1
-#define CONFIGURE_MAXIMUM_TIMERS            1
-
-#define CONFIGURE_RTEMS_INIT_TASKS_TABLE
-
-#define CONFIGURE_MICROSECONDS_PER_TICK 100000
-
-#define CONFIGURE_EXTRA_TASK_STACKS         (3 * RTEMS_MINIMUM_STACK_SIZE)
-#define CONFIGURE_INIT
-
-#include <rtems/confdefs.h>
-/* ! move to header */
-
 #include <rtems/printer.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -69,24 +52,6 @@ rtems_task Init(rtems_task_argument ignored)
   }
   attribute.c_lflag &= ~(ECHO);
 
-
-  err = cfsetispeed(&attribute, B1200);
-  if (err) {
-    perror("setiBaud 1200");
-    goto task_out;
-  }
-  err = cfsetospeed(&attribute, B1200);
-  if (err) {
-    perror("setoBaud 1200");
-    goto task_out;
-  }
-  err = tcsetattr(STDIN_FILENO, TCSANOW, &attribute);
-  if (err) {
-    perror("tcsetattr");
-    goto task_out;
-  }
-  printf("Hello, world on Baud 1200!\n");
-
   err = cfsetispeed(&attribute, B115200);
   if (err) {
     perror("setiBaud 115200");
@@ -102,9 +67,6 @@ rtems_task Init(rtems_task_argument ignored)
     perror("tcsetattr");
     goto task_out;
   }
-  printf("Hello, world on Baud 115200 again!\n");
-
-  printf("foo\n");
 
   err = tcsetattr(STDIN_FILENO, TCSANOW, &attribute);
   if (err) {
