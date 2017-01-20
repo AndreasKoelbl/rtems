@@ -21,26 +21,10 @@
 #include <rtems/termiostypes.h>
 #include <bsp/jetson-tk1.h>
 
-#define UART3  ((void*) 0x70006300)
+#define UARTA  ((void*) 0x70006000)
+#define UARTC  ((void*) 0x70006200)
+#define UARTD  ((void*) 0x70006300)
 #define JETSONTK1_CONSOLE_USE_INTERRUPTS 1
-
-#define UART_TX			      0x0 // Also known as THR
-#define UART_DLL          0x0
-#define UART_RBR          0x0 //Receive Buffer/Holding Register
-#define UART_DLM          0x4
-#define UART_IER          0x4
-#define UART_LCR          0xc
-#define  UART_LCR_8N1     0x03
-#define  UART_LCR_DLAB    (1 << 7)
-#define UART_LSR          0x14
-
-#define  UART_LSR_RDR     _BV(0)
-/* TODO: Check if errors have to be checked */
-#define UART_LSR_RECEIVER_OVERRUN_ERROR _BV(1)
-#define UART_LSR_PARITY_ERROR           _BV(2)
-#define UART_LSR_FRAMING_ERROR          _BV(3)
-#define UART_LSR_BREAK_CONDITION        _BV(4)
-#define UART_LSR_THRE                   _BV(5)
 
 rtems_status_code console_initialize(
   rtems_device_major_number  major,
