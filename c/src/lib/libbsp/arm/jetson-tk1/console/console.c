@@ -52,7 +52,7 @@ static jetsontk1_uart_context jetsontk1_uart_instances[] = {
   {
     .regs = UARTD,
     .irq = UARTD_IRQ,
-    .device_name = CONSOLE_DEVICE_NAME,//"ttyS0",
+    .device_name = "/dev/ttyS0",
 #ifdef JETSONTK1_CONSOLE_USE_INTERRUPTS
     .transmitting = false,
 #endif
@@ -60,7 +60,7 @@ static jetsontk1_uart_context jetsontk1_uart_instances[] = {
   {
     .regs = UARTA,
     .irq = UARTA_IRQ,
-    .device_name = "ttyS1",
+    .device_name = "/dev/ttyS1",
 #ifdef JETSONTK1_CONSOLE_USE_INTERRUPTS
     .transmitting = false,
 #endif
@@ -172,18 +172,19 @@ static bool jetsontk1_uart_first_open(
   jetsontk1_uart_context *ctx = (jetsontk1_uart_context *) context;
 #endif
 
-  /*uint32_t gate_nr = (65 % 32);
-  void *clock_reg = 0x60006000 + 0x330;*/
-
 #ifndef JAILHOUSE_ENABLE
+  uint32_t gate_nr = (65 % 32);
+  void *clock_reg = 0x60006000 + 0x330;
   mmio_write32(clock_reg, mmio_read32(clock_reg) | (1 << gate_nr));
 #endif
 
   rtems_termios_set_initial_baud(tty, JETSONTK1_BAUD_RATE);
-  if (!jetsontk1_uart_set_attributes(context, term))
+  if (!jetsontk1_uart_set_attributes(context, term)) {
     return false;
+  }
 
 #ifdef JETSONTK1_CONSOLE_USE_INTERRUPTS
+  /* Read anything pending */
   mmio_read32(ctx->regs + UART_RBR);
   mmio_read32(ctx->regs + UART_IIR);
   mmio_read32(ctx->regs + UART_LSR);
@@ -195,8 +196,9 @@ static bool jetsontk1_uart_first_open(
     jetsontk1_uart_interrupt_read,
     tty
   );
-  if (status != RTEMS_SUCCESSFUL)
+  if (status != RTEMS_SUCCESSFUL) {
     return false;
+  }
 
   mmio_write32(ctx->regs + UART_LCR, UART_LCR_8N1);
   mmio_write32(ctx->regs + UART_IER, UART_IER_IE_RHR);
