@@ -25,7 +25,7 @@
 
 #define UART_RBR          (0<<0)
 
-void jailhouse_debug_console_out(char c)
+static void jailhouse_debug_console_out(char c)
 {
   register uint32_t num_res asm("r0") = JAILHOUSE_HC_DEBUG_CONSOLE_PUTC;
 	register uint32_t arg1 asm("r1") = c;
@@ -69,7 +69,7 @@ static void reverse(char str[], int length)
   }
 }
 
-void myItoa(uint32_t num, char* str, uint32_t base)
+static void myItoa(uint32_t num, char* str, uint32_t base)
 {
   int i = 0;
 
