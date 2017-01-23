@@ -1,2 +1,4 @@
-BSP for the Jetson tk1 ARM board
-Load RTEMS to address 0x8000 and execute it
+BSP for the Jetson tk1 ARM board using the Jailhouse Hypervisor
+Assign IRQ 46 and 122 to the cell config
+Assing 0x70006000+0x1000 and 0xf8000000+0x4000000 to the cell config
+Load RTEMS at the address 0x0 and execute it
