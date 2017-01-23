@@ -11,8 +11,8 @@
 #include <bsp/fatal.h>
 #include <bsp/console.h>
 #include <bsp/memory.h>
+#include <bsp/irq.h>
 #include <rtems/console.h>
-#include <rtems/irq-extension.h>
 #include <rtems/termiostypes.h>
 #include <unistd.h>
 
@@ -48,23 +48,10 @@ typedef struct {
 #endif
 } jetsontk1_uart_context;
 
-static void hexdump(void *base, unsigned int size)
-{
-  int i = -1;
-  unsigned int line = 0;
-  unsigned int content;
-
-  for (i = 0; i < size/4; i++) {
-    content = *(unsigned int*)(base + 4*i);
-    printk("%d: %08x\n", i, content);
-  }
-  printk("\n");
-}
-
 static jetsontk1_uart_context jetsontk1_uart_instances[] = {
   {
     .regs = UARTD,
-    .irq = 90 + 32,
+    .irq = UARTD_IRQ,
     .device_name = CONSOLE_DEVICE_NAME,//"ttyS0",
 #ifdef JETSONTK1_CONSOLE_USE_INTERRUPTS
     .transmitting = false,
@@ -72,7 +59,7 @@ static jetsontk1_uart_context jetsontk1_uart_instances[] = {
   },
   {
     .regs = UARTA,
-    .irq = 36 + 32,
+    .irq = UARTA_IRQ,
     .device_name = "ttyS1",
 #ifdef JETSONTK1_CONSOLE_USE_INTERRUPTS
     .transmitting = false,
