@@ -1,18 +1,9 @@
-/**
- * @file
- *
- * @ingroup arm_start
- *
- * @brief Raspberry pi startup code.
- */
-
 /*
- * Copyright (c) 2013 by Alan Cudmore
+ * Copyright (c) OTH Regensburg, 2016
  *
- *  The license and distribution terms for this file may be
- *  found in the file LICENSE in this distribution or at
- *
- *  http://www.rtems.org/license/LICENSE
+ * The license and distribution terms for this file may be
+ * found in the file LICENSE in this distribution or at
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #include <bsp/irq-generic.h>
