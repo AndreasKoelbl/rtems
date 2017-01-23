@@ -84,10 +84,6 @@ const arm_cp15_start_section_config arm_cp15_start_mmu_config_table[] = {
     .end = (uint32_t) UARTA + 0x40,
     .flags = ARMV7_MMU_DEVICE
   }, {
-    .begin = (uint32_t) UARTC,
-    .end = (uint32_t) UARTC + 0x40,
-    .flags = ARMV7_MMU_DEVICE
-  }, {
     .begin = (uint32_t) UARTD,
     .end = (uint32_t) UARTD + 0x80,
     .flags = ARMV7_MMU_DEVICE
