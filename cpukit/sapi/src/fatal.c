@@ -30,6 +30,8 @@ void rtems_fatal_error_occurred(
   uint32_t   the_error
 )
 {
+  register uint32_t lr asm("lr");
+  printk("Internal error with lr: %lu\n", lr);
   _Terminate( INTERNAL_ERROR_RTEMS_API, the_error );
 
 /* will not return from this routine */
