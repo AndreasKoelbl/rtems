@@ -178,7 +178,7 @@ static bool ns8250_uart_first_open(
 
 #ifndef JAILHOUSE_ENABLE
   uint32_t gate_nr = (65 % 32);
-  void *clock_reg = 0x60006000 + 0x330;
+  void *clock_reg = (void*) 0x60006000 + 0x330;
   mmio_write32(clock_reg, mmio_read32(clock_reg) | (1 << gate_nr));
 #endif
 

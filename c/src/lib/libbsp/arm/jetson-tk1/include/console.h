@@ -10,9 +10,15 @@
 #define LIBBSP_ARM_JETSONTK1_CONSOLE_H
 
 #include <rtems/termiostypes.h>
+#include <bsp/memory.h>
 
 #define UARTA  ((void*) 0x70006000)
 #define UARTD  ((void*) 0x70006300)
+
+#define UART_TX			      0x0
+#define UART_LSR          0x14
+#define  UART_LSR_THRE    (1<<5)
+
 #define NS8250_CONSOLE_USE_INTERRUPTS 0
 #define NS8250_USE_SECONDARY_CONSOLE 0
 
@@ -21,7 +27,30 @@ rtems_status_code console_initialize(
   rtems_device_minor_number  minor,
   void                      *arg
 );
+#ifdef JAILHOUSE_ENABLE
 void jailhouse_debug_console_write(const char *text);
+#else
+static inline void ns8250_debug_console_write(const char *text)
+{
+  int i;
+  if (text == NULL) {
+    return;
+  }
+	for (i = 0; i < strlen(text); i++) {
+    while (!(mmio_read32(UART_LSR) & UART_LSR_THRE)) {
+      asm volatile("nop");
+    }
+
+    if (text[i] == '\n') {
+      mmio_write32(UARTD + UART_TX, '\r');
+    }
+
+    mmio_write32(UARTD + UART_TX, text[i]);
+	}
+}
+
+
+#endif
 void print_hex(uint32_t num);
 
 #endif /* LIBBSP_ARM_JETSONTK1_CONSOLE_H */
