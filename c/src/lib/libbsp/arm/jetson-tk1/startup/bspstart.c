@@ -10,5 +10,5 @@
 
 void bsp_start(void)
 {
-    bsp_interrupt_initialize();
+  bsp_interrupt_initialize();
 }
