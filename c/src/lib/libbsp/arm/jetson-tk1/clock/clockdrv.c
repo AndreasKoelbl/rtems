@@ -40,8 +40,9 @@ static uint64_t jetson_clock_get_timecount(struct timecounter *tc)
 
 static void jetson_clock_at_tick(void)
 {
-  if (jetson_clock_get_timecount(NULL) >=
-      (uint64_t)timecounter_ticks_per_clock_tick) {
+  uint32_t CNTV_TVAL = 0;
+  arm_read_sysreg_32(0, c14, c3, 0, CNTV_TVAL);
+  if (CNTV_TVAL >= timecounter_ticks_per_clock_tick) {
     /* Clear pending interrupt */
     mmio_write32(BSP_ARM_GIC_DIST_BASE + GICD_ICPENDR, 1);
     /* Reset the Virtual Timer */
