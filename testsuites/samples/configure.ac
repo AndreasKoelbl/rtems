@@ -67,6 +67,7 @@ minimum/Makefile
 fileio/Makefile
 nsecs/Makefile
 paranoia/Makefile
+task_test/Makefile
 ticker/Makefile
 timer_test/Makefile
 unlimited/Makefile
