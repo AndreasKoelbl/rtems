@@ -24,17 +24,24 @@ static struct timecounter clock_tc;
 static void gic_timer_start(uint32_t timeout)
 {
   /* Write timeout into Virtual Timer TimerValue register */
-  arm_write_sysreg_32(0, c14, c3, 0, timeout);
+  //arm_write_sysreg_32(0, c14, c3, 0, timeout);
   /* Run the timer with Virtual Timer Control register */
-  arm_write_sysreg_32(0, c14, c3, 1, 1);
+  //arm_write_sysreg_32(0, c14, c3, 1, 1);
+  /* Write timeout into Virtual Timer TimerValue register */
+  arm_write_sysreg_32(0, c14, c2, 0, timeout);
+  /* Run the timer with Virtual Timer Control register */
+  arm_write_sysreg_32(0, c14, c2, 1, 1);
 }
 
 static uint64_t jetson_clock_get_timecount(struct timecounter *tc)
 {
   uint64_t ret = 0;
 
+  /* Read timeout from Virtual Timer TimerValue register */
+  //arm_read_sysreg_32(0, c14, c3, 0, ret);
   /* Read the Physical Count Register */
   arm_read_sysreg_64(0, c14, ret);
+
   return ret;
 }
 
@@ -45,7 +52,7 @@ static void jetson_clock_at_tick(void)
     /* Clear pending interrupt */
     mmio_write32(BSP_ARM_GIC_DIST_BASE + GICD_ICPENDR, 1);
     /* Reset the Virtual Timer */
-    arm_write_sysreg_32(0, c14, c3, 1, 0);
+    arm_write_sysreg_32(0, c14, c2, 1, 0);
     gic_timer_start(timecounter_ticks_per_clock_tick);
   }
 }
