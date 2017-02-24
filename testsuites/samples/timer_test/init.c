@@ -13,8 +13,8 @@
 #define CONFIGURE_INIT
 #include "system.h"
 
-#define NUM_TICKS       100000
-#define EXPECTED_NSECS  (CONFIGURE_MICROSECONDS_PER_TICK * NUM_TICKS)
+#define NUM_TICKS       10
+#define EXPECTED_NSECS (CONFIGURE_MICROSECONDS_PER_TICK * NUM_TICKS)
 
 /* avg is stored as uint64_t to achieve more than a 15 day measurement period */
 struct measure_data {
@@ -51,13 +51,11 @@ rtems_task Init(
   status = rtems_timer_fire_after(timer, NUM_TICKS, handle_timer, measurement);
   rtems_directive_failed(status, "timer fire");
 
-  //rtems_task_suspend(RTEMS_SELF);
   while (1) {
-    rtems_task_wake_after(100000);
     asm volatile("nop");
   }
-  free(measurement);
 
+  free(measurement);
   rtems_task_delete(RTEMS_SELF);
 
 }
@@ -92,19 +90,14 @@ void handle_timer(rtems_id id, void* data)
   measurement->jitters_nsecs += exp_diff.tv_nsec;
 
   /* TODO: Floating Point support */
-  /*
-  printf("Current: %ld:%ld\n"
-          "Min: %ld:%ld " \
-          "Max: %ld:%ld " \
-          "Avg: %llu\n" \
+  printf("Current: %d:%ld "
+          "Min: %d:%ld " \
+          "Max: %d:%ld " \
+          "Avg: %d\n" \
           , diff.tv_sec % 1000, diff.tv_nsec,
           measurement->min.tv_sec % 1000, measurement->min.tv_nsec,
           measurement->max.tv_sec % 1000, measurement->max.tv_nsec,
-          measurement->jitters_nsecs / measurement->iterations
-          );
-          */
-  printf("Timestamp: %ld:%ld\n", current.tv_sec, current.tv_nsec);
-  fflush(stdout);
+          measurement->jitters_nsecs / measurement->iterations);
 
   status = clock_gettime(CLOCK_REALTIME, &measurement->last);
   posix_directive_failed(status, "clock_gettime");
