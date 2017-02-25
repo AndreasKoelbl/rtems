@@ -49,7 +49,7 @@ struct worker_info {
   int64_t jitter_min, jitter_max;
 };
 
-static void worker_task_entry(rtems_task_argument unused);
+void worker_task_entry(rtems_task_argument unused);
 rtems_status_code spawn(struct task *task);
 
 /* Soft error handling */
@@ -63,8 +63,9 @@ rtems_status_code spawn(struct task *task);
   }
 
 #define posix_directive_failed(status, msg) \
-if (status != 0) \
-  printf("%s: %s", msg, strerror(status))
+    if (status) { \
+    perror(#msg); \
+  }
 
 #define WORKER_TASK(NAME, TTY, PRIO) \
   { \
@@ -75,7 +76,8 @@ if (status != 0) \
     .entry_point = worker_task_entry, \
   }
 
-#define WAIT_NS (CONFIGURE_MICROSECONDS_PER_TICK * 1000)
+#define NUM_TICKS 1
+#define WAIT_NS   (CONFIGURE_MICROSECONDS_PER_TICK * NUM_TICKS)
 
 #define DEV1 "/dev/ttyS0"
 
@@ -113,7 +115,7 @@ rtems_task Init(rtems_task_argument ignored)
 {
   rtems_status_code status;
   int i;
-  int sender;
+  unsigned int sender;
   char receive_buf[80];
   const char *test_str = "this is a test";
   rtems_task_priority current_priority;
@@ -125,9 +127,12 @@ rtems_task Init(rtems_task_argument ignored)
   worker_queue = mq_open("/work_queue", O_RDWR | O_CREAT | O_EXCL, S_IRWXU |
                          S_IRWXG, NULL);
   posix_directive_failed(worker_queue, "mq_open");
-  status = mq_getattr(worker_queue, &msgq_attr);
 
-  posix_directive_failed(worker_queue, "mq_getatt");
+  status = mq_getattr(worker_queue, &msgq_attr);
+  posix_directive_failed(status, "dafuq");
+  msgq_attr.mq_msgsize = 255;
+  status = mq_setattr(worker_queue, &msgq_attr, &msgq_attr);
+  posix_directive_failed(status, "mq_setatt");
   printf("Queue \"%s\":\n\t- stores at most %ld messages\n\t- large at most %ld"
          "bytes each\n\t- currently holds %ld messages\n", "/work_queue",
          msgq_attr.mq_maxmsg, msgq_attr.mq_msgsize, msgq_attr.mq_curmsgs);
@@ -148,15 +153,19 @@ rtems_task Init(rtems_task_argument ignored)
   rtems_directive_failed(status, "set_priority");
   printf("curr prio: %lu\n", current_priority);
   while (true) {
+    /*
     status = mq_send(worker_queue, test_str, strlen(test_str),
             RTEMS_CURRENT_PRIORITY);
     posix_directive_failed(status, "mq_send");
+    */
     status = mq_receive(worker_queue, receive_buf,
                         RTEMS_ARRAY_SIZE(receive_buf), &sender);
-    /*if (status != 0xff) */{
-      printf("Received message (%d bytes) from %d: %s\n", status, sender,
+    if (status != -1 && status != 0xff) {
+      printf("Received message (%d bytes) from %u: %s\n", status, sender,
              receive_buf);
       fflush(stdout);
+    } else {
+      rtems_task_wake_after(NUM_TICKS);
     }
   }
   mq_close(worker_queue);
@@ -164,31 +173,28 @@ rtems_task Init(rtems_task_argument ignored)
   rtems_directive_failed(status, "rtems_task_delete");
 }
 
-static void worker_task_entry(rtems_task_argument worker_info)
+void worker_task_entry(rtems_task_argument worker_info)
 {
-  char jitter_info[80];
+  char jitter_info[255];
   uint32_t iterations = 1;
   uint64_t jitters;
   int64_t jitter, jitter_min, jitter_max;
-  struct timespec start, end, diff, interval;
+  struct timespec start, end, diff;//, interval;
   rtems_status_code status;
 
   jitter_min = LONG_MAX;
   jitter_max = LONG_MIN;
-  interval.tv_sec = 0;
-  interval.tv_nsec = WAIT_NS / 2;
+//  interval.tv_sec = 0;
+//  interval.tv_nsec = WAIT_NS / 2;
 
   while (true) {
-    /*
     status = clock_gettime(CLOCK_REALTIME, &start);
     posix_directive_failed(status, "clock_gettime");
-    */
-    rtems_task_wake_after(100);
+    rtems_task_wake_after(NUM_TICKS);
     //clock_nanosleep(CLOCK_REALTIME, 0, &interval, NULL);
     status = clock_gettime(CLOCK_REALTIME, &end);
     posix_directive_failed(status, "clock_gettime");
 
-    /*
     rtems_timespec_subtract(&start, &end, &diff);
     if (diff.tv_sec < 0 || diff.tv_nsec < 0)
       fprintf(stderr, "Time difference is negative\n");
@@ -201,13 +207,12 @@ static void worker_task_entry(rtems_task_argument worker_info)
       jitter_max = jitter;
 
     jitters += labs(jitter);
-    */
     /*
     printf("new: %ld:%ld old: %ld:%ld diff: %ld:%ld\n", start.tv_sec % 1000,
            start.tv_nsec, end.tv_sec % 1000, end.tv_nsec, diff.tv_sec,
            diff.tv_nsec);
            */
-    /*
+/*
     snprintf(jitter_info, RTEMS_ARRAY_SIZE(jitter_info),
              "id: %lu "
              "Current: %lld "
@@ -219,11 +224,15 @@ static void worker_task_entry(rtems_task_argument worker_info)
              jitter_min,
              jitters / iterations,
              jitter_max);
-    printf("%s\n", jitter_info);
-    status = mq_send(worker_queue, jitter_info, RTEMS_ARRAY_SIZE(jitter_info),
+             */
+    //printf("%s\n", jitter_info);
+    strncpy(jitter_info, "Test\n", 6);
+    status = mq_send(worker_queue, jitter_info, 17,
             RTEMS_CURRENT_PRIORITY);
-    posix_directive_failed(status, "mq_send");
-    */
+    //posix_directive_failed(status, "mq_send");
+    if (status)
+      perror("mq_send\n");
+    printf(" -- ");
     printf("%ld:%ld\n", end.tv_sec, end.tv_nsec);
     fflush(stdout);
     ++iterations;
