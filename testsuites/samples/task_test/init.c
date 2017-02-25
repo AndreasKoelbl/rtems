@@ -33,54 +33,6 @@
 
 #include "system.h"
 
-struct task {
-  const char        name[4];
-  const char        *tty;
-  const int         prio;
-  rtems_task_entry  entry_point;
-
-  rtems_id id;
-};
-
-struct worker_info {
-  rtems_id id;
-  uint64_t jitters;
-  int64_t jitter;
-  int64_t jitter_min, jitter_max;
-};
-
-void worker_task_entry(rtems_task_argument unused);
-rtems_status_code spawn(struct task *task);
-
-/* Soft error handling */
-/* RTEMS Classic API, no posix */
-#undef directive_failed
-#define rtems_directive_failed(status, msg) \
-  if (status != RTEMS_SUCCESSFUL) { \
-    printf("\n%s FAILED -- expected (%s) got (%s)\n", msg, \
-           rtems_status_text(RTEMS_SUCCESSFUL), rtems_status_text(status)); \
-    fflush(stdout); \
-  }
-
-#define posix_directive_failed(status, msg) \
-    if (status) { \
-    perror(#msg); \
-  }
-
-#define WORKER_TASK(NAME, TTY, PRIO) \
-  { \
-    .name = NAME, \
-    .tty = TTY, \
-    .prio = PRIO, \
-    .id = -1, \
-    .entry_point = worker_task_entry, \
-  }
-
-#define NUM_TICKS 1
-#define WAIT_NS   (CONFIGURE_MICROSECONDS_PER_TICK * NUM_TICKS)
-
-#define DEV1 "/dev/ttyS0"
-
 mqd_t worker_queue;
 
 static struct task my_tasks[] = {
@@ -109,6 +61,47 @@ rtems_status_code spawn(struct task *task)
   status = rtems_task_start(task->id, worker_task_entry, 0);
   rtems_directive_failed(status, "task_start");
   return status;
+}
+
+rtems_status_code calc_jitter(struct measure_data *data, int elements)
+{
+  char jitter_info[255];
+  uint32_t iterations = 1;
+  uint64_t jitters;
+  int64_t jitter, jitter_min, jitter_max;
+
+  jitter_min = LONG_MAX;
+  jitter_max = LONG_MIN;
+//  interval.tv_sec = 0;
+//  interval.tv_nsec = WAIT_NS / 2;
+
+  jitter = (diff.tv_nsec + diff.tv_sec * 1000000000) - WAIT_NS;
+
+  if (jitter < jitter_min)
+    jitter_min = jitter;
+  else if (jitter > jitter_max)
+    jitter_max = jitter;
+
+  jitters += labs(jitter);
+  /*
+  printf("new: %ld:%ld old: %ld:%ld diff: %ld:%ld\n", start.tv_sec % 1000,
+         start.tv_nsec, end.tv_sec % 1000, end.tv_nsec, diff.tv_sec,
+         diff.tv_nsec);
+         */
+/*
+    snprintf(jitter_info, RTEMS_ARRAY_SIZE(jitter_info),
+             "id: %lu "
+             "Current: %lld "
+             "Min: %lld "
+             "Avg: %llu "
+             "Max: %lld\n",
+             RTEMS_SELF,
+             jitter,
+             jitter_min,
+             jitters / iterations,
+             jitter_max);
+             */
+    //printf("%s\n", jitter_info);
 }
 
 rtems_task Init(rtems_task_argument ignored)
@@ -173,19 +166,10 @@ rtems_task Init(rtems_task_argument ignored)
   rtems_directive_failed(status, "rtems_task_delete");
 }
 
-void worker_task_entry(rtems_task_argument worker_info)
+void worker_task_entry(rtems_task_argument unused)
 {
-  char jitter_info[255];
-  uint32_t iterations = 1;
-  uint64_t jitters;
-  int64_t jitter, jitter_min, jitter_max;
-  struct timespec start, end, diff;//, interval;
+  struct timespec start, end, diff;
   rtems_status_code status;
-
-  jitter_min = LONG_MAX;
-  jitter_max = LONG_MIN;
-//  interval.tv_sec = 0;
-//  interval.tv_nsec = WAIT_NS / 2;
 
   while (true) {
     status = clock_gettime(CLOCK_REALTIME, &start);
@@ -199,43 +183,13 @@ void worker_task_entry(rtems_task_argument worker_info)
     if (diff.tv_sec < 0 || diff.tv_nsec < 0)
       fprintf(stderr, "Time difference is negative\n");
 
-    jitter = (diff.tv_nsec + diff.tv_sec * 1000000000) - WAIT_NS;
-
-    if (jitter < jitter_min)
-      jitter_min = jitter;
-    else if (jitter > jitter_max)
-      jitter_max = jitter;
-
-    jitters += labs(jitter);
-    /*
-    printf("new: %ld:%ld old: %ld:%ld diff: %ld:%ld\n", start.tv_sec % 1000,
-           start.tv_nsec, end.tv_sec % 1000, end.tv_nsec, diff.tv_sec,
-           diff.tv_nsec);
-           */
-/*
-    snprintf(jitter_info, RTEMS_ARRAY_SIZE(jitter_info),
-             "id: %lu "
-             "Current: %lld "
-             "Min: %lld "
-             "Avg: %llu "
-             "Max: %lld\n",
-             RTEMS_SELF,
-             jitter,
-             jitter_min,
-             jitters / iterations,
-             jitter_max);
-             */
-    //printf("%s\n", jitter_info);
-    strncpy(jitter_info, "Test\n", 6);
-    status = mq_send(worker_queue, jitter_info, 17,
+    status = mq_send(worker_queue, &diff, sizeof(diff),
             RTEMS_CURRENT_PRIORITY);
     //posix_directive_failed(status, "mq_send");
     if (status)
       perror("mq_send\n");
-    printf(" -- ");
     printf("%ld:%ld\n", end.tv_sec, end.tv_nsec);
     fflush(stdout);
-    ++iterations;
   }
   rtems_task_delete(RTEMS_SELF);
 }
