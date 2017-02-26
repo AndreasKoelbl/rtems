@@ -44,18 +44,13 @@ rtems_status_code calc_jitter(struct measure_data *data);
     .entry_point = worker_task_entry, \
   }
 
-#define NUM_TICKS 1
-#define WAIT_NS   (CONFIGURE_MICROSECONDS_PER_TICK * NUM_TICKS)
-
-#define MSGQ_TYPE (struct timespec*)
-
 #define CONFIGURE_APPLICATION_NEEDS_CLOCK_DRIVER
 #define CONFIGURE_APPLICATION_NEEDS_CONSOLE_DRIVER
 
 #define CONFIGURE_LIBIO_MAXIMUM_FILE_DESCRIPTORS 20
 #define CONFIGURE_MAXIMUM_TASKS                  50
 #define CONFIGURE_MAXIMUM_TIMERS                 50
-#define CONFIGURE_MICROSECONDS_PER_TICK          100000
+#define CONFIGURE_MICROSECONDS_PER_TICK          1000
 #define CONFIGURE_MAXIMUM_POSIX_MESSAGE_QUEUES   10
 
 #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
@@ -63,7 +58,7 @@ rtems_status_code calc_jitter(struct measure_data *data);
 #define CONFIGURE_MAXIMUM_SEMAPHORES             20
 
 #define CONFIGURE_EXTRA_TASK_STACKS              (10 * RTEMS_MINIMUM_STACK_SIZE)
-//#define CONFIGURE_SCHEDULER_EDF
+#define CONFIGURE_SCHEDULER_EDF
 
 #define CONFIGURE_INIT
 

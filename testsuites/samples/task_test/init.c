@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <errno.h>
 #include <limits.h>
 #include <math.h>
 #include <termios.h>
@@ -33,9 +34,15 @@
 
 #include "system.h"
 
+#define NUM_TICKS 10
+#define WAIT_NS   (CONFIGURE_MICROSECONDS_PER_TICK * NUM_TICKS)
+
+#define MSGQ_TYPE (struct timespec*)
+
 static struct task workers[] = {
   WORKER_TASK("TSK1", 8),
-/*  WORKER_TASK("TSK2", 8),
+  WORKER_TASK("TSK2", 8),
+/*
   WORKER_TASK("TSK3", 8),
   WORKER_TASK("TSK4", 8),
   WORKER_TASK("TSK5", 8),
@@ -74,7 +81,7 @@ rtems_status_code calc_jitter(struct measure_data *data)
 rtems_task Init(rtems_task_argument ignored)
 {
   int i, pstatus = 0;
-  unsigned int sender;
+  unsigned int prio;
   char buf[32];
   struct timespec recv_buf;
   struct task *task;
@@ -90,7 +97,7 @@ rtems_task Init(rtems_task_argument ignored)
   printf("Initializing Queue\n");
 
   msgq_attr.mq_msgsize = sizeof(struct timespec);
-  msgq_attr.mq_maxmsg = 32;
+  msgq_attr.mq_maxmsg = 128;
 
   printf("Opening Queues...\n");
   for (i = 0; i < RTEMS_ARRAY_SIZE(worker_queues); i++) {
@@ -124,22 +131,23 @@ rtems_task Init(rtems_task_argument ignored)
 
   cstatus = rtems_task_set_priority(rtems_task_self(), 128, &current_priority);
   rtems_directive_failed(cstatus, "set_priority");
+  printf("After prio set\n");
+  cstatus = rtems_task_get_priority(rtems_task_self(), scheduler, &current_priority);
+  rtems_directive_failed(cstatus, "get_priority");
+  printf("curr prio: %lu\n", current_priority);
 
   while (true) {
     for (i = 0; i < RTEMS_ARRAY_SIZE(workers); i++) {
-      mq_notify(worker_queues[i], NULL);
+      //mq_notify(worker_queues[i], NULL);
       pstatus = mq_receive(worker_queues[i], (char*)&recv_buf,
-                          sizeof(recv_buf), &sender);
+                           sizeof(recv_buf), &prio);
       if (pstatus != -1 && pstatus != 0xff) {
-        printf("Received message (%d bytes) from %u: %ld:%ld\n", pstatus, sender,
-               recv_buf.tv_sec % 1000, recv_buf.tv_nsec);
+        printf("Received message (%d bytes) with prio %u from %d: %ld:%ld\n",
+            pstatus, prio, i, recv_buf.tv_sec % 1000, recv_buf.tv_nsec);
         fflush(stdout);
-        /* TODO figure out sched id */
-        cstatus = rtems_task_get_priority(rtems_task_self(), 128, &current_priority);
-        rtems_directive_failed(cstatus, "set_priority");
-        printf("curr prio: %lu\n", current_priority);
       }
     }
+    rtems_task_wake_after(NUM_TICKS * 2);
   }
   for (i = 0; i < RTEMS_ARRAY_SIZE(worker_queues); i++) {
     mq_close(worker_queues[i]);
@@ -153,12 +161,15 @@ void worker_task_entry(rtems_task_argument queue)
 {
   struct timespec start, end, diff;
   rtems_status_code status;
+  struct timespec interval;
+  interval.tv_sec = 0;
+  interval.tv_nsec = WAIT_NS;
 
-  while (true) {
+  while(true) {
     status = clock_gettime(CLOCK_REALTIME, &start);
     posix_directive_failed(status, "clock_gettime");
-    rtems_task_wake_after(NUM_TICKS);
-    //clock_nanosleep(CLOCK_REALTIME, 0, &interval, NULL);
+    //rtems_task_wake_after(NUM_TICKS);
+    nanosleep(&interval, NULL);
     status = clock_gettime(CLOCK_REALTIME, &end);
     posix_directive_failed(status, "clock_gettime");
 
@@ -166,11 +177,18 @@ void worker_task_entry(rtems_task_argument queue)
     if (diff.tv_sec < 0 || diff.tv_nsec < 0)
       fprintf(stderr, "Time difference is negative\n");
 
+    //posix_directive_failed(status, "mq_send");
     status = mq_send(*((mqd_t *)queue), (const char*)&diff, sizeof(diff),
                      RTEMS_CURRENT_PRIORITY);
-    posix_directive_failed(status, "mq_send");
-    if (status)
-      perror("mq_send\n");
+    while (status) {
+      nanosleep(&interval, NULL);
+      status = mq_send(*((mqd_t *)queue), (const char*)&diff, sizeof(diff),
+                       RTEMS_CURRENT_PRIORITY);
+    }
+    if (status) {
+      perror("mq_send ");
+      printf("with ret %d\n", status);
+    }
     //printf("%ld:%ld\n", end.tv_sec, end.tv_nsec);
     fflush(stdout);
   }
