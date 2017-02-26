@@ -10,16 +10,16 @@ struct task {
 struct measure_data {
   struct timespec min;
   struct timespec max;
-  struct timespec current;
-  struct timespec last;
-  uint64_t jitters_secs;
-  uint64_t jitters_nsecs;
+  uint64_t sec_jitters;
+  uint64_t nsec_jitters;
   uint32_t iterations;
 };
 
 void worker_task_entry(rtems_task_argument unused);
 rtems_status_code spawn(struct task *task, rtems_task_argument arg);
-rtems_status_code calc_jitter(struct measure_data *data);
+void calc_results(struct measure_data *result, struct timespec *measurement);
+void print_results(struct measure_data *result, struct timespec *measurement,
+                   int worker);
 
 /* Soft error handling */
 /* RTEMS Classic API, no posix */
@@ -50,7 +50,7 @@ rtems_status_code calc_jitter(struct measure_data *data);
 #define CONFIGURE_LIBIO_MAXIMUM_FILE_DESCRIPTORS 20
 #define CONFIGURE_MAXIMUM_TASKS                  50
 #define CONFIGURE_MAXIMUM_TIMERS                 50
-#define CONFIGURE_MICROSECONDS_PER_TICK          1000
+#define CONFIGURE_MICROSECONDS_PER_TICK          10000
 #define CONFIGURE_MAXIMUM_POSIX_MESSAGE_QUEUES   10
 
 #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
