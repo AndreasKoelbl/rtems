@@ -1,6 +1,5 @@
 struct task {
   const char        name[4];
-  const char        *tty;
   const int         prio;
   rtems_task_entry  entry_point;
 
@@ -12,6 +11,7 @@ struct measure_data {
   struct timespec min;
   struct timespec max;
   struct timespec current;
+  struct timespec last;
   uint64_t jitters_secs;
   uint64_t jitters_nsecs;
   uint32_t iterations;
@@ -19,7 +19,7 @@ struct measure_data {
 
 void worker_task_entry(rtems_task_argument unused);
 rtems_status_code spawn(struct task *task);
-rtems_status_code spawn(struct task *task)
+rtems_status_code calc_jitter(struct measure_data *data);
 
 /* Soft error handling */
 /* RTEMS Classic API, no posix */
@@ -36,10 +36,9 @@ rtems_status_code spawn(struct task *task)
     perror(#msg); \
   }
 
-#define WORKER_TASK(NAME, TTY, PRIO) \
+#define WORKER_TASK(NAME, PRIO) \
   { \
     .name = NAME, \
-    .tty = TTY, \
     .prio = PRIO, \
     .id = -1, \
     .entry_point = worker_task_entry, \
@@ -48,8 +47,7 @@ rtems_status_code spawn(struct task *task)
 #define NUM_TICKS 1
 #define WAIT_NS   (CONFIGURE_MICROSECONDS_PER_TICK * NUM_TICKS)
 
-#define DEV1 "/dev/ttyS0"
-
+#define MSGQ_TYPE (struct timespec*)
 
 #define CONFIGURE_APPLICATION_NEEDS_CLOCK_DRIVER
 #define CONFIGURE_APPLICATION_NEEDS_CONSOLE_DRIVER
