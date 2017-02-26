@@ -18,7 +18,7 @@ struct measure_data {
 };
 
 void worker_task_entry(rtems_task_argument unused);
-rtems_status_code spawn(struct task *task);
+rtems_status_code spawn(struct task *task, rtems_task_argument arg);
 rtems_status_code calc_jitter(struct measure_data *data);
 
 /* Soft error handling */
