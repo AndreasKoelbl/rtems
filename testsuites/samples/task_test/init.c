@@ -151,6 +151,17 @@ rtems_task Init(rtems_task_argument ignored)
     results[i].min.tv_nsec = LONG_MAX;
   }
 
+  cstatus = rtems_task_set_priority(rtems_task_self(), 128, &current_priority);
+  rtems_directive_failed(cstatus, "set_priority");
+
+  cstatus = rtems_task_get_scheduler(rtems_task_self(), &scheduler);
+  rtems_directive_failed(cstatus, "get_scheduler");
+
+  cstatus = rtems_task_get_priority(rtems_task_self(), scheduler,
+                                    &current_priority);
+  rtems_directive_failed(cstatus, "get_priority");
+  printf("curr prio: %lu\n", current_priority);
+
   printf("Initialising Tasks...\n");
   for (i = 0; i < RTEMS_ARRAY_SIZE(workers); i++) {
     task = workers + i;
@@ -158,16 +169,6 @@ rtems_task Init(rtems_task_argument ignored)
     if (cstatus)
       printk("error spawning task %d\n", i);
   }
-
-  cstatus = rtems_task_set_priority(rtems_task_self(), 128, &current_priority);
-  rtems_directive_failed(cstatus, "set_priority");
-
-  cstatus = rtems_task_get_scheduler(rtems_task_self(), &scheduler);
-  rtems_directive_failed(cstatus, "get_scheduler");
-
-  cstatus = rtems_task_get_priority(rtems_task_self(), scheduler, &current_priority);
-  rtems_directive_failed(cstatus, "get_priority");
-  printf("curr prio: %lu\n", current_priority);
 
   while (true) {
     for (i = 0; i < RTEMS_ARRAY_SIZE(workers); i++) {
@@ -182,6 +183,9 @@ rtems_task Init(rtems_task_argument ignored)
             pstatus, prio, i, recv_buf.tv_sec % 1000, recv_buf.tv_nsec);
         fflush(stdout);
         */
+      } else if (rtems_task_is_suspended(workers[i].id)) {
+        printf("%lu\n", rtems_task_self());
+        rtems_task_resume(workers[i].id);
       }
     }
     rtems_task_wake_after(NUM_TICKS * 2);
@@ -199,36 +203,36 @@ void worker_task_entry(rtems_task_argument queue)
   struct timespec start, end, diff;
   rtems_status_code status;
   struct timespec interval;
+  rtems_id period;
   interval.tv_sec = 0;
   interval.tv_nsec = WAIT_NS;
 
-  while(true) {
-    status = clock_gettime(CLOCK_REALTIME, &start);
-    posix_directive_failed(status, "clock_gettime");
-    //rtems_task_wake_after(NUM_TICKS);
-    nanosleep(&interval, NULL);
-    status = clock_gettime(CLOCK_REALTIME, &end);
-    posix_directive_failed(status, "clock_gettime");
+  printf("before create\n");
+  status = rtems_rate_monotonic_create(rtems_build_name('P', 'E', 'R', 'D'),
+                                       &period);
+  printf("after create\n");
 
-    rtems_timespec_subtract(&start, &end, &diff);
-    if (diff.tv_sec < 0 || diff.tv_nsec < 0)
-      fprintf(stderr, "Time difference is negative\n");
-    diff.tv_nsec -= WAIT_NS;
+  while(true) {
+    status = clock_gettime(CLOCK_REALTIME, &diff);
+    posix_directive_failed(status, "clock_gettime");
+    if (rtems_rate_monotonic_period(period, NUM_TICKS) == RTEMS_TIMEOUT)
+      break;
+
+    //diff.tv_nsec -= WAIT_NS;
 
     //posix_directive_failed(status, "mq_send");
     status = mq_send(*((mqd_t *)queue), (const char*)&diff, sizeof(diff),
                      RTEMS_CURRENT_PRIORITY);
     while (status) {
-      nanosleep(&interval, NULL);
+      printf("suspending %lu\n", rtems_task_self());
+      rtems_task_suspend(rtems_task_self());
       status = mq_send(*((mqd_t *)queue), (const char*)&diff, sizeof(diff),
                        RTEMS_CURRENT_PRIORITY);
     }
-    if (status) {
-      perror("mq_send ");
-      printf("with ret %d\n", status);
-    }
+
     //printf("%ld:%ld\n", end.tv_sec, end.tv_nsec);
     fflush(stdout);
   }
+  printf("timed out\n");
   rtems_task_delete(rtems_task_self());
 }

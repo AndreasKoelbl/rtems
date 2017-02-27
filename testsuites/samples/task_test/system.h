@@ -48,8 +48,8 @@ void print_results(struct measure_data *result, struct timespec *measurement,
 #define CONFIGURE_APPLICATION_NEEDS_CONSOLE_DRIVER
 
 #define CONFIGURE_LIBIO_MAXIMUM_FILE_DESCRIPTORS 20
-#define CONFIGURE_MAXIMUM_TASKS                  50
-#define CONFIGURE_MAXIMUM_TIMERS                 50
+#define CONFIGURE_MAXIMUM_TASKS                  10
+#define CONFIGURE_MAXIMUM_TIMERS                 10
 #define CONFIGURE_MICROSECONDS_PER_TICK          10000
 #define CONFIGURE_MAXIMUM_POSIX_MESSAGE_QUEUES   10
 
