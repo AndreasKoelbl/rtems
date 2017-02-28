@@ -67,6 +67,12 @@ const arm_cp15_start_section_config arm_cp15_start_mmu_config_table[] = {
     .end = (uint32_t) bsp_section_stack_end,
     .flags = ARMV7_MMU_DATA_READ_WRITE_CACHED
   }, {
+#ifndef JAILHOUSE_ENABLE
+    .begin = (uint32_t) CAR,
+    .end = (uint32_t) (CAR + 0x1000),
+    .flags = ARMV7_MMU_DEVICE
+  }, {
+#endif
     .begin = (uint32_t) TIMER_BASE,
     .end = (uint32_t) (TIMER_BASE + 0x1000),
     .flags = ARMV7_MMU_DEVICE
