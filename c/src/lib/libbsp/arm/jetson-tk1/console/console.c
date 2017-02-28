@@ -13,11 +13,12 @@
 #include <rtems/bspIo.h>
 
 #include <bsp.h>
-#include <bsp/fatal.h>
-#include <bsp/jailhouse.h>
+#include <bsp/car.h>
 #include <bsp/console.h>
-#include <bsp/memory.h>
+#include <bsp/fatal.h>
 #include <bsp/irq.h>
+#include <bsp/jailhouse.h>
+#include <bsp/memory.h>
 
 #define UART_TX			      0x0
 #define UART_DLL          0x0
