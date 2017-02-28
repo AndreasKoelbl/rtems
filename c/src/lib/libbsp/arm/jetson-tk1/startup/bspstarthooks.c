@@ -24,10 +24,6 @@ void BSP_START_TEXT_SECTION bsp_start_hook_0(void)
 
 void BSP_START_TEXT_SECTION bsp_start_hook_1(void)
 {
-  /*
-   * MMU is currently problematic
-     bsp_start_copy_sections();
-     bsp_memory_management_initialize();
-  */
+  bsp_start_copy_sections();
   bsp_start_clear_bss();
 }
