@@ -19,7 +19,7 @@ extern "C" {
 #define BSP_ARM_GIC_DIST_BASE  ((void *)0x50041000)
 #define BSP_ARM_GIC_CPUIF_BASE ((void *)0x50042000)
 
-#define JAILHOUSE_ENABLE
+//#define JAILHOUSE_ENABLE
 
 #ifdef __cplusplus
 }
