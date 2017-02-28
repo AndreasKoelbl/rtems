@@ -7,6 +7,7 @@
  */
 
 #include <bsp.h>
+#include <bsp/car.h>
 #include <bsp/console.h>
 #include <bsp/timer.h>
 #include <bsp/arm-cp15-start.h>
