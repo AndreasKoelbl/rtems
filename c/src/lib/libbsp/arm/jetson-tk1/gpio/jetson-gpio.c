@@ -8,9 +8,8 @@
 
 #include <bsp.h>
 #include <bsp/irq-generic.h>
+#include <bsp/jetson-gpio.h>
 #include <bsp/gpio.h>
-
-#define IRQ_CONTROLLER 2
 
 #define GPIO_1_IRQ (32 + 32)
 #define GPIO_2_IRQ (33 + 32)
@@ -18,6 +17,29 @@
 #define GPIO_4_IRQ (35 + 32)
 #define GPIO_5_IRQ (55 + 32)
 #define GPIO_6_IRQ (87 + 32)
+#define GPIO_7_IRQ (89 + 32)
+#define GPIO_8_IRQ (125 + 32)
+
+#define PU0 0x3184
+#define PU1 0x3188
+#define PU2 0x318c
+#define PU3 0x3190
+#define PU4 0x3194
+#define PU5 0x3198
+#define PU6 0x319c
+#define PH1 0x3214
+
+#define P_LOCK             (1 << 7)
+#define P_E_INPUT          (1 << 5)
+#define P_TRISTATE         (1 << 4)
+#define P_RVSD             ((1 << 3)|(1 << 2))
+#define P_PULL_UP          ((1 << 3)|(0 << 2))
+#define P_PULL_DOWN        ((0 << 3)|(1 << 2))
+#define P_PULL_DOWN_NORMAL ((0 << 3)|(0 << 2))
+#define P_GMI_DTV          ((1 << 1)|(1 << 0))
+#define P_GMI_GMI          ((1 << 1)|(0 << 0))
+#define P_GMI_TRACE        ((0 << 1)|(0 << 0))
+#define P_GMI_PWM          ((0 << 1)|(0 << 0))
 
 RTEMS_INTERRUPT_LOCK_DEFINE(static, rtems_gpio_bsp_lock, "rtems_gpio_bsp_lock");
 
@@ -117,6 +139,10 @@ rtems_vector_number rtems_gpio_bsp_get_vector(uint32_t bank)
       return GPIO_5_IRQ;
     case 6:
       return GPIO_6_IRQ;
+    case 7:
+      return GPIO_7_IRQ;
+    case 8:
+      return GPIO_8_IRQ;
     default:
       return -1;
   }

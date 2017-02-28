@@ -21,8 +21,8 @@ extern "C" {
 
 //#define JAILHOUSE_ENABLE
 
-#define BSP_GPIO_PIN_COUNT      7
-#define BSP_GPIO_PINS_PER_BANK  32
+#define BSP_GPIO_PIN_COUNT      162
+#define BSP_GPIO_PINS_PER_BANK  20
 
 #ifdef __cplusplus
 }
