@@ -9,7 +9,7 @@
 #ifndef LIBBSP_ARM_JETSONTK1_GPIO_H
 #define LIBBSP_ARM_JETSONTK1_GPIO_H
 
-#define GPIO_BASE ((void*)0x6000d000)
-#define PINMUX_BASE ((void*)0x70000000)
+#define GPIO_BASE   ((void*)0x6000d000)
+#define PINMUX_AUX  ((void*)0x70003000)
 
 #endif /* LIBBSP_ARM_JETSONTK1_GPIO_H */

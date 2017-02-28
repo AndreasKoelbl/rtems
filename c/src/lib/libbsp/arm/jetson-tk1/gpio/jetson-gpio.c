@@ -106,17 +106,17 @@ rtems_vector_number rtems_gpio_bsp_get_vector(uint32_t bank)
 {
   switch(bank) {
     case 1:
-      return GPIO_0_IRQ;
-    case 2:
       return GPIO_1_IRQ;
-    case 3:
+    case 2:
       return GPIO_2_IRQ;
-    case 4:
+    case 3:
       return GPIO_3_IRQ;
-    case 5:
+    case 4:
       return GPIO_4_IRQ;
-    case 6:
+    case 5:
       return GPIO_5_IRQ;
+    case 6:
+      return GPIO_6_IRQ;
     default:
       return -1;
   }
