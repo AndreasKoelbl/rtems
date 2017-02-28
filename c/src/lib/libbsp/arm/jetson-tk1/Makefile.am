@@ -21,10 +21,10 @@ dist_project_lib_DATA = bsp_specs
 include_HEADERS = include/bsp.h
 include_HEADERS += ../../shared/include/tm27.h
 
-nodist_include_HEADERS = ../../shared/include/coverhd.h \
-    include/bspopts.h
-
+nodist_include_HEADERS = ../../shared/include/coverhd.h include/bspopts.h
 nodist_include_bsp_HEADERS = ../../shared/include/bootcard.h
+
+include_libcpu_HEADERS =  ../../../libcpu/arm/shared/include/arm-cp15.h
 
 include_bsp_HEADERS =
 include_bsp_HEADERS += ../../../libbsp/shared/include/mm.h
@@ -43,13 +43,12 @@ include_bsp_HEADERS += ../shared/include/arm-gic-regs.h
 include_bsp_HEADERS += ../shared/include/arm-gic-tm27.h
 include_bsp_HEADERS += ../shared/include/arm-release-id.h
 
+include_bsp_HEADERS += include/car.h
 include_bsp_HEADERS += include/console.h
 include_bsp_HEADERS += include/irq.h
 include_bsp_HEADERS += include/memory.h
-include_bsp_HEADERS += include/timer.h
 include_bsp_HEADERS += include/jailhouse.h
-
-include_libcpu_HEADERS =  ../../../libcpu/arm/shared/include/arm-cp15.h
+include_bsp_HEADERS += include/timer.h
 
 ###############################################################################
 # Data                                                       #
@@ -109,6 +108,12 @@ libbsp_a_SOURCES += ../../shared/src/irq-legacy.c
 libbsp_a_SOURCES += ../../shared/src/irq-server.c
 libbsp_a_SOURCES += ../../shared/src/irq-shell.c
 
+# Cache
+libbsp_a_SOURCES += ../../../libcpu/shared/src/cache_manager.c
+libbsp_a_SOURCES += ../shared/include/arm-cache-l1.h
+libbsp_a_SOURCES += ../shared/armv467ar-basic-cache/cache_.h
+libbsp_a_CPPFLAGS += -I$(srcdir)/../shared/armv467ar-basic-cache
+
 # Console
 libbsp_a_SOURCES += ../../shared/console-termios.c
 libbsp_a_SOURCES += console/console.c
@@ -120,35 +125,12 @@ libbsp_a_SOURCES += clock/clockdrv.c ../../../shared/clockdrv_shell.h
 # Timer
 libbsp_a_SOURCES += misc/timer.c
 
-# Cache
-libbsp_a_SOURCES += ../../../libcpu/shared/src/cache_manager.c
-libbsp_a_SOURCES += ../shared/include/arm-cache-l1.h
-libbsp_a_SOURCES += ../shared/armv467ar-basic-cache/cache_.h
-libbsp_a_CPPFLAGS += -I$(srcdir)/../shared/armv467ar-basic-cache
-
 # Start hooks
 libbsp_a_SOURCES += startup/bspstarthooks.c
 
 # LIBMM
 libbsp_a_SOURCES += startup/mm_config_table.c
 libbsp_a_SOURCES += ../shared/mminit.c
-
-###############################################################################
-# Network                                                    #
-###############################################################################
-
-#if HAS_NETWORKING
-#
-#noinst_PROGRAMS = network.rel
-#
-#network_rel_SOURCES = ../shared/lpc/network/lpc-ethernet.c
-#network_rel_CPPFLAGS = $(AM_CPPFLAGS) -D__INSIDE_RTEMS_BSD_TCPIP_STACK__ -D__BSD_VISIBLE
-#network_rel_LDFLAGS = $(RTEMS_RELLDFLAGS)
-#
-#
-#libbsp_a_LIBADD += network.rel
-#
-#endif
 
 ###############################################################################
 #                  Special Rules                                              #
