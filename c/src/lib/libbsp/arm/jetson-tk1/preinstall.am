@@ -70,9 +70,9 @@ $(PROJECT_INCLUDE)/bsp/mm.h: ../../../libbsp/shared/include/mm.h $(PROJECT_INCLU
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/mm.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/mm.h
 
-$(PROJECT_INCLUDE)/bsp/utility.h: ../../shared/include/utility.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
-	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/utility.h
-PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/utility.h
+$(PROJECT_INCLUDE)/bsp/gpio.h: ../../shared/include/gpio.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/gpio.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/gpio.h
 
 $(PROJECT_INCLUDE)/bsp/irq-generic.h: ../../shared/include/irq-generic.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/irq-generic.h
@@ -89,6 +89,10 @@ PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/stackalloc.h
 $(PROJECT_INCLUDE)/bsp/uart-output-char.h: ../../shared/include/uart-output-char.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/uart-output-char.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/uart-output-char.h
+
+$(PROJECT_INCLUDE)/bsp/utility.h: ../../shared/include/utility.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/utility.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/utility.h
 
 $(PROJECT_INCLUDE)/bsp/linker-symbols.h: ../shared/include/linker-symbols.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/linker-symbols.h

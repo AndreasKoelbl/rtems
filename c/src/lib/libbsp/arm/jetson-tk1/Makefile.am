@@ -28,11 +28,12 @@ include_libcpu_HEADERS =  ../../../libcpu/arm/shared/include/arm-cp15.h
 
 include_bsp_HEADERS =
 include_bsp_HEADERS += ../../../libbsp/shared/include/mm.h
-include_bsp_HEADERS += ../../shared/include/utility.h
+include_bsp_HEADERS += ../../shared/include/gpio.h
 include_bsp_HEADERS += ../../shared/include/irq-generic.h
 include_bsp_HEADERS += ../../shared/include/irq-info.h
 include_bsp_HEADERS += ../../shared/include/stackalloc.h
 include_bsp_HEADERS += ../../shared/include/uart-output-char.h
+include_bsp_HEADERS += ../../shared/include/utility.h
 include_bsp_HEADERS += ../shared/include/linker-symbols.h
 include_bsp_HEADERS += ../shared/include/start.h
 include_bsp_HEADERS += ../shared/include/arm-cp15-start.h
@@ -45,6 +46,7 @@ include_bsp_HEADERS += ../shared/include/arm-release-id.h
 
 include_bsp_HEADERS += include/car.h
 include_bsp_HEADERS += include/console.h
+include_bsp_HEADERS += include/gpio.h
 include_bsp_HEADERS += include/irq.h
 include_bsp_HEADERS += include/memory.h
 include_bsp_HEADERS += include/jailhouse.h
@@ -89,14 +91,19 @@ if BSP_START_IN_HYP_SUPPORT
 libbsp_a_SOURCES += ../shared/startup/bsp-start-in-hyp-support.S
 endif
 
-# Startup
-libbsp_a_SOURCES += startup/bspstart.c
-if HAS_SMP
-libbsp_a_SOURCES += ../shared/arm-a9mpcore-smp.c
-endif
+# Cache
+libbsp_a_SOURCES += ../../../libcpu/shared/src/cache_manager.c
+libbsp_a_SOURCES += ../shared/include/arm-cache-l1.h
+libbsp_a_SOURCES += ../shared/armv467ar-basic-cache/cache_.h
+libbsp_a_CPPFLAGS += -I$(srcdir)/../shared/armv467ar-basic-cache
 
-# Restart
-libbsp_a_SOURCES += startup/bspreset.c
+# Clock
+libbsp_a_SOURCES += clock/clockdrv.c ../../../shared/clockdrv_shell.h
+
+# Console
+libbsp_a_SOURCES += ../../shared/console-termios.c
+libbsp_a_SOURCES += console/console.c
+libbsp_a_SOURCES += console/debug-console.c
 
 # IRQ
 libbsp_a_SOURCES += ../shared/arm-cp15-set-exception-handler.c
@@ -108,25 +115,24 @@ libbsp_a_SOURCES += ../../shared/src/irq-legacy.c
 libbsp_a_SOURCES += ../../shared/src/irq-server.c
 libbsp_a_SOURCES += ../../shared/src/irq-shell.c
 
-# Cache
-libbsp_a_SOURCES += ../../../libcpu/shared/src/cache_manager.c
-libbsp_a_SOURCES += ../shared/include/arm-cache-l1.h
-libbsp_a_SOURCES += ../shared/armv467ar-basic-cache/cache_.h
-libbsp_a_CPPFLAGS += -I$(srcdir)/../shared/armv467ar-basic-cache
+# GPIO
+libbsp_a_SOURCES += ../../shared/gpio.c
+libbsp_a_SOURCES += gpio/jetson-gpio.c
 
-# Console
-libbsp_a_SOURCES += ../../shared/console-termios.c
-libbsp_a_SOURCES += console/console.c
-libbsp_a_SOURCES += console/debug-console.c
+# Restart
+libbsp_a_SOURCES += startup/bspreset.c
 
-# clock
-libbsp_a_SOURCES += clock/clockdrv.c ../../../shared/clockdrv_shell.h
-
-# Timer
-libbsp_a_SOURCES += misc/timer.c
+# Startup
+libbsp_a_SOURCES += startup/bspstart.c
+if HAS_SMP
+libbsp_a_SOURCES += ../shared/arm-a9mpcore-smp.c
+endif
 
 # Start hooks
 libbsp_a_SOURCES += startup/bspstarthooks.c
+
+# Timer
+libbsp_a_SOURCES += misc/timer.c
 
 # LIBMM
 libbsp_a_SOURCES += startup/mm_config_table.c
