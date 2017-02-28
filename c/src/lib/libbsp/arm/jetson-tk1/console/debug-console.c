@@ -1,5 +1,5 @@
 /*
- *  COPYRIGHT (c) 1989-2011, 2016.
+ *  COPYRIGHT (c) 1989-2011, 2017.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
