@@ -138,9 +138,9 @@ $(PROJECT_INCLUDE)/bsp/console.h: include/console.h $(PROJECT_INCLUDE)/bsp/$(dir
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/console.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/console.h
 
-$(PROJECT_INCLUDE)/bsp/gpio.h: include/gpio.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
-	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/gpio.h
-PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/gpio.h
+$(PROJECT_INCLUDE)/bsp/jetson-gpio.h: include/jetson-gpio.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/jetson-gpio.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/jetson-gpio.h
 
 $(PROJECT_INCLUDE)/bsp/irq.h: include/irq.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/irq.h
