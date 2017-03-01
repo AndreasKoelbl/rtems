@@ -33,6 +33,7 @@
 #define GPIO_CNF      0x00
 #define GPIO_OE       0x10
 #define GPIO_OUT      0x20
+#define GPIO_IN       0x30
 #define GPIO_INT_STA  0x40
 #define GPIO_INT_ENB  0x50
 #define GPIO_INT_LVL  0x60
@@ -68,42 +69,42 @@ typedef struct {
 static jetson_gpio_context jetson_gpio_instances[] = {
   {
     .regs = GPIO_BASE + GPIO_1_REG,
-    .pinmux = PU0,
+    .pinmux = PINMUX_AUX + PU0,
     .irq = GPIO_1_IRQ,
   },
   {
     .regs = GPIO_BASE + GPIO_2_REG,
-    .pinmux = PU1,
+    .pinmux = PINMUX_AUX + PU1,
     .irq = GPIO_2_IRQ,
   },
   {
     .regs = GPIO_BASE + GPIO_3_REG,
-    .pinmux = PU2,
+    .pinmux = PINMUX_AUX + PU2,
     .irq = GPIO_3_IRQ,
   },
   {
     .regs = GPIO_BASE + GPIO_4_REG,
-    .pinmux = PU3,
+    .pinmux = PINMUX_AUX + PU3,
     .irq = GPIO_4_IRQ,
   },
   {
     .regs = GPIO_BASE + GPIO_5_REG,
-    .pinmux = PU4,
+    .pinmux = PINMUX_AUX + PU4,
     .irq = GPIO_5_IRQ,
   },
   {
     .regs = GPIO_BASE + GPIO_6_REG,
-    .pinmux = PU5,
+    .pinmux = PINMUX_AUX + PU5,
     .irq = GPIO_6_IRQ,
   },
   {
     .regs = GPIO_BASE + GPIO_7_REG,
-    .pinmux = PU6,
+    .pinmux = PINMUX_AUX + PU6,
     .irq = GPIO_8_IRQ,
   },
   {
     .regs = GPIO_BASE + GPIO_8_REG,
-    .pinmux = PH1,
+    .pinmux = PINMUX_AUX + PH1,
     .irq = GPIO_8_IRQ,
   },
 };
@@ -136,7 +137,7 @@ uint32_t rtems_gpio_bsp_multi_read(uint32_t bank, uint32_t bitmask)
 
 rtems_status_code rtems_gpio_bsp_set(uint32_t bank, uint32_t pin)
 {
-  mmio_write32(jetson_gpio_instances[bank].regs + OUT, PIN_OUT);
+  mmio_write32(jetson_gpio_instances[bank].regs + GPIO_OUT, 1 << bank);
   return RTEMS_SUCCESSFUL;
 }
 
@@ -148,7 +149,10 @@ rtems_status_code rtems_gpio_bsp_clear(uint32_t bank, uint32_t pin)
 
 uint32_t rtems_gpio_bsp_get_value(uint32_t bank, uint32_t pin)
 {
-  return -1;
+  uint32_t result = (1 << bank);
+  result &= mmio_read32(jetson_gpio_instances[bank].regs + GPIO_IN);
+
+	return !(!result);
 }
 
 rtems_status_code rtems_gpio_bsp_select_input(
@@ -160,7 +164,7 @@ rtems_status_code rtems_gpio_bsp_select_input(
     return RTEMS_UNSATISFIED;
   }
   mmio_write32(PINMUX_AUX + jetson_gpio_instances[bank].pinmux, MUX_E_INPUT |
-               MUX_TRISTATE);
+    MUX_TRISTATE);
 
   return RTEMS_SUCCESSFUL;
 }
@@ -244,37 +248,45 @@ rtems_status_code rtems_gpio_bsp_enable_interrupt(
   uint32_t pin,
   rtems_gpio_interrupt interrupt
 ) {
+  uint32_t old;
   if (bank >= RTEMS_ARRAY_SIZE(jetson_gpio_instances)) {
     return RTEMS_UNSATISFIED;
   }
 
-  switch ( interrupt ) {
+  /* Enable Interrupt */
+  mmio_write32(jetson_gpio_instances[bank].regs + GPIO_INT_ENB, 1 << bank);
+  old = mmio_read32(jetson_gpio_instances[bank].regs + GPIO_INT_LVL);
+  switch (interrupt) {
     case FALLING_EDGE:
+      mmio_write32(jetson_gpio_instances[bank].regs + GPIO_INT_LVL, (old &
+        ~(1 << bank)) | ((1 << bank) << 8));
       break;
     case RISING_EDGE:
+      mmio_write32(jetson_gpio_instances[bank].regs + GPIO_INT_LVL, old |
+        (1 << bank) | ((1 << bank) << 8));
       break;
     case BOTH_EDGES:
+      mmio_write32(jetson_gpio_instances[bank].regs + GPIO_INT_LVL, old |
+        ((1 << bank) << 16));
       break;
     case LOW_LEVEL:
+      mmio_write32(jetson_gpio_instances[bank].regs + GPIO_INT_LVL, old &
+        ~(1 << bank));
       break;
     case HIGH_LEVEL:
+      mmio_write32(jetson_gpio_instances[bank].regs + GPIO_INT_LVL, old |
+        (1 << bank));
       break;
     case BOTH_LEVELS:
-      break;
     case NONE:
     default:
       return RTEMS_UNSATISFIED;
   }
-
-#error "Not implemented"
-//	mmio_write32(jetson_gpio_instances[bank].regs + ENB, PIN_IN);
-//  mmio_write32(jetson_gpio_instances[bank].regs + LVL, /* PIN_IN | */
-//               (PIN_IN << 8));
-//  mmio_write32(jetson_gpio_instances[bank].regs + STA, 0);
-//  mmio_write32(jetson_gpio_instances[bank].regs + CLR, 255);
+  /* Clear Interrupt */
+// TODO: check if needed
+  mmio_write32(jetson_gpio_instances[bank].regs + GPIO_INT_STA, 0);
+  mmio_write32(jetson_gpio_instances[bank].regs + GPIO_INT_CLR, 0xff);
 	mmio_write32(jetson_gpio_instances[bank].regs + GPIO_OUT, 0);
-
-//  bsp_interrupt_vector_enable(jetson_gpio_instances[bank].irq);
 
   return RTEMS_SUCCESSFUL;
 }
