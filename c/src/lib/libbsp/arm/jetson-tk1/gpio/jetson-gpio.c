@@ -109,12 +109,14 @@ uint32_t rtems_gpio_bsp_multi_read(uint32_t bank, uint32_t bitmask)
 
 rtems_status_code rtems_gpio_bsp_set(uint32_t bank, uint32_t pin)
 {
-  return RTEMS_NOT_DEFINED;
+  mmio_write32(jetson_gpio_instances[pin].regs + OUT, PIN_OUT);
+  return RTEMS_SUCCESSFUL;
 }
 
 rtems_status_code rtems_gpio_bsp_clear(uint32_t bank, uint32_t pin)
 {
-  return RTEMS_NOT_DEFINED;
+  mmio_write32(jetson_gpio_instances[pin].regs + CLR, 0xff);
+  return RTEMS_SUCCESSFUL;
 }
 
 uint32_t rtems_gpio_bsp_get_value(uint32_t bank, uint32_t pin)
@@ -229,17 +231,15 @@ rtems_status_code rtems_gpio_bsp_enable_interrupt(
     default:
       return RTEMS_UNSATISFIED;
   }
+  /* TODO: Code does more than function name suggests */
   mmio_write32(jetson_gpio_instances[pin].regs + CNF, PIN_OUT |
                PIN_IN);
   mmio_write32(jetson_gpio_instances[pin].regs + OE, PIN_OUT);
-
 	mmio_write32(jetson_gpio_instances[pin].regs + ENB, PIN_IN);
   mmio_write32(jetson_gpio_instances[pin].regs + LVL, /* PIN_IN | */
                (PIN_IN << 8));
 	mmio_write32(jetson_gpio_instances[pin].regs + STA, 0);
-
 	mmio_write32(jetson_gpio_instances[pin].regs + CLR, 255);
-
 	mmio_write32(jetson_gpio_instances[pin].regs + OUT, 0);
 
   bsp_interrupt_vector_enable(jetson_gpio_instances[pin].irq);
