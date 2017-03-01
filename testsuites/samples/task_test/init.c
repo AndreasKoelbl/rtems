@@ -34,7 +34,7 @@
 
 #include "system.h"
 
-#define NUM_TICKS     10
+#define NUM_TICKS     100
 #define WAIT_NS       (CONFIGURE_MICROSECONDS_PER_TICK * NUM_TICKS)
 #define NSECS_PER_SEC 1000000000
 
@@ -42,14 +42,11 @@
 
 static struct task workers[] = {
   WORKER_TASK("TSK1", 8),
-/*
+  /*
   WORKER_TASK("TSK2", 8),
   WORKER_TASK("TSK3", 8),
   WORKER_TASK("TSK4", 8),
   WORKER_TASK("TSK5", 8),
-  WORKER_TASK("TSK6", 8),
-  WORKER_TASK("TSK7", 8),
-  WORKER_TASK("TSK8", 8),
   */
 };
 
@@ -107,7 +104,7 @@ void print_results(struct measure_data *result, struct timespec *measurement,
          ((long long unsigned) result->sec_jitters * NSECS_PER_SEC +
          result->nsec_jitters) / result->iterations);
          */
-  printf("curr: %ld:%ld\n", measurement->tv_sec % 1000, measurement->tv_nsec);
+  printf("%ld:%ld\n", measurement->tv_sec % 1000, measurement->tv_nsec);
 }
 
   //jitter = (diff.tv_nsec + diff.tv_sec * 1000000000) - WAIT_NS;
@@ -200,24 +197,27 @@ rtems_task Init(rtems_task_argument ignored)
 
 void worker_task_entry(rtems_task_argument queue)
 {
+  int i;
   struct timespec start, end, diff;
   rtems_status_code status;
   struct timespec interval;
   rtems_id period;
   interval.tv_sec = 0;
   interval.tv_nsec = WAIT_NS;
+  rtems_rate_monotonic_period_statistics statistics;
 
-  printf("before create\n");
   status = rtems_rate_monotonic_create(rtems_build_name('P', 'E', 'R', 'D'),
                                        &period);
-  printf("after create\n");
-
-  while(true) {
-    status = clock_gettime(CLOCK_REALTIME, &diff);
+  for (i = 0; i < 32; i++) {
+    status = clock_gettime(CLOCK_REALTIME, &start);
     posix_directive_failed(status, "clock_gettime");
+    rtems_task_wake_after(NUM_TICKS);
     if (rtems_rate_monotonic_period(period, NUM_TICKS) == RTEMS_TIMEOUT)
       break;
+    status = clock_gettime(CLOCK_REALTIME, &end);
+    posix_directive_failed(status, "clock_gettime");
 
+    rtems_timespec_subtract(&start, &end, &diff);
     //diff.tv_nsec -= WAIT_NS;
 
     //posix_directive_failed(status, "mq_send");
@@ -233,6 +233,6 @@ void worker_task_entry(rtems_task_argument queue)
     //printf("%ld:%ld\n", end.tv_sec, end.tv_nsec);
     fflush(stdout);
   }
-  printf("timed out\n");
+  rtems_rate_monotonic_report_statistics();
   rtems_task_delete(rtems_task_self());
 }

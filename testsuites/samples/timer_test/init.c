@@ -56,7 +56,6 @@ rtems_task Init(
   free(measurement);
 
   rtems_task_delete(RTEMS_SELF);
-
 }
 
 void handle_timer(rtems_id id, void* data)
@@ -67,9 +66,7 @@ void handle_timer(rtems_id id, void* data)
   status = clock_gettime(CLOCK_REALTIME, &current);
   posix_directive_failed(status, "clock_gettime");
 
-  printf("%ld:%ld\n", current.tv_sec % 10, current.tv_nsec);
-
-  posix_directive_failed(status, "clock_gettime");
   /* Interrupt me every 1/10 second */
   rtems_timer_fire_after(id, NUM_TICKS, handle_timer, NULL);
+  printf("%ld:%ld\n", current.tv_sec % 100, current.tv_nsec);
 }

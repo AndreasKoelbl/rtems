@@ -50,7 +50,7 @@ void print_results(struct measure_data *result, struct timespec *measurement,
 #define CONFIGURE_LIBIO_MAXIMUM_FILE_DESCRIPTORS 20
 #define CONFIGURE_MAXIMUM_TASKS                  10
 #define CONFIGURE_MAXIMUM_TIMERS                 10
-#define CONFIGURE_MICROSECONDS_PER_TICK          10000
+#define CONFIGURE_MICROSECONDS_PER_TICK          1000
 #define CONFIGURE_MAXIMUM_POSIX_MESSAGE_QUEUES   10
 
 #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
