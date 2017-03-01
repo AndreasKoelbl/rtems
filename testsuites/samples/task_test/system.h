@@ -23,7 +23,9 @@ void print_results(struct measure_data *result, struct timespec *measurement,
 
 /* Soft error handling */
 /* RTEMS Classic API, no posix */
-#undef directive_failed
+#undef rtems_directive_failed
+#undef posix_directive_failed
+
 #define rtems_directive_failed(status, msg) \
   if (status != RTEMS_SUCCESSFUL) { \
     printf("\n%s FAILED -- expected (%s) got (%s)\n", msg, \
