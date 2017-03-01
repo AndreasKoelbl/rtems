@@ -7,18 +7,19 @@
  */
 
 #include <bsp.h>
+#include <bsp/gpio.h>
 #include <bsp/irq-generic.h>
 #include <bsp/jetson-gpio.h>
-#include <bsp/gpio.h>
+#include <bsp/memory.h>
 
-#define GPIO_1_IRQ (32 + 32)
-#define GPIO_2_IRQ (33 + 32)
-#define GPIO_3_IRQ (34 + 32)
-#define GPIO_4_IRQ (35 + 32)
-#define GPIO_5_IRQ (55 + 32)
-#define GPIO_6_IRQ (87 + 32)
-#define GPIO_7_IRQ (89 + 32)
-#define GPIO_8_IRQ (125 + 32)
+#define GPIO_1_REG 0x0
+#define GPIO_2_REG 0x100
+#define GPIO_3_REG 0x200
+#define GPIO_4_REG 0x300
+#define GPIO_5_REG 0x400
+#define GPIO_6_REG 0x500
+#define GPIO_7_REG 0x600
+#define GPIO_8_REG 0x700
 
 #define PU0 0x3184
 #define PU1 0x3188
@@ -29,17 +30,57 @@
 #define PU6 0x319c
 #define PH1 0x3214
 
-#define P_LOCK             (1 << 7)
-#define P_E_INPUT          (1 << 5)
-#define P_TRISTATE         (1 << 4)
-#define P_RVSD             ((1 << 3)|(1 << 2))
-#define P_PULL_UP          ((1 << 3)|(0 << 2))
-#define P_PULL_DOWN        ((0 << 3)|(1 << 2))
-#define P_PULL_DOWN_NORMAL ((0 << 3)|(0 << 2))
-#define P_GMI_DTV          ((1 << 1)|(1 << 0))
-#define P_GMI_GMI          ((1 << 1)|(0 << 0))
-#define P_GMI_TRACE        ((0 << 1)|(0 << 0))
-#define P_GMI_PWM          ((0 << 1)|(0 << 0))
+#define CNF 0x00
+#define OE  0x10
+#define OUT 0x20
+#define STA 0x40
+#define ENB 0x50
+#define LVL 0x60
+#define CLR 0x70
+
+#define GPIO_1_IRQ (32 + 32)
+#define GPIO_2_IRQ (33 + 32)
+#define GPIO_3_IRQ (34 + 32)
+#define GPIO_4_IRQ (35 + 32)
+#define GPIO_5_IRQ (55 + 32)
+#define GPIO_6_IRQ (87 + 32)
+#define GPIO_7_IRQ (89 + 32)
+#define GPIO_8_IRQ (125 + 32)
+
+#define MUX_LOCK             (1 << 7)
+#define MUX_E_INPUT          (1 << 5)
+#define MUX_TRISTATE         (1 << 4)
+#define MUX_RVSD             ((1 << 3)|(1 << 2))
+#define MUX_PULL_UP          ((1 << 3)|(0 << 2))
+#define MUX_PULL_DOWN        ((0 << 3)|(1 << 2))
+#define MUX_PULL_DOWN_NORMAL ((0 << 3)|(0 << 2))
+#define MUX_GMI_DTV          ((1 << 1)|(1 << 0))
+#define MUX_GMI_GMI          ((1 << 1)|(0 << 0))
+#define MUX_GMI_TRACE        ((0 << 1)|(0 << 0))
+#define MUX_GMI_PWM          ((0 << 1)|(0 << 0))
+
+#define PIN_OUT (1 << 5) /* PU 5 */
+#define PIN_IN (1 << 6) /* PU 6 */
+
+typedef struct {
+  void *regs;
+  uint32_t pinmux;
+  rtems_vector_number irq;
+} jetson_gpio_context;
+
+static jetson_gpio_context jetson_gpio_instances[] = {
+  {
+    .regs = GPIO_BASE + GPIO_5_REG,
+    .pinmux = PU5,
+    .irq = GPIO_5_IRQ,
+  },
+  {
+    .regs = GPIO_BASE + GPIO_6_REG,
+    .pinmux = PU6,
+    .irq = GPIO_6_IRQ,
+  },
+};
+
 
 RTEMS_INTERRUPT_LOCK_DEFINE(static, rtems_gpio_bsp_lock, "rtems_gpio_bsp_lock");
 
@@ -86,7 +127,12 @@ rtems_status_code rtems_gpio_bsp_select_input(
   uint32_t pin,
   void *bsp_specific
 ) {
-  return RTEMS_NOT_DEFINED;
+  if (pin >= RTEMS_ARRAY_SIZE(jetson_gpio_instances))
+    return RTEMS_UNSATISFIED;
+
+  mmio_write32(PINMUX_AUX + jetson_gpio_instances[pin].pinmux, MUX_E_INPUT |
+               MUX_TRISTATE);
+  return RTEMS_SUCCESSFUL;
 }
 
 rtems_status_code rtems_gpio_bsp_select_output(
@@ -94,6 +140,11 @@ rtems_status_code rtems_gpio_bsp_select_output(
   uint32_t pin,
   void *bsp_specific
 ) {
+  if (pin >= RTEMS_ARRAY_SIZE(jetson_gpio_instances)) {
+    return RTEMS_UNSATISFIED;
+  } else {
+    mmio_write32(PINMUX_AUX + jetson_gpio_instances[pin].pinmux, 0);
+  }
   return RTEMS_NOT_DEFINED;
 }
 
@@ -158,7 +209,42 @@ rtems_status_code rtems_gpio_bsp_enable_interrupt(
   uint32_t pin,
   rtems_gpio_interrupt interrupt
 ) {
-  return RTEMS_NOT_DEFINED;
+  if (pin >= RTEMS_ARRAY_SIZE(jetson_gpio_instances))
+    return RTEMS_UNSATISFIED;
+
+  switch ( interrupt ) {
+    case FALLING_EDGE:
+      break;
+    case RISING_EDGE:
+      break;
+    case BOTH_EDGES:
+      break;
+    case LOW_LEVEL:
+      break;
+    case HIGH_LEVEL:
+      break;
+    case BOTH_LEVELS:
+      break;
+    case NONE:
+    default:
+      return RTEMS_UNSATISFIED;
+  }
+  mmio_write32(jetson_gpio_instances[pin].regs + CNF, PIN_OUT |
+               PIN_IN);
+  mmio_write32(jetson_gpio_instances[pin].regs + OE, PIN_OUT);
+
+	mmio_write32(jetson_gpio_instances[pin].regs + ENB, PIN_IN);
+  mmio_write32(jetson_gpio_instances[pin].regs + LVL, /* PIN_IN | */
+               (PIN_IN << 8));
+	mmio_write32(jetson_gpio_instances[pin].regs + STA, 0);
+
+	mmio_write32(jetson_gpio_instances[pin].regs + CLR, 255);
+
+	mmio_write32(jetson_gpio_instances[pin].regs + OUT, 0);
+
+  bsp_interrupt_vector_enable(jetson_gpio_instances[pin].irq);
+
+  return RTEMS_SUCCESSFUL;
 }
 
 rtems_status_code rtems_gpio_bsp_disable_interrupt(
