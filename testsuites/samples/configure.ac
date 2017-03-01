@@ -65,6 +65,7 @@ hello/Makefile
 loopback/Makefile
 minimum/Makefile
 fileio/Makefile
+gpio/Makefile
 nsecs/Makefile
 paranoia/Makefile
 task_test/Makefile
