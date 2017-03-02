@@ -151,6 +151,8 @@ rtems_status_code rtems_gpio_bsp_select_input(
     return RTEMS_UNSATISFIED;
   }
   mmio_write32(jetson_gpio_instances[pin].pinmux, MUX_E_INPUT | MUX_TRISTATE);
+  /* Configures pin to be in GPIO mode */
+  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_CNF, 1 << pin);
 
   return RTEMS_SUCCESSFUL;
 }
@@ -254,22 +256,22 @@ rtems_status_code rtems_gpio_bsp_enable_interrupt(
   switch (interrupt) {
     case FALLING_EDGE:
       mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_LVL,
-        (old & ~(1 << pin)) | ((1 << pin) << 8));
+        (old & ~(1 << pin) & ~((1 << pin) << 16)) | ((1 << pin) << 8));
       break;
     case RISING_EDGE:
-      mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_LVL, old |
-        (1 << pin) | ((1 << pin) << 8));
+      mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_LVL,
+        (old & ~((1 << pin) << 16)) | (1 << pin) | ((1 << pin) << 8));
       break;
     case BOTH_EDGES:
-      mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_LVL, old |
-        ((1 << pin) << 16));
+      mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_LVL,
+        (old & ~((1 << pin) << 8) & ~((1 << pin))) | ((1 << pin) << 16));
       break;
     case LOW_LEVEL:
       mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_LVL, old &
         ~(1 << pin));
       break;
     case HIGH_LEVEL:
-      mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_LVL, old |
+      mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_LVL, old  |
         (1 << pin));
       break;
     case BOTH_LEVELS:
