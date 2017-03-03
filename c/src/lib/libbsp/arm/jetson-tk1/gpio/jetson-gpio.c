@@ -140,7 +140,9 @@ rtems_status_code rtems_gpio_bsp_set(uint32_t bank, uint32_t pin)
 rtems_status_code rtems_gpio_bsp_clear(uint32_t bank, uint32_t pin)
 {
   mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_CLR, 0xff);
-  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_OUT, 0);
+  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_MSK_OUT, (0 << pin) |
+    (1 << pin) << 8);
+
   return RTEMS_SUCCESSFUL;
 }
 
@@ -179,7 +181,8 @@ rtems_status_code rtems_gpio_bsp_select_output(
   /* Configures pin to be in GPIO mode */
   mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_MSK_CNF, 1 << pin);
   /* Output Enable */
-  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_MSK_OE, 1 << pin);
+  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_MSK_OE, (1 << pin) |
+    ((1 << pin) << 8));
 
   return RTEMS_SUCCESSFUL;
 }
