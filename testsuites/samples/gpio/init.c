@@ -35,9 +35,53 @@
     if (status) { \
     perror(#msg); \
   }
+#define PU0 0x184
+#define PU1 0x188
+#define PU2 0x18c
+#define PU3 0x190
+#define PU4 0x194
+
+#define PU5 0x198
+#define PU6 0x19c
+
+#define PH1 0x214
+
+#define GPIO_CNF      0x00
+#define GPIO_OE       0x10
+#define GPIO_OUT      0x20
+#define GPIO_IN       0x30
+#define GPIO_INT_STA  0x40
+#define GPIO_INT_ENB  0x50
+#define GPIO_INT_LVL  0x60
+#define GPIO_INT_CLR  0x70
+
+#define GPIO_1_IRQ (32 + 32)
+#define GPIO_2_IRQ (33 + 32)
+#define GPIO_3_IRQ (34 + 32)
+#define GPIO_4_IRQ (35 + 32)
+#define GPIO_5_IRQ (55 + 32)
+#define GPIO_6_IRQ (87 + 32)
+#define GPIO_7_IRQ (89 + 32)
+#define GPIO_8_IRQ (125 + 32)
+
+#define MUX_LOCK             (1 << 7)
+#define MUX_E_INPUT          (1 << 5)
+#define MUX_TRISTATE         (1 << 4)
+#define MUX_RVSD             ((1 << 3)|(1 << 2))
+#define MUX_PULL_UP          ((1 << 3)|(0 << 2))
+#define MUX_PULL_DOWN        ((0 << 3)|(1 << 2))
+#define MUX_PULL_NORMAL      ((0 << 3)|(0 << 2))
+#define MUX_GMI_DTV          ((1 << 1)|(1 << 0))
+#define MUX_GMI_GMI          ((1 << 1)|(0 << 0))
+#define MUX_GMI_TRACE        ((0 << 1)|(0 << 0))
+#define MUX_GMI_PWM          ((0 << 1)|(0 << 0))
+
 
 #define GPIO_INT_ENB 0x50
-#define GPIO_BASE    0x70003000
+#define GPIO_BASE   ((void*)0x6000d000)
+#define PINMUX_AUX  ((void*)0x70003000)
+#define DEBUG
+#define bank 6
 
 rtems_task Init(rtems_task_argument argument);
 void irq_handler(void *arg);
@@ -58,14 +102,39 @@ rtems_task Init(rtems_task_argument ignored)
     irq_handler,
     (char*) vector
   );
+#ifdef DEBUG
+  uint32_t old;
   printf("after installing\n");
   status = rtems_gpio_bsp_select_output(6, 6, NULL);
   rtems_directive_failed(status, "select output");
-//  mmio_write32(GPIO_BASE + (6 - 1) * 0x100 + GPIO_INT_ENB, 1 << 4);
+  status = rtems_gpio_bsp_select_input(6, 5, NULL);
+  rtems_directive_failed(status, "select input");
+
+ // status = rtems_gpio_bsp_enable_interrupt(6, 4, RISING_EDGE);
+  old = mmio_read32(GPIO_BASE + (6 - 1) * 0x100 + GPIO_INT_ENB);
+  mmio_write32(GPIO_BASE + (6 - 1) * 0x100 + GPIO_INT_ENB, old | (1 << 5));
+  old = mmio_read32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_LVL);
+
+  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_LVL,
+    (old & ~((1 << 5) << 16)) | (1 << 5) | ((1 << 5) << 8));
+
+  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_CLR, 0xff);
+  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_OUT, 0);
+
+  //rtems_directive_failed(status, "enable interrupt");
+  printf("Before setting pin\n");
+  status = rtems_gpio_bsp_set(6, 6);
+  rtems_directive_failed(status, "gpio set");
+  rtems_task_wake_after(50);
+  rtems_gpio_bsp_clear(6, 6);
+#else
+  printf("after installing\n");
+  status = rtems_gpio_bsp_select_output(6, 6, NULL);
+  rtems_directive_failed(status, "select output");
   status = rtems_gpio_bsp_select_input(6, 4, NULL);
   rtems_directive_failed(status, "select input");
-  status = rtems_gpio_bsp_enable_interrupt(6, 4, RISING_EDGE);
-  rtems_directive_failed(status, "enable interrupt");
+//  status = rtems_gpio_bsp_enable_interrupt(6, 4, RISING_EDGE);
+//  rtems_directive_failed(status, "enable interrupt");
 
   status = rtems_gpio_bsp_set(6, 6);
   rtems_directive_failed(status, "gpio set");
@@ -74,14 +143,23 @@ rtems_task Init(rtems_task_argument ignored)
   printf("entering endless loop\n");
 
   while (true) {
-    asm volatile("" ::: "memory");
+    status = rtems_gpio_bsp_set(6, 6);
+    rtems_directive_failed(status, "gpio set");
+    rtems_task_wake_after(50);
+    rtems_gpio_bsp_clear(6, 6);
+    rtems_task_wake_after(50);
   }
+#endif
+  rtems_task_delete(rtems_task_self());
 }
 
 void irq_handler(void *arg)
 {
-  rtems_gpio_bsp_clear(6, 6);
-  printf("irqn: %u\n", (rtems_vector_number) arg);
+  mmio_write32(GPIO_BASE + (6 - 1) * 0x100 + GPIO_INT_CLR, 0xff);
+  mmio_write32(GPIO_BASE + (6 - 1) * 0x100 + GPIO_INT_STA, 0);
+  mmio_write32(GPIO_BASE + (6 - 1) * 0x100 + GPIO_OUT, 0);
+  //rtems_gpio_bsp_clear(6, 6);
+  printf("irqn: %lu\n", (rtems_vector_number) arg);
 }
 
 /* NOTICE: the clock driver is explicitly disabled */
