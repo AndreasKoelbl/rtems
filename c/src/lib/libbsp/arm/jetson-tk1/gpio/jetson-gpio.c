@@ -24,14 +24,22 @@
 
 #define PH1 0x214
 
-#define GPIO_CNF      0x00
-#define GPIO_OE       0x10
-#define GPIO_OUT      0x20
-#define GPIO_IN       0x30
-#define GPIO_INT_STA  0x40
-#define GPIO_INT_ENB  0x50
-#define GPIO_INT_LVL  0x60
-#define GPIO_INT_CLR  0x70
+#define GPIO_CNF            0x00
+#define GPIO_OE             0x10
+#define GPIO_OUT            0x20
+#define GPIO_IN             0x30
+#define GPIO_INT_STA        0x40
+#define GPIO_INT_ENB        0x50
+#define GPIO_INT_LVL        0x60
+#define GPIO_INT_CLR        0x70
+
+#define GPIO_MSK_CNF        0x80
+#define GPIO_MSK_OE         0x90
+#define GPIO_MSK_OUT        0xa0
+/* there is a memory hole.. */
+#define GPIO_MSK_INT_STA    0xc0
+#define GPIO_MSK_INT_ENB    0xd0
+#define GPIO_MSK_INT_LVL    0xe0
 
 #define GPIO_1_IRQ (32 + 32)
 #define GPIO_2_IRQ (33 + 32)
@@ -123,7 +131,9 @@ uint32_t rtems_gpio_bsp_multi_read(uint32_t bank, uint32_t bitmask)
 
 rtems_status_code rtems_gpio_bsp_set(uint32_t bank, uint32_t pin)
 {
-  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_OUT, 1 << pin);
+  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_MSK_OUT, (1 << pin) |
+    (1 << pin) << 8);
+
   return RTEMS_SUCCESSFUL;
 }
 
@@ -152,7 +162,7 @@ rtems_status_code rtems_gpio_bsp_select_input(
   }
   mmio_write32(jetson_gpio_instances[pin].pinmux, MUX_E_INPUT | MUX_TRISTATE);
   /* Configures pin to be in GPIO mode */
-  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_CNF, 1 << pin);
+  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_MSK_CNF, 1 << pin);
 
   return RTEMS_SUCCESSFUL;
 }
@@ -167,9 +177,9 @@ rtems_status_code rtems_gpio_bsp_select_output(
   }
   mmio_write32(jetson_gpio_instances[pin].pinmux, 0);
   /* Configures pin to be in GPIO mode */
-  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_CNF, 1 << pin);
+  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_MSK_CNF, 1 << pin);
   /* Output Enable */
-  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_OE, 1 << pin);
+  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_MSK_OE, 1 << pin);
 
   return RTEMS_SUCCESSFUL;
 }
@@ -247,10 +257,9 @@ rtems_status_code rtems_gpio_bsp_enable_interrupt(
     return RTEMS_UNSATISFIED;
   }
 
-  /* Clear Pending Interrupt */
-  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_CLR, 0xff);
-	mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_OUT, 0);
-
+  /* Enable Interrupt */
+  old = mmio_read32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_ENB);
+  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_ENB, old | (1 << pin));
   old = mmio_read32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_LVL);
 
   switch (interrupt) {
@@ -271,7 +280,7 @@ rtems_status_code rtems_gpio_bsp_enable_interrupt(
         ~(1 << pin));
       break;
     case HIGH_LEVEL:
-      mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_LVL, old  |
+      mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_LVL, old |
         (1 << pin));
       break;
     case BOTH_LEVELS:
