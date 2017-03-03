@@ -142,6 +142,7 @@ rtems_status_code rtems_gpio_bsp_clear(uint32_t bank, uint32_t pin)
   mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_CLR, 0xff);
   mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_MSK_OUT, (0 << pin) |
     (1 << pin) << 8);
+  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_STA, 0);
 
   return RTEMS_SUCCESSFUL;
 }
@@ -276,7 +277,7 @@ rtems_status_code rtems_gpio_bsp_enable_interrupt(
       break;
     case BOTH_EDGES:
       mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_LVL,
-        (old & ~((1 << pin) << 8) & ~((1 << pin))) | ((1 << pin) << 16));
+        (old & ~(1 << pin)) | ((1 << pin) << 8) | ((1 << pin) << 16));
       break;
     case LOW_LEVEL:
       mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_LVL, old &
@@ -291,9 +292,9 @@ rtems_status_code rtems_gpio_bsp_enable_interrupt(
     default:
       return RTEMS_UNSATISFIED;
   }
-
-  /* Enable Interrupt */
-  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_ENB, 1 << pin);
+  /* Clear Pending Interrupt */
+  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_CLR, 0xff);
+  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_OUT, 0);
 
   return RTEMS_SUCCESSFUL;
 }
@@ -308,6 +309,9 @@ rtems_status_code rtems_gpio_bsp_disable_interrupt(
 
   mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_ENB,
     old & ~(1 << pin));
+  old = mmio_read32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_LVL);
+  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_LVL,
+    (old & ~((1 << pin) << 8) & ~((1 << pin) << 16)));
   return RTEMS_SUCCESSFUL;
 }
 
