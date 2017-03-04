@@ -131,7 +131,7 @@ uint32_t rtems_gpio_bsp_multi_read(uint32_t bank, uint32_t bitmask)
 
 rtems_status_code rtems_gpio_bsp_set(uint32_t bank, uint32_t pin)
 {
-  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_MSK_OUT, (1 << pin) |
+  mmio_write16(GPIO_BASE + (bank - 1) * 0x100 + GPIO_MSK_OUT, (1 << pin) |
     (1 << pin) << 8);
 
   return RTEMS_SUCCESSFUL;
@@ -139,10 +139,10 @@ rtems_status_code rtems_gpio_bsp_set(uint32_t bank, uint32_t pin)
 
 rtems_status_code rtems_gpio_bsp_clear(uint32_t bank, uint32_t pin)
 {
-  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_CLR, 0xff);
-  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_MSK_OUT, (0 << pin) |
+  mmio_write16(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_CLR, 0xff);
+  mmio_write16(GPIO_BASE + (bank - 1) * 0x100 + GPIO_MSK_OUT, (0 << pin) |
     (1 << pin) << 8);
-  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_STA, 0);
+  mmio_write16(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_STA, 0);
 
   return RTEMS_SUCCESSFUL;
 }
@@ -150,7 +150,7 @@ rtems_status_code rtems_gpio_bsp_clear(uint32_t bank, uint32_t pin)
 uint32_t rtems_gpio_bsp_get_value(uint32_t bank, uint32_t pin)
 {
   uint32_t result = (1 << pin);
-  result &= mmio_read32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_IN);
+  result &= mmio_read8(GPIO_BASE + (bank - 1) * 0x100 + GPIO_IN);
 
 	return !(!result);
 }
@@ -163,9 +163,9 @@ rtems_status_code rtems_gpio_bsp_select_input(
   if (pin >= RTEMS_ARRAY_SIZE(jetson_gpio_instances)) {
     return RTEMS_UNSATISFIED;
   }
-  mmio_write32(jetson_gpio_instances[pin].pinmux, MUX_E_INPUT | MUX_TRISTATE);
+  mmio_write8(jetson_gpio_instances[pin].pinmux, MUX_E_INPUT | MUX_TRISTATE);
   /* Configures pin to be in GPIO mode */
-  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_MSK_CNF, 1 << pin);
+  mmio_write16(GPIO_BASE + (bank - 1) * 0x100 + GPIO_MSK_CNF, 1 << pin);
 
   return RTEMS_SUCCESSFUL;
 }
@@ -178,11 +178,11 @@ rtems_status_code rtems_gpio_bsp_select_output(
   if (pin >= RTEMS_ARRAY_SIZE(jetson_gpio_instances)) {
     return RTEMS_UNSATISFIED;
   }
-  mmio_write32(jetson_gpio_instances[pin].pinmux, 0);
+  mmio_write8(jetson_gpio_instances[pin].pinmux, 0);
   /* Configures pin to be in GPIO mode */
-  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_MSK_CNF, 1 << pin);
+  mmio_write16(GPIO_BASE + (bank - 1) * 0x100 + GPIO_MSK_CNF, 1 << pin);
   /* Output Enable */
-  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_MSK_OE, (1 << pin) |
+  mmio_write16(GPIO_BASE + (bank - 1) * 0x100 + GPIO_MSK_OE, (1 << pin) |
     ((1 << pin) << 8));
 
   return RTEMS_SUCCESSFUL;
@@ -207,13 +207,13 @@ rtems_status_code rtems_gpio_bsp_set_resistor_mode(
   }
   switch (mode) {
     case PULL_UP:
-      mmio_write32(jetson_gpio_instances[pin].pinmux, MUX_PULL_UP);
+      mmio_write8(jetson_gpio_instances[pin].pinmux, MUX_PULL_UP);
       break;
     case PULL_DOWN:
-      mmio_write32(jetson_gpio_instances[pin].pinmux, MUX_PULL_DOWN);
+      mmio_write8(jetson_gpio_instances[pin].pinmux, MUX_PULL_DOWN);
       break;
     case NO_PULL_RESISTOR:
-      mmio_write32(jetson_gpio_instances[pin].pinmux, MUX_TRISTATE);
+      mmio_write8(jetson_gpio_instances[pin].pinmux, MUX_TRISTATE);
       break;
     default:
       return RTEMS_UNSATISFIED;
@@ -239,9 +239,9 @@ uint32_t rtems_gpio_bsp_interrupt_line(rtems_vector_number vector)
 
   for (i = 0; i < RTEMS_ARRAY_SIZE(jetson_gpio_instances); i++) {
     if (jetson_gpio_instances[i].irq == vector) {
-      result = mmio_read32(GPIO_BASE + (jetson_gpio_instances[i].bank - 1) *
+      result = mmio_read16(GPIO_BASE + (jetson_gpio_instances[i].bank - 1) *
         0x100 + GPIO_INT_STA);
-      mmio_write32(GPIO_BASE + (jetson_gpio_instances[i].bank - 1) * 0x100 +
+      mmio_write8(GPIO_BASE + (jetson_gpio_instances[i].bank - 1) * 0x100 +
         GPIO_INT_CLR, 0xff);
 
       return result;
@@ -304,10 +304,10 @@ rtems_status_code rtems_gpio_bsp_disable_interrupt(
   uint32_t pin,
   rtems_gpio_interrupt interrupt
 ) {
-  uint32_t old = mmio_read32(GPIO_BASE + (bank - 1) * 0x100 +
+  uint32_t old = mmio_read8(GPIO_BASE + (bank - 1) * 0x100 +
                    GPIO_INT_ENB);
 
-  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_ENB,
+  mmio_write8(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_ENB,
     old & ~(1 << pin));
   old = mmio_read32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_LVL);
   mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_LVL,

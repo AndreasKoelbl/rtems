@@ -50,9 +50,9 @@ static inline void mmio_write8(void *address, unsigned char value)
 	*(volatile unsigned char *)address = value;
 }
 
-static inline void mmio_write16(void *address, unsigned short value)
+static inline void mmio_write16(void *address, uint16_t value)
 {
-	*(volatile unsigned short *)address = value;
+	*(volatile uint16_t *)address = value;
 }
 
 #endif /* LIBBSP_ARM_JETSONTK1_MEMORY_H */
