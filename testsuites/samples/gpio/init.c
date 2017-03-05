@@ -80,7 +80,7 @@
 #define GPIO_INT_ENB 0x50
 #define GPIO_BASE   ((void*)0x6000d000)
 #define PINMUX_AUX  ((void*)0x70003000)
-#define DEBUG
+//#define DEBUG
 #define bank 6
 
 rtems_task Init(rtems_task_argument argument);
@@ -92,9 +92,8 @@ rtems_task Init(rtems_task_argument ignored)
   rtems_vector_number vector;
 
   vector = rtems_gpio_bsp_get_vector(6);
-  rtems_gpio_bsp_clear(6, 6);
-  rtems_gpio_bsp_disable_interrupt(6, 6, RISING_EDGE);
-
+  /* Disable all interrupts */
+  mmio_write8(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_ENB, 0);
   status = rtems_interrupt_handler_install(
     vector,
     "GPIO6",
@@ -102,62 +101,36 @@ rtems_task Init(rtems_task_argument ignored)
     irq_handler,
     (char*) vector
   );
-#ifdef DEBUG
-  uint32_t old;
-  printf("after installing\n");
+  status = rtems_gpio_bsp_enable_interrupt(6, 5, RISING_EDGE);
+  rtems_directive_failed(status, "enable interrupt");
+
   status = rtems_gpio_bsp_select_output(6, 6, NULL);
   rtems_directive_failed(status, "select output");
   status = rtems_gpio_bsp_select_input(6, 5, NULL);
   rtems_directive_failed(status, "select input");
 
- // status = rtems_gpio_bsp_enable_interrupt(6, 4, RISING_EDGE);
-  old = mmio_read32(GPIO_BASE + (6 - 1) * 0x100 + GPIO_INT_ENB);
-  mmio_write32(GPIO_BASE + (6 - 1) * 0x100 + GPIO_INT_ENB, old | (1 << 5));
-  old = mmio_read32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_LVL);
-
-  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_LVL,
-    (old & ~((1 << 5) << 16)) | (1 << 5) | ((1 << 5) << 8));
-
-  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_CLR, 0xff);
-  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_OUT, 0);
-
-  //rtems_directive_failed(status, "enable interrupt");
-  printf("Before setting pin\n");
-  status = rtems_gpio_bsp_set(6, 6);
-  rtems_directive_failed(status, "gpio set");
-  rtems_task_wake_after(50);
-  rtems_gpio_bsp_clear(6, 6);
-#else
-  printf("after installing\n");
-  status = rtems_gpio_bsp_select_output(6, 6, NULL);
-  rtems_directive_failed(status, "select output");
-  status = rtems_gpio_bsp_select_input(6, 4, NULL);
-  rtems_directive_failed(status, "select input");
-//  status = rtems_gpio_bsp_enable_interrupt(6, 4, RISING_EDGE);
-//  rtems_directive_failed(status, "enable interrupt");
-
-  status = rtems_gpio_bsp_set(6, 6);
-  rtems_directive_failed(status, "gpio set");
-  rtems_task_wake_after(50);
-  rtems_gpio_bsp_clear(6, 6);
-  printf("entering endless loop\n");
-
   while (true) {
+#ifdef DEBUG
+    //printf("Before setting pin\n");
     status = rtems_gpio_bsp_set(6, 6);
     rtems_directive_failed(status, "gpio set");
-    rtems_task_wake_after(50);
+    rtems_task_wake_after(1);
     rtems_gpio_bsp_clear(6, 6);
-    rtems_task_wake_after(50);
-  }
+    rtems_task_wake_after(1);
+#else
+    asm volatile("wfi");
 #endif
+  }
   rtems_task_delete(rtems_task_self());
 }
 
 void irq_handler(void *arg)
 {
+  /* Is the following statement significantly faster than masked write? */
+  mmio_write32(GPIO_BASE + (6 - 1) * 0x100 + GPIO_OUT, 1 << 6);
+  /* Is the following statement significantly faster than a interrupt_line? */
   mmio_write32(GPIO_BASE + (6 - 1) * 0x100 + GPIO_INT_CLR, 0xff);
   mmio_write32(GPIO_BASE + (6 - 1) * 0x100 + GPIO_INT_STA, 0);
-  mmio_write32(GPIO_BASE + (6 - 1) * 0x100 + GPIO_OUT, 0);
   //rtems_gpio_bsp_clear(6, 6);
   printf("irqn: %lu\n", (rtems_vector_number) arg);
 }
