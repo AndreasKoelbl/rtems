@@ -261,9 +261,6 @@ rtems_status_code rtems_gpio_bsp_enable_interrupt(
     return RTEMS_UNSATISFIED;
   }
 
-  /* Enable Interrupt */
-  old = mmio_read32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_ENB);
-  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_ENB, old | (1 << pin));
   old = mmio_read32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_LVL);
 
   switch (interrupt) {
@@ -295,6 +292,10 @@ rtems_status_code rtems_gpio_bsp_enable_interrupt(
   /* Clear Pending Interrupt */
   mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_CLR, 0xff);
   mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_OUT, 0);
+
+  /* Enable Interrupt */
+  old = mmio_read32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_ENB);
+  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_ENB, old | (1 << pin));
 
   return RTEMS_SUCCESSFUL;
 }
