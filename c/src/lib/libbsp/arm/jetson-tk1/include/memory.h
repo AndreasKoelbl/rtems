@@ -9,13 +9,6 @@
 #ifndef LIBBSP_ARM_JETSONTK1_MEMORY_H
 #define LIBBSP_ARM_JETSONTK1_MEMORY_H
 
-#define SYSREG_32(...) 32, __VA_ARGS__
-#define SYSREG_64(...) 64, __VA_ARGS__
-
-#define _arm_read_sysreg(size, ...) arm_read_sysreg_ ## size(__VA_ARGS__)
-#define arm_read_sysreg(...) _arm_read_sysreg(__VA_ARGS__)
-asm(".arch_extension virt\n");
-
 #define arm_write_sysreg_32(op1, crn, crm, op2, val) \
 	asm volatile ("mcr	p15, "#op1", %0, "#crn", "#crm", "#op2"\n" \
 			: : "r"((uint32_t)(val)))
