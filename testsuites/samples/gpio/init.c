@@ -55,15 +55,6 @@
 #define GPIO_INT_LVL  0x60
 #define GPIO_INT_CLR  0x70
 
-#define GPIO_1_IRQ (32 + 32)
-#define GPIO_2_IRQ (33 + 32)
-#define GPIO_3_IRQ (34 + 32)
-#define GPIO_4_IRQ (35 + 32)
-#define GPIO_5_IRQ (55 + 32)
-#define GPIO_6_IRQ (87 + 32)
-#define GPIO_7_IRQ (89 + 32)
-#define GPIO_8_IRQ (125 + 32)
-
 #define MUX_LOCK             (1 << 7)
 #define MUX_E_INPUT          (1 << 5)
 #define MUX_TRISTATE         (1 << 4)
@@ -77,7 +68,6 @@
 #define MUX_GMI_PWM          ((0 << 1)|(0 << 0))
 
 
-#define GPIO_INT_ENB 0x50
 #define GPIO_BASE   ((void*)0x6000d000)
 #define PINMUX_AUX  ((void*)0x70003000)
 //#define DEBUG
@@ -90,6 +80,7 @@ rtems_task Init(rtems_task_argument ignored)
 {
   rtems_status_code status;
   rtems_vector_number vector;
+  uint32_t i, pin_value;
 
   vector = rtems_gpio_bsp_get_vector(6);
   /* Disable all interrupts */
@@ -101,38 +92,52 @@ rtems_task Init(rtems_task_argument ignored)
     irq_handler,
     (char*) vector
   );
-  status = rtems_gpio_bsp_enable_interrupt(6, 5, RISING_EDGE);
-  rtems_directive_failed(status, "enable interrupt");
 
   status = rtems_gpio_bsp_select_output(6, 6, NULL);
   rtems_directive_failed(status, "select output");
   status = rtems_gpio_bsp_select_input(6, 5, NULL);
   rtems_directive_failed(status, "select input");
 
-  while (true) {
+  status = rtems_gpio_bsp_enable_interrupt(6, 5, RISING_EDGE);
+  rtems_directive_failed(status, "enable interrupt");
 #ifdef DEBUG
-    //printf("Before setting pin\n");
+  while (true) {
+    /*
+     * not working read... with no suitable reason
+     */
+    pin_value = mmio_read32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_IN);
+    printf("pin value: %lu = ", pin_value);
+    for (i = 0; i < sizeof(uint32_t) * 8; i++) {
+      if (pin_value & (1 << i)) {
+        putchar('1');
+      } else {
+        putchar('0');
+      }
+    }
+    putchar('\n');
     status = rtems_gpio_bsp_set(6, 6);
     rtems_directive_failed(status, "gpio set");
-    rtems_task_wake_after(1);
+    rtems_task_wake_after(5);
     rtems_gpio_bsp_clear(6, 6);
-    rtems_task_wake_after(1);
-#else
-    asm volatile("wfi");
-#endif
+    rtems_task_wake_after(5);
   }
+#else
+  //asm volatile("wfi");
+  while (true) {
+        asm volatile("" : : : "memory");
+  }
+#endif
   rtems_task_delete(rtems_task_self());
 }
 
 void irq_handler(void *arg)
 {
+  printf("irqn: %lu\n", (rtems_vector_number) arg);
   /* Is the following statement significantly faster than masked write? */
-  mmio_write32(GPIO_BASE + (6 - 1) * 0x100 + GPIO_OUT, 1 << 6);
+  mmio_write32(GPIO_BASE + (6 - 1) * 0x100 + GPIO_OUT, 0);
   /* Is the following statement significantly faster than a interrupt_line? */
   mmio_write32(GPIO_BASE + (6 - 1) * 0x100 + GPIO_INT_CLR, 0xff);
-  mmio_write32(GPIO_BASE + (6 - 1) * 0x100 + GPIO_INT_STA, 0);
   //rtems_gpio_bsp_clear(6, 6);
-  printf("irqn: %lu\n", (rtems_vector_number) arg);
 }
 
 /* NOTICE: the clock driver is explicitly disabled */
