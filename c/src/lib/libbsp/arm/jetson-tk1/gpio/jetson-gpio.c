@@ -291,7 +291,6 @@ rtems_status_code rtems_gpio_bsp_enable_interrupt(
   }
   /* Clear Pending Interrupt */
   mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_CLR, 0xff);
-  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_OUT, 0);
 
   /* Enable Interrupt */
   old = mmio_read32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_ENB);
