@@ -26,8 +26,6 @@
 
 #define TIMERUS_BASE (TIMER_BASE + TIMERUS)
 
-#define PTV_ENABLE              (1 << 31)
-#define PTV_ENABLE_PERIODIC     (1 << 30)
 #define TIMERUS_CFG             0x4
 #define TIMERUS_CNTR            0x0
 #define TIMERUS_USEC_CFG_12MHZ  0x000b
