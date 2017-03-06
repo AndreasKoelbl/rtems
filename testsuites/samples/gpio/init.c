@@ -100,44 +100,26 @@ rtems_task Init(rtems_task_argument ignored)
 
   status = rtems_gpio_bsp_enable_interrupt(6, 5, RISING_EDGE);
   rtems_directive_failed(status, "enable interrupt");
-#ifdef DEBUG
+
   while (true) {
-    /*
-     * not working read... with no suitable reason
-     */
-    pin_value = mmio_read32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_IN);
-    printf("pin value: %lu = ", pin_value);
-    for (i = 0; i < sizeof(uint32_t) * 8; i++) {
-      if (pin_value & (1 << i)) {
-        putchar('1');
-      } else {
-        putchar('0');
-      }
-    }
-    putchar('\n');
-    status = rtems_gpio_bsp_set(6, 6);
-    rtems_directive_failed(status, "gpio set");
-    rtems_task_wake_after(5);
-    rtems_gpio_bsp_clear(6, 6);
-    rtems_task_wake_after(5);
+    asm volatile("" : : : "memory");
   }
-#else
-  //asm volatile("wfi");
-  while (true) {
-        asm volatile("" : : : "memory");
-  }
-#endif
   rtems_task_delete(rtems_task_self());
 }
 
 void irq_handler(void *arg)
 {
-  printf("irqn: %lu\n", (rtems_vector_number) arg);
+  //rtems_status_code status;
   /* Is the following statement significantly faster than masked write? */
-  mmio_write32(GPIO_BASE + (6 - 1) * 0x100 + GPIO_OUT, 0);
+  //status = rtems_gpio_bsp_set(6, 6);
+  //rtems_directive_failed(status, "gpio set");
+  mmio_write32(GPIO_BASE + (6 - 1) * 0x100 + GPIO_OUT, 1 << 6);
   /* Is the following statement significantly faster than a interrupt_line? */
-  mmio_write32(GPIO_BASE + (6 - 1) * 0x100 + GPIO_INT_CLR, 0xff);
   //rtems_gpio_bsp_clear(6, 6);
+  //rtems_directive_failed(status, "gpio clear");
+  mmio_write32(GPIO_BASE + (6 - 1) * 0x100 + GPIO_INT_CLR, 0xff);
+  printf("irqn: %lu\n", (rtems_vector_number) arg);
+  mmio_write32(GPIO_BASE + (6 - 1) * 0x100 + GPIO_OUT, 0);
 }
 
 /* NOTICE: the clock driver is explicitly disabled */
