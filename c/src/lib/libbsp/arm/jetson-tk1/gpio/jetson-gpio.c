@@ -8,7 +8,7 @@
 
 #include <bsp.h>
 #include <bsp/gpio.h>
-#include <bsp/irq-generic.h>
+#include <bsp/irq.h>
 #include <bsp/jetson-gpio.h>
 #include <bsp/memory.h>
 
@@ -41,15 +41,6 @@
 #define GPIO_MSK_INT_ENB    0xd0
 #define GPIO_MSK_INT_LVL    0xe0
 
-#define GPIO_1_IRQ (32 + 32)
-#define GPIO_2_IRQ (33 + 32)
-#define GPIO_3_IRQ (34 + 32)
-#define GPIO_4_IRQ (35 + 32)
-#define GPIO_5_IRQ (55 + 32)
-#define GPIO_6_IRQ (87 + 32)
-#define GPIO_7_IRQ (89 + 32)
-#define GPIO_8_IRQ (125 + 32)
-
 #define MUX_LOCK             (1 << 7)
 #define MUX_E_INPUT          (1 << 5)
 #define MUX_TRISTATE         (1 << 4)
@@ -72,42 +63,42 @@ static jetson_gpio_context jetson_gpio_instances[] = {
   {
     .pinmux = PINMUX_AUX + PU0,
     .bank = 6,
-    .irq = GPIO_6_IRQ,
+    .irq = GPIO6_IRQ,
   },
   {
     .pinmux = PINMUX_AUX + PU1,
     .bank = 6,
-    .irq = GPIO_6_IRQ,
+    .irq = GPIO6_IRQ,
   },
   {
     .pinmux = PINMUX_AUX + PU2,
     .bank = 6,
-    .irq = GPIO_6_IRQ,
+    .irq = GPIO6_IRQ,
   },
   {
     .pinmux = PINMUX_AUX + PU3,
     .bank = 6,
-    .irq = GPIO_6_IRQ,
+    .irq = GPIO6_IRQ,
   },
   {
     .pinmux = PINMUX_AUX + PU4,
     .bank = 6,
-    .irq = GPIO_6_IRQ,
+    .irq = GPIO6_IRQ,
   },
   {
     .pinmux = PINMUX_AUX + PU5,
     .bank = 6,
-    .irq = GPIO_6_IRQ,
+    .irq = GPIO6_IRQ,
   },
   {
     .pinmux = PINMUX_AUX + PU6,
     .bank = 6,
-    .irq = GPIO_6_IRQ,
+    .irq = GPIO6_IRQ,
   },
   {
     .pinmux = PINMUX_AUX + PH1,
     .bank = 2,
-    .irq = GPIO_8_IRQ,
+    .irq = GPIO8_IRQ,
   },
 };
 
