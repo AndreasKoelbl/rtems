@@ -18,9 +18,8 @@
 static uint8_t jailhouse_cpu_list[1] = {
   PRIMARY_CPU,
 };
-static uint32_t jailhouse_irq_list[2] = {
-  (32 + 36) % 32,
-  (90 + 32) % 32,
+static uint32_t jailhouse_irq_list[1] = {
+  GPIO6_IRQ,
 };
 
 #endif /* LIBBSP_ARM_JETSONTK1_JAILHOUSE_H */
