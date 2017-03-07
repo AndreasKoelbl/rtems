@@ -83,6 +83,8 @@ rtems_task Init(rtems_task_argument ignored)
   uint32_t i, pin_value;
 
   vector = rtems_gpio_bsp_get_vector(6);
+  /* Clear all interrupts */
+  mmio_write32(GPIO_BASE + (6 - 1) * 0x100 + GPIO_INT_CLR, 0xff);
   /* Disable all interrupts */
   mmio_write8(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_ENB, 0);
   status = rtems_interrupt_handler_install(
@@ -109,24 +111,14 @@ rtems_task Init(rtems_task_argument ignored)
 
 void irq_handler(void *arg)
 {
-  //rtems_status_code status;
-  /* Is the following statement significantly faster than masked write? */
-  //status = rtems_gpio_bsp_set(6, 6);
-  //rtems_directive_failed(status, "gpio set");
   mmio_write32(GPIO_BASE + (6 - 1) * 0x100 + GPIO_OUT, 1 << 6);
-  /* Is the following statement significantly faster than a interrupt_line? */
-  //rtems_gpio_bsp_clear(6, 6);
-  //rtems_directive_failed(status, "gpio clear");
   mmio_write32(GPIO_BASE + (6 - 1) * 0x100 + GPIO_INT_CLR, 0xff);
-  printf("irqn: %lu\n", (rtems_vector_number) arg);
   mmio_write32(GPIO_BASE + (6 - 1) * 0x100 + GPIO_OUT, 0);
 }
 
 /* NOTICE: the clock driver is explicitly disabled */
-#define CONFIGURE_APPLICATION_NEEDS_CLOCK_DRIVER
+#define CONFIGURE_APPLICATION_DOES_NOT_NEED_CLOCK_DRIVER
 #define CONFIGURE_APPLICATION_NEEDS_CONSOLE_DRIVER
-
-#define CONFIGURE_MICROSECONDS_PER_TICK 100000
 
 #define CONFIGURE_MAXIMUM_TASKS            1
 
