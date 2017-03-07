@@ -139,10 +139,8 @@ rtems_status_code rtems_gpio_bsp_set(uint32_t bank, uint32_t pin)
 
 rtems_status_code rtems_gpio_bsp_clear(uint32_t bank, uint32_t pin)
 {
-  mmio_write16(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_CLR, 0xff);
   mmio_write16(GPIO_BASE + (bank - 1) * 0x100 + GPIO_MSK_OUT, (0 << pin) |
     (1 << pin) << 8);
-  mmio_write16(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_STA, 0);
 
   return RTEMS_SUCCESSFUL;
 }
@@ -309,9 +307,7 @@ rtems_status_code rtems_gpio_bsp_disable_interrupt(
 
   mmio_write8(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_ENB,
     old & ~(1 << pin));
-  old = mmio_read32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_LVL);
-  mmio_write32(GPIO_BASE + (bank - 1) * 0x100 + GPIO_INT_LVL,
-    (old & ~((1 << pin) << 8) & ~((1 << pin) << 16)));
+
   return RTEMS_SUCCESSFUL;
 }
 
