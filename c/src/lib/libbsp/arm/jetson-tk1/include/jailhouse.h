@@ -11,6 +11,8 @@
 
 #include <bspopts.h>
 #include <stdint.h>
+#include <bsp/jetson-gpio.h>
+#include <bsp/console.h>
 #include <rtems/termiostypes.h>
 
 #define PRIMARY_CPU       0x8
