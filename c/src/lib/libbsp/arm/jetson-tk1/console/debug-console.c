@@ -103,7 +103,7 @@ void jailhouse_debug_console_write(const char *text)
 #else
 static void ns8250_debug_console_out(char c)
 {
-  while (!(mmio_read32(UART_LSR) & UART_LSR_THRE)) {
+  while (!(mmio_read32(UARTD + UART_LSR) & UART_LSR_THRE)) {
     asm volatile("nop");
   }
 
@@ -127,8 +127,13 @@ void print_hex(uint32_t num)
 
   myItoa(num, str, 16);
 
+#ifdef JAILHOUSE_ENABLE
   jailhouse_debug_console_write(prefix);
   jailhouse_debug_console_write(str);
+#else
+  ns8250_debug_console_write(prefix);
+  ns8250_debug_console_write(str);
+#endif
 }
 
 #ifdef JAILHOUSE_ENABLE
