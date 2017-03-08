@@ -22,6 +22,9 @@
 #define NS8250_CONSOLE_USE_INTERRUPTS 0
 #define NS8250_USE_SECONDARY_CONSOLE 0
 
+#define UARTA_IRQ                   (36 + 32)
+#define UARTD_IRQ                   (90 + 32)
+
 rtems_status_code console_initialize(
   rtems_device_major_number  major,
   rtems_device_minor_number  minor,
