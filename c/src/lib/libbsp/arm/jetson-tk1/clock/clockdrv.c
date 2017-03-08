@@ -8,13 +8,15 @@
 
 #include <rtems.h>
 #include <rtems/timecounter.h>
+#include <rtems/bspIo.h>
 #include <bsp.h>
 #include <bsp/memory.h>
 #include <bsp/irq.h>
 #include <bsp/irq-generic.h>
 
-#define USEC_PER_SEC 1000000L
-#define GICD_ICPENDR 0x1280
+#define USEC_PER_SEC                1000000L
+#define GICD_ICPENDR                0x1280
+#define TIMER_IRQ                   27
 
 /* This is defined in ../../../shared/clockdrv_shell.h */
 void Clock_isr(rtems_irq_hdl_param arg);
@@ -29,13 +31,14 @@ static void gic_timer_start(uint32_t timeout)
   arm_write_sysreg_32(0, c14, c3, 1, 1);
 }
 
-static uint64_t jetson_clock_get_timecount(struct timecounter *tc)
+static uint32_t jetson_clock_get_timecount(struct timecounter *tc)
 {
   uint64_t ret = 0;
 
   /* Read the Physical Count Register */
   arm_read_sysreg_64(0, c14, ret);
-  return ret;
+  /* This should be safe for rtems */
+  return (uint32_t) ret;
 }
 
 static void jetson_clock_at_tick(void)
