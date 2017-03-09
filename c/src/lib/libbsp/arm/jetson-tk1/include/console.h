@@ -19,8 +19,8 @@
 #define UART_LSR          0x14
 #define  UART_LSR_THRE    (1<<5)
 
-#define NS8250_CONSOLE_USE_INTERRUPTS 0
-#define NS8250_USE_SECONDARY_CONSOLE 0
+//#define NS8250_CONSOLE_USE_INTERRUPTS
+//#define NS8250_USE_SECONDARY_CONSOLE
 
 #define UARTA_IRQ                   (36 + 32)
 #define UARTD_IRQ                   (90 + 32)
