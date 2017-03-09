@@ -122,7 +122,6 @@ static void ns8250_debug_console_out(char c)
 
 void print_hex(uint32_t num)
 {
-  uint8_t size = 0;
   char str[9];
   const char* prefix = "0x";
 

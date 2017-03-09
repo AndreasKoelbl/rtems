@@ -92,6 +92,8 @@ static void ns8250_uart_write(
     ctx->transmitting = false;
   }
 #else
+  unsigned int i = 0;
+
 	for (i = 0; i < len; i++) {
     while (!(mmio_read32(ctx->regs + UART_LSR) & UART_LSR_THRE)) {
       asm volatile("nop");
