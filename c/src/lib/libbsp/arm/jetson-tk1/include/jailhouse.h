@@ -21,6 +21,12 @@ static uint8_t jailhouse_cpu_list[1] = {
   PRIMARY_CPU,
 };
 static uint32_t jailhouse_irq_list[1] = {
+#ifdef NS8250_CONSOLE_USE_INTERRUPTS
+  UARTD_IRQ,
+#ifdef NS8250_USE_SECONDARY_CONSOLE
+  UARTA_IRQ,
+#endif
+#endif
   GPIO6_IRQ,
 };
 
