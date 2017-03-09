@@ -80,7 +80,8 @@ rtems_task Init(rtems_task_argument ignored)
 {
   rtems_status_code status;
   rtems_vector_number vector;
-  uint32_t i, pin_value;
+
+  printf("I am ALIVE\n");
 
   vector = rtems_gpio_bsp_get_vector(6);
   /* Clear all interrupts */
@@ -99,9 +100,10 @@ rtems_task Init(rtems_task_argument ignored)
   rtems_directive_failed(status, "select output");
   status = rtems_gpio_bsp_select_input(6, 5, NULL);
   rtems_directive_failed(status, "select input");
+  status = rtems_gpio_bsp_select_input(6, 4, NULL);
+  rtems_directive_failed(status, "select input");
 
   status = rtems_gpio_bsp_enable_interrupt(6, 5, RISING_EDGE);
-  rtems_directive_failed(status, "enable interrupt");
 
   while (true) {
     asm volatile("" : : : "memory");
@@ -111,7 +113,11 @@ rtems_task Init(rtems_task_argument ignored)
 
 void irq_handler(void *arg)
 {
+  uint32_t pin_value;
   mmio_write32(GPIO_BASE + (6 - 1) * 0x100 + GPIO_OUT, 1 << 6);
+  do {
+    pin_value = rtems_gpio_bsp_get_value(6, 4);
+  } while (!pin_value);
   mmio_write32(GPIO_BASE + (6 - 1) * 0x100 + GPIO_INT_CLR, 0xff);
   mmio_write32(GPIO_BASE + (6 - 1) * 0x100 + GPIO_OUT, 0);
 }

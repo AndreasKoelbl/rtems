@@ -7,6 +7,7 @@
  *  http://www.rtems.org/license/LICENSE.
  */
 
+#include <bsp.h>
 #include <bsp/console.h>
 #include <bsp/memory.h>
 #include <rtems/bspIo.h>
