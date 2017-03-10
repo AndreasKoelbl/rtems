@@ -114,12 +114,12 @@ rtems_task Init(rtems_task_argument ignored)
 void irq_handler(void *arg)
 {
   uint32_t pin_value;
-  mmio_write32(GPIO_BASE + (6 - 1) * 0x100 + GPIO_OUT, 0);
+  mmio_write32(GPIO_BASE + (6 - 1) * 0x100 + GPIO_OUT, 1 << 6);
   do {
     pin_value = rtems_gpio_bsp_get_value(6, 4);
-  } while (!pin_value);
+  } while (pin_value);
   mmio_write32(GPIO_BASE + (6 - 1) * 0x100 + GPIO_INT_CLR, 0xff);
-  mmio_write32(GPIO_BASE + (6 - 1) * 0x100 + GPIO_OUT, 1 << 6);
+  mmio_write32(GPIO_BASE + (6 - 1) * 0x100 + GPIO_OUT, 0);
 }
 
 /* NOTICE: the clock driver is explicitly disabled */
