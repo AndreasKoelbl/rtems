@@ -45,7 +45,8 @@ typedef struct {
   void *regs;
   bool console;
   const char *device_name;
-#ifdef NS8250_CONSOLE_USE_INTERRUPTS
+#if NS8250_CONSOLE_USE_INTERRUPTS == 1
+#error "passed"
   rtems_vector_number irq;
   volatile bool transmitting;
 #endif
@@ -55,16 +56,16 @@ static ns8250_uart_context ns8250_uart_instances[] = {
   {
     .regs = UARTD,
     .device_name = "/dev/ttyS0",
-#ifdef NS8250_CONSOLE_USE_INTERRUPTS
+#if NS8250_CONSOLE_USE_INTERRUPTS == 1
     .irq = UARTD_IRQ,
     .transmitting = false,
 #endif
   },
-#ifdef USE_SECONDARY_CONSOLE
+#if NS8250_CONSOLE_USE_INTERRUPTS == 1
   {
     .regs = UARTA,
     .device_name = "/dev/ttyS1",
-#ifdef NS8250_CONSOLE_USE_INTERRUPTS
+#if NS8250_CONSOLE_USE_INTERRUPTS == 1
     .irq = UARTA_IRQ,
     .transmitting = false,
 #endif
@@ -80,7 +81,7 @@ static void ns8250_uart_write(
 {
   ns8250_uart_context *ctx = (ns8250_uart_context *) context;
 
-#ifdef NS8250_CONSOLE_USE_INTERRUPTS
+#if NS8250_CONSOLE_USE_INTERRUPTS == 1
   if (len) {
     ctx->transmitting = true;
     mmio_write32(ctx->regs + UART_TX, buf[0]);
@@ -108,7 +109,7 @@ static void ns8250_uart_write(
 #endif
 }
 
-#ifdef NS8250_CONSOLE_USE_INTERRUPTS
+#if NS8250_CONSOLE_USE_INTERRUPTS == 1
 static void ns8250_uart_interrupt_handler(void* arg)
 {
   char input;
@@ -174,12 +175,12 @@ static bool ns8250_uart_first_open(
   rtems_libio_open_close_args_t *args
 )
 {
-#ifdef NS8250_CONSOLE_USE_INTERRUPTS
+#if NS8250_CONSOLE_USE_INTERRUPTS == 1
   rtems_status_code status;
   ns8250_uart_context *ctx = (ns8250_uart_context *) context;
 #endif
 
-#ifndef JAILHOUSE_ENABLE
+#if JAILHOUSE_ENABLE == 0
   uint32_t gate_nr = SET_CLK_ENB_UARTD;
   void *clock_reg = CAR + CLK_ENB_U_SET_0;
   mmio_write32(clock_reg, mmio_read32(clock_reg) | (1 << gate_nr));
@@ -190,7 +191,7 @@ static bool ns8250_uart_first_open(
     return false;
   }
 
-#ifdef NS8250_CONSOLE_USE_INTERRUPTS
+#if NS8250_CONSOLE_USE_INTERRUPTS == 1
   /* Read everything pending */
   mmio_read32(ctx->regs + UART_RBR);
   mmio_read32(ctx->regs + UART_IIR);
@@ -219,7 +220,7 @@ static void ns8250_uart_last_close(
   rtems_libio_open_close_args_t *args
 )
 {
-#ifdef NS8250_CONSOLE_USE_INTERRUPTS
+#if NS8250_CONSOLE_USE_INTERRUPTS == 1
   rtems_status_code status;
   ns8250_uart_context *ctx = (ns8250_uart_context *) context;
 
@@ -239,7 +240,7 @@ static const rtems_termios_device_handler ns8250_uart_handler = {
   .last_close = ns8250_uart_last_close,
   .write = ns8250_uart_write,
   .set_attributes = ns8250_uart_set_attributes,
-#ifdef NS8250_CONSOLE_USE_INTERRUPTS
+#if NS8250_CONSOLE_USE_INTERRUPTS == 1
   .mode = TERMIOS_IRQ_DRIVEN,
 #else
   .poll_read = ns8250_uart_poll_read,

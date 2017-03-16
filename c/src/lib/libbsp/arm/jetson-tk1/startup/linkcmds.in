@@ -1,8 +1,6 @@
-INMATE_BASE = 0x00000000;
-
 MEMORY {
-  RAM         (AIW) : ORIGIN = INMATE_BASE, LENGTH = 64M - 32k
-  RAM_MMU     (AIW) : ORIGIN = INMATE_BASE + 64M - 32k, LENGTH = 32k
+  RAM         (AIW) : ORIGIN = @JETSON_BASE@, LENGTH = 64M - 32k
+  RAM_MMU     (AIW) : ORIGIN = @JETSON_BASE@ + 64M - 32k, LENGTH = 32k
 }
 
 bsp_processor_count = DEFINED (bsp_processor_count) ? bsp_processor_count : 1;

@@ -91,7 +91,7 @@ static void myItoa(uint32_t num, char* str, uint32_t base)
   reverse(str, i);
 }
 
-#ifdef JAILHOUSE_ENABLE
+#if JAILHOUSE_ENABLE == 1
 void jailhouse_debug_console_write(const char *text)
 {
   if (text == NULL) {
@@ -127,7 +127,7 @@ void print_hex(uint32_t num)
 
   myItoa(num, str, 16);
 
-#ifdef JAILHOUSE_ENABLE
+#if JAILHOUSE_ENABLE == 1
   jailhouse_debug_console_write(prefix);
   jailhouse_debug_console_write(str);
 #else
@@ -136,7 +136,7 @@ void print_hex(uint32_t num)
 #endif
 }
 
-#ifdef JAILHOUSE_ENABLE
+#if JAILHOUSE_ENABLE == 1
 BSP_output_char_function_type BSP_output_char = jailhouse_debug_console_out;
 BSP_polling_getchar_function_type BSP_poll_char = jetsontk1_debug_console_in;
 #else

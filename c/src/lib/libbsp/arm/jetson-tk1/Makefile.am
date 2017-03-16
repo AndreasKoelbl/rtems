@@ -1,10 +1,3 @@
-##
-#
-# @file
-#
-# @brief Makefile of LibBSP for the raspberrypi board.
-#
-
 ACLOCAL_AMFLAGS = -I ../../../../aclocal
 
 include $(top_srcdir)/../../../../automake/compile.am
@@ -87,9 +80,6 @@ libbsp_a_SOURCES += ../../shared/sbrk.c
 libbsp_a_SOURCES += ../../shared/src/stackalloc.c
 libbsp_a_SOURCES += ../shared/startup/bsp-start-memcpy.S
 libbsp_a_SOURCES += ../shared/arm-cp15-set-ttb-entries.c
-if BSP_START_IN_HYP_SUPPORT
-libbsp_a_SOURCES += ../shared/startup/bsp-start-in-hyp-support.S
-endif
 
 # Cache
 libbsp_a_SOURCES += ../../../libcpu/shared/src/cache_manager.c
