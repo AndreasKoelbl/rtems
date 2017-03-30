@@ -45,6 +45,11 @@ static inline void mmio_write8(void *address, unsigned char value)
 
 static inline void mmio_write16(void *address, uint16_t value)
 {
+	return *(volatile uint16_t *)address;
+}
+
+static inline void mmio_write16(void *address, uint16_t value)
+{
 	*(volatile uint16_t *)address = value;
 }
 
