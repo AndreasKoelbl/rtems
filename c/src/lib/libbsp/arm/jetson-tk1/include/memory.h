@@ -23,16 +23,6 @@
 	asm volatile ("mrrc	p15, "#op1", %Q0, %R0, "#crm"\n" \
 			: "=r"((uint64_t)(val)))
 
-static inline uint32_t mmio_read32(void *address)
-{
-	return *(volatile uint32_t *)address;
-}
-
-static inline void mmio_write32(void *address, uint32_t value)
-{
-	*(volatile uint32_t *)address = value;
-}
-
 static inline unsigned char mmio_read8(void *address)
 {
 	return *(volatile unsigned char *)address;
@@ -43,7 +33,7 @@ static inline void mmio_write8(void *address, unsigned char value)
 	*(volatile unsigned char *)address = value;
 }
 
-static inline void mmio_write16(void *address, uint16_t value)
+static inline uint16_t mmio_read16(void *address)
 {
 	return *(volatile uint16_t *)address;
 }
@@ -51,6 +41,16 @@ static inline void mmio_write16(void *address, uint16_t value)
 static inline void mmio_write16(void *address, uint16_t value)
 {
 	*(volatile uint16_t *)address = value;
+}
+
+static inline uint32_t mmio_read32(void *address)
+{
+	return *(volatile uint32_t *)address;
+}
+
+static inline void mmio_write32(void *address, uint32_t value)
+{
+	*(volatile uint32_t *)address = value;
 }
 
 #endif /* LIBBSP_ARM_JETSONTK1_MEMORY_H */
