@@ -23,6 +23,9 @@ extern "C" {
 #define BSP_GPIO_PIN_COUNT      162
 #define BSP_GPIO_PINS_PER_BANK  20
 
+#define BSP_GPIO_PIN_COUNT      162
+#define BSP_GPIO_PINS_PER_BANK  20
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

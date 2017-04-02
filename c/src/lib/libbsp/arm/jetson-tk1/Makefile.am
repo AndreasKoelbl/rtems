@@ -21,6 +21,7 @@ include_libcpu_HEADERS =  ../../../libcpu/arm/shared/include/arm-cp15.h
 
 include_bsp_HEADERS =
 include_bsp_HEADERS += ../../../libbsp/shared/include/mm.h
+include_bsp_HEADERS += ../../shared/include/gpio.h
 include_bsp_HEADERS += ../../shared/include/irq-generic.h
 include_bsp_HEADERS += ../../shared/include/irq-info.h
 include_bsp_HEADERS += ../../shared/include/stackalloc.h
@@ -38,6 +39,7 @@ include_bsp_HEADERS += ../shared/include/arm-release-id.h
 
 include_bsp_HEADERS += include/car.h
 include_bsp_HEADERS += include/console.h
+include_bsp_HEADERS += include/jetson-gpio.h
 include_bsp_HEADERS += include/irq.h
 include_bsp_HEADERS += include/memory.h
 include_bsp_HEADERS += include/jailhouse.h
@@ -102,6 +104,10 @@ libbsp_a_SOURCES += ../../shared/src/irq-info.c
 libbsp_a_SOURCES += ../../shared/src/irq-legacy.c
 libbsp_a_SOURCES += ../../shared/src/irq-server.c
 libbsp_a_SOURCES += ../../shared/src/irq-shell.c
+
+# GPIO
+libbsp_a_SOURCES += ../../shared/gpio.c
+libbsp_a_SOURCES += gpio/jetson-gpio.c
 
 # Restart
 libbsp_a_SOURCES += startup/bspreset.c
