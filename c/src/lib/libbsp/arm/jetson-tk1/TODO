@@ -2,3 +2,4 @@
 - MMU
 - Peripheral device drivers
 - Doxygen comments
+- bsp_reset
