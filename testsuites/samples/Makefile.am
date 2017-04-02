@@ -1,6 +1,7 @@
 ACLOCAL_AMFLAGS = -I ../aclocal
 
-_SUBDIRS = hello capture ticker base_sp unlimited minimum fileio timer_test task_test gpio interrupt_latency
+_SUBDIRS = hello capture ticker base_sp unlimited minimum fileio timer_test
+_SUBDIRS += task_test gpio gpio_test interrupt_latency
 
 if MPTESTS
 ## base_mp is a sample multiprocessing test

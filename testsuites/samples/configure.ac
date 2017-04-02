@@ -63,6 +63,7 @@ AC_CONFIG_FILES([Makefile
 base_sp/Makefile
 fileio/Makefile
 gpio/Makefile
+gpio_test/Makefile
 hello/Makefile
 interrupt_latency/Makefile
 loopback/Makefile
