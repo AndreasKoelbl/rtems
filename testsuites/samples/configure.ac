@@ -61,11 +61,12 @@ AC_CHECK_SIZEOF([time_t])
 # Explicitly list all Makefiles here
 AC_CONFIG_FILES([Makefile
 base_sp/Makefile
-hello/Makefile
-loopback/Makefile
-minimum/Makefile
 fileio/Makefile
 gpio/Makefile
+hello/Makefile
+interrupt_latency/Makefile
+loopback/Makefile
+minimum/Makefile
 nsecs/Makefile
 paranoia/Makefile
 task_test/Makefile
