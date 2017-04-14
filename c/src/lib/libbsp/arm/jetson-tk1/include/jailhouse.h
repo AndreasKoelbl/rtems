@@ -11,7 +11,7 @@
 
 #include <bspopts.h>
 #include <stdint.h>
-#include <bsp/jetson-gpio.h>
+#include <bsp/tegra3-gpio.h>
 #include <bsp/console.h>
 #include <rtems/termiostypes.h>
 

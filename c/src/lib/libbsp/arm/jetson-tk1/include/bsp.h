@@ -20,8 +20,8 @@ extern "C" {
 #define BSP_ARM_GIC_DIST_BASE  ((void *)0x50041000)
 #define BSP_ARM_GIC_CPUIF_BASE ((void *)0x50042000)
 
-#define BSP_GPIO_PIN_COUNT      162
-#define BSP_GPIO_PINS_PER_BANK  20
+#define BSP_GPIO_PINS_PER_BANK  32
+#define BSP_GPIO_PIN_COUNT      (BSP_GPIO_PINS_PER_BANK * 8)
 
 #ifdef __cplusplus
 }
