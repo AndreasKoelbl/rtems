@@ -8,6 +8,7 @@
 
 #include <bsp.h>
 #include <bsp/gpio.h>
+#include <bsp/memory.h>
 #include <bsp/tegra3-gpio.h>
 
 #define GPIO_CNF      0x00
@@ -37,20 +38,18 @@
 static inline void tegra_gpio_write(
   uintptr_t gpio_reg,
   uint32_t bank,
-  uint32_t pin,
   uint32_t value
 )
 {
-  mmio_write32(GPIO_BASE + gpio_reg + bank*0x100 + pin, value);
+  mmio_write32(GPIO_BASE + gpio_reg + bank, value);
 }
 
 static uint32_t tegra_gpio_read(
   uintptr_t gpio_reg,
-  uint32_t bank,
-  uint32_t pin
+  uint32_t bank
 )
 {
-  return mmio_read32(GPIO_BASE + gpio_reg + bank*0x100 + pin);
+  return mmio_read32(GPIO_BASE + gpio_reg + bank);
 }
 
 static inline void pinmux_write(
@@ -62,34 +61,76 @@ static inline void pinmux_write(
 	mmio_write32(PINMUX_AUX + port + 4*pin, property);
 }
 
+static inline uint32_t pinmux_read(
+    uint32_t port,
+    uint32_t pin
+)
+{
+	return mmio_read32(PINMUX_AUX + port + 4*pin);
+}
+
+static inline void gpio_set_level(
+  uint32_t bank,
+  uint32_t pin,
+  rtems_gpio_interrupt sens
+)
+{
+  uint32_t value;
+
+  value = tegra_gpio_read(GPIO_INT_LVL, bank);
+
+  value &= ~((1 << pin) | ((1 <<8) << pin) | ((1 << 16) << pin));
+
+  if (sens != NONE) {
+    value |= (1 << 8) << pin;
+  }
+
+  if (sens == RISING_EDGE || sens == HIGH_LEVEL) {
+    value |= 1 << pin;
+  } else if (sens == BOTH_EDGES) {
+    value |= (1 << 16) << pin;
+  }
+
+  tegra_gpio_write(GPIO_INT_LVL, bank, value);
+}
+
 rtems_status_code rtems_gpio_bsp_multi_set(uint32_t bank, uint32_t bitmask)
 {
-  return RTEMS_NOT_DEFINED;
+  tegra_gpio_write(GPIO_OUT, bank, bitmask & 8);
+
+  return RTEMS_SUCCESSFUL;
 }
 
 rtems_status_code rtems_gpio_bsp_multi_clear(uint32_t bank, uint32_t bitmask)
 {
-  return RTEMS_NOT_DEFINED;
+  tegra_gpio_write(GPIO_MSK_OUT, bank, (1 << 8) << bitmask);
+
+  return RTEMS_SUCCESSFUL;
 }
 
 uint32_t rtems_gpio_bsp_multi_read(uint32_t bank, uint32_t bitmask)
 {
-  return RTEMS_NOT_DEFINED;
+  return tegra_gpio_read(GPIO_IN, bank) & bitmask;
+
 }
 
 rtems_status_code rtems_gpio_bsp_set(uint32_t bank, uint32_t pin)
 {
-  return RTEMS_NOT_DEFINED;
+  tegra_gpio_write(GPIO_MSK_OUT, bank, (1 << 8) << pin ||  1 << pin);
+
+  return RTEMS_SUCCESSFUL;
 }
 
 rtems_status_code rtems_gpio_bsp_clear(uint32_t bank, uint32_t pin)
 {
-  return RTEMS_NOT_DEFINED;
+  tegra_gpio_write(GPIO_MSK_OUT, bank, (1 << 8) << pin);
+
+  return RTEMS_SUCCESSFUL;
 }
 
 uint32_t rtems_gpio_bsp_get_value(uint32_t bank, uint32_t pin)
 {
-	return 0;
+	return tegra_gpio_read(GPIO_IN, bank) & pin;
 }
 
 rtems_status_code rtems_gpio_bsp_select_input(
@@ -98,7 +139,10 @@ rtems_status_code rtems_gpio_bsp_select_input(
   void *bsp_specific
 )
 {
-  return RTEMS_NOT_DEFINED;
+  tegra_gpio_write(GPIO_MSK_OE, bank, 1 << 8);
+  pinmux_write(bank, pin, TEGRA_E_INPUT | TEGRA_TRISTATE);
+
+  return RTEMS_SUCCESSFUL;
 }
 
 rtems_status_code rtems_gpio_bsp_select_output(
@@ -107,7 +151,9 @@ rtems_status_code rtems_gpio_bsp_select_output(
   void *bsp_specific
 )
 {
-  return RTEMS_NOT_DEFINED;
+  tegra_gpio_write(GPIO_MSK_OE, bank, 1 << 8 | 1 << pin);
+
+  return RTEMS_SUCCESSFUL;
 }
 
 rtems_status_code rtems_gpio_bsp_select_specific_io(
@@ -117,7 +163,9 @@ rtems_status_code rtems_gpio_bsp_select_specific_io(
   void *pin_data
 )
 {
-  return RTEMS_NOT_DEFINED;
+  pinmux_write(bank, pin, (tegra_pinmux_property) function);
+
+  return RTEMS_SUCCESSFUL;
 }
 
 rtems_status_code rtems_gpio_bsp_set_resistor_mode(
@@ -126,17 +174,47 @@ rtems_status_code rtems_gpio_bsp_set_resistor_mode(
   rtems_gpio_pull_mode mode
 )
 {
-  return RTEMS_NOT_DEFINED;
+  //pinmux_write(bank, pin, ((3 - mode) << 2) % 5);
+  /*
+   * To my funny tomorrow: delete the code above
+   */
+  switch (mode) {
+    case PULL_UP:
+      pinmux_write(bank, pin, TEGRA_PULL_UP);
+      break;
+    case PULL_DOWN:
+      pinmux_write(bank, pin, TEGRA_PULL_DOWN);
+      break;
+    case NO_PULL_RESISTOR:
+      pinmux_write(bank, pin, TEGRA_PULL_DISABLED);
+      break;
+    default:
+      return RTEMS_INVALID_NUMBER;
+  };
+
+  return RTEMS_SUCCESSFUL;
 }
 
 rtems_vector_number rtems_gpio_bsp_get_vector(uint32_t bank)
 {
-  return RTEMS_NOT_DEFINED;
+  if ((bank % 0x100) > sizeof(gpio_vector_table)) {
+    return -1;
+  }
+
+  return gpio_vector_table[bank % 0x100];
 }
 
 uint32_t rtems_gpio_bsp_interrupt_line(rtems_vector_number vector)
 {
-  return RTEMS_NOT_DEFINED;
+  uint32_t bank;
+
+  for (bank = 0; bank < sizeof(gpio_vector_table); bank++) {
+    if (gpio_vector_table[bank] == vector) {
+      return tegra_gpio_read(GPIO_INT_STA, bank);
+    }
+  }
+
+  return RTEMS_INVALID_NUMBER;
 }
 
 rtems_status_code rtems_gpio_bsp_enable_interrupt(
@@ -145,7 +223,13 @@ rtems_status_code rtems_gpio_bsp_enable_interrupt(
   rtems_gpio_interrupt interrupt
 )
 {
-  return RTEMS_NOT_DEFINED;
+  tegra_gpio_write(GPIO_INT_CLR, bank, 1 << pin);
+
+  gpio_set_level(bank, pin, interrupt);
+
+  tegra_gpio_write(GPIO_MSK_INT_ENB, bank, ((1 << 8) << pin) | (1 << pin));
+
+  return RTEMS_SUCCESSFUL;
 }
 
 rtems_status_code rtems_gpio_bsp_disable_interrupt(
@@ -154,7 +238,16 @@ rtems_status_code rtems_gpio_bsp_disable_interrupt(
   rtems_gpio_interrupt interrupt
 )
 {
-  return RTEMS_NOT_DEFINED;
+  uint32_t level;
+
+  tegra_gpio_write(GPIO_INT_CLR, bank, 1 << pin);
+
+  level = tegra_gpio_read(GPIO_INT_LVL, bank);
+  tegra_gpio_write(GPIO_MSK_INT_ENB, bank, ((1 << 8) << pin));
+
+  tegra_gpio_write(GPIO_INT_LVL, bank, level & ~interrupt);
+
+  return RTEMS_SUCCESSFUL;
 }
 
 rtems_status_code rtems_gpio_bsp_multi_select(
