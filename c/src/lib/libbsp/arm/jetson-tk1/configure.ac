@@ -17,7 +17,7 @@ RTEMS_BSPOPTS_HELP([NS8250_CONSOLE_USE_INTERRUPTS],[Use interrupt driven mode fo
 RTEMS_BSPOPTS_SET([NS8250_USE_SECONDARY_CONSOLE],[*],[0])
 RTEMS_BSPOPTS_HELP([NS8250_USE_SECONDARY_CONSOLE],[Enable a secondary console called /dev/ttyS1 using the UART A which is located at Pin 41 (TX) and Pin 44 (RX) on the J3A2])
 
-RTEMS_BSPOPTS_SET([JAILHOUSE_ENABLE],[*],[0])
+RTEMS_BSPOPTS_SET([JAILHOUSE_ENABLE],[*],[1])
 RTEMS_BSPOPTS_HELP([JAILHOUSE_ENABLE],[Enable the jailhouse hypervisor])
 
 JETSON_BASE="0x90000000"
