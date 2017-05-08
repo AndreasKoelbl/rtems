@@ -10,6 +10,7 @@ _SUBDIRS += nsecs
 _SUBDIRS += paranoia
 _SUBDIRS += ticker
 _SUBDIRS += unlimited
+_SUBDIRS += gpio_test
 
 if MPTESTS
 ## base_mp is a sample multiprocessing test

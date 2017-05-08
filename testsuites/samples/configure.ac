@@ -76,5 +76,6 @@ paranoia/Makefile
 pppd/Makefile
 ticker/Makefile
 unlimited/Makefile
+gpio_test/Makefile
 ])
 AC_OUTPUT
