@@ -9,6 +9,7 @@
 #include <bspopts.h>
 #include <stdint.h>
 #include <bsp/console.h>
+#include <bsp/tegra124-gpio.h>
 
 #define PRIMARY_CPU       0x8
 

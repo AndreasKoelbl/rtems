@@ -48,6 +48,9 @@ void bsp_interrupt_dispatch(void)
 
     cpuif->icceoir = icciar;
   }
+  if (vector != 27) {
+    printf("irqn: %lu\n", vector);
+  }
 }
 
 rtems_status_code bsp_interrupt_vector_enable(rtems_vector_number vector)
