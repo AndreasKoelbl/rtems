@@ -4,6 +4,7 @@ This BSP currently supports the following devices:
   - Console using UART-D on DB9 connector and UART-A on the J3A2 Pin header
   - Clock using the ARM internal timer
   - Benchmark timer using the Nvidia Generic Timer TimerUS
+  - GPIOs
 
 Checkout the options described in include/bspopts.h.in in order to configure
 the second console, make the console interrupt driven or run the RTEMS
@@ -20,3 +21,4 @@ Also allow the following memory regions:
   - RAM 0xf8000000+0x4000000 (64MB, this could also be shrinked modifying
     the linkcmds file)
   - PINMUX AUX 0x70003000+0x1000
+  - GPIO 0x6000d000+0x1000
