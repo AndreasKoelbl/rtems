@@ -43,6 +43,12 @@
 #define GPIO_INT_ENB  0x50
 #define GPIO_INT_LVL  0x60
 #define GPIO_INT_CLR  0x70
+#define GPIO_MSK_CNF      0x80
+#define GPIO_MSK_OE       0x90
+#define GPIO_MSK_OUT      0xa0
+#define GPIO_MSK_INT_STA  0xc0
+#define GPIO_MSK_INT_ENB  0xd0
+#define GPIO_MSK_INT_LVL  0xe0
 
 #define MUX_LOCK             (1 << 7)
 #define MUX_E_INPUT          (1 << 5)
@@ -56,13 +62,12 @@
 #define MUX_GMI_TRACE        ((0 << 1)|(0 << 0))
 #define MUX_GMI_PWM          ((0 << 1)|(0 << 0))
 
-
 #define GPIO_BASE   ((void*)0x6000d000)
 #define PINMUX_AUX  ((void*)0x70003000)
-//#define DEBUG
-#define BANK 6
-#define OUTPUT 0
-#define INPUT 6
+#define BANK 0x500
+#define PINMUX_PORT_U 0x184
+#define OUTPUT 6
+#define INPUT 0
 
 rtems_task Init(rtems_task_argument argument);
 void irq_handler(void *arg);
@@ -71,57 +76,53 @@ rtems_task Init(rtems_task_argument ignored)
 {
   rtems_status_code status;
   rtems_vector_number vector;
+  uint32_t port = PINMUX_PORT_U;
+  uint32_t pin_value = 0, i;
 
   printf("I am ALIVE\n");
-  rtems_gpio_bsp_select_output(0x500, 6, NULL);
-  while (true) {
-    rtems_gpio_bsp_set(0x500, 6);
-    rtems_task_wake_after(100);
-    rtems_gpio_bsp_clear(0x500, 6);
-    rtems_task_wake_after(100);
-  }
+  rtems_gpio_bsp_select_output(BANK, OUTPUT, &port);
+  rtems_gpio_bsp_select_output(BANK, INPUT, &port);
+
+  rtems_gpio_bsp_multi_set(BANK, (1 << INPUT) | (1 << OUTPUT));
+  printf("values: %lu\n", rtems_gpio_bsp_multi_read(BANK, 0xff));
+  rtems_gpio_bsp_multi_clear(BANK, 0xff);
+  printf("values: %lu\n", rtems_gpio_bsp_multi_read(BANK, 0xff));
+
 
 #if 0
-  vector = rtems_gpio_bsp_get_vector(OUTPUT);
+  rtems_gpio_bsp_set(BANK, OUTPUT);
+  printf("Waiting for input\n");
+  while (!pin_value) {
+    pin_value = rtems_gpio_bsp_get_value(BANK, INPUT);
+    printf("pin value: %lu", pin_value);
+  }
 
-  mmio_write32(GPIO_BASE + (BANK - 1) * 0x100 + GPIO_INT_ENB, 0);
-  mmio_write32(GPIO_BASE + (BANK - 1) * 0x100 + GPIO_INT_LVL, 0);
-  /* Clear interrupt */
-  rtems_gpio_bsp_interrupt_line(vector);
+  rtems_gpio_bsp_clear(BANK, OUTPUT);
+  rtems_task_wake_after(10);
 
-  rtems_gpio_bsp_disable_interrupt(BANK, OUTPUT, vector);
+  vector = rtems_gpio_bsp_get_vector(BANK);
+  status = rtems_gpio_bsp_enable_interrupt(BANK, INPUT, FALLING_EDGE);
+  rtems_directive_failed(status, "enable interrupt");
   status = rtems_interrupt_handler_install(
     vector,
     "GPIO6",
     RTEMS_INTERRUPT_UNIQUE,
     irq_handler,
-    (char*) vector
+    &vector
   );
-
-  status = rtems_gpio_bsp_select_output(BANK, OUTPUT, NULL);
-  rtems_directive_failed(status, "select output");
-  status = rtems_gpio_bsp_set(BANK, OUTPUT);
-  rtems_directive_failed(status, "set");
-  status = rtems_gpio_bsp_select_input(BANK, INPUT, NULL);
-  rtems_directive_failed(status, "select input");
-  status = rtems_gpio_bsp_enable_interrupt(BANK, INPUT, FALLING_EDGE);
-  rtems_directive_failed(status, "enable interrupt");
-
   printf("Entering wfi\n");
+#endif
   while (true) {
     asm volatile("wfi");
   }
-#endif
   rtems_task_delete(rtems_task_self());
 }
 
-void irq_handler(void *arg)
+void irq_handler(void *num)
 {
-  uint32_t pin_value;
   printf("irq\n");
-  mmio_write32(GPIO_BASE + (BANK - 1) * 0x100 + GPIO_OUT, 0);
-  mmio_write32(GPIO_BASE + (BANK - 1) * 0x100 + GPIO_INT_CLR, 0xff);
-  mmio_write32(GPIO_BASE + (BANK - 1) * 0x100 + GPIO_OUT, 1 << OUTPUT);
+  rtems_gpio_bsp_interrupt_line(*((uint32_t*)num));
+  rtems_gpio_bsp_disable_interrupt(BANK, INPUT, FALLING_EDGE);
 }
 
 #define CONFIGURE_APPLICATION_NEEDS_CLOCK_DRIVER
@@ -129,8 +130,6 @@ void irq_handler(void *arg)
 #define CONFIGURE_MICROSECONDS_PER_TICK 100000
 
 #define CONFIGURE_MAXIMUM_TASKS 2
-
-#define CONFIGURE_MAXIMUM_TASKS            1
 
 #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
 
