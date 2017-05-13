@@ -213,7 +213,6 @@ typedef struct {
   void                                *tls_area;
 } Thread_Start_information;
 
-#if defined(RTEMS_SMP)
 /**
  * @brief The thread state with respect to the scheduler.
  */
@@ -241,7 +240,6 @@ typedef enum {
    */
   THREAD_SCHEDULER_READY
 } Thread_Scheduler_state;
-#endif
 
 /**
  * @brief Thread scheduler control.
