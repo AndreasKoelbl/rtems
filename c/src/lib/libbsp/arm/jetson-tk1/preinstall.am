@@ -70,6 +70,10 @@ $(PROJECT_INCLUDE)/bsp/mm.h: ../../../libbsp/shared/include/mm.h $(PROJECT_INCLU
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/mm.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/mm.h
 
+$(PROJECT_INCLUDE)/bsp/gpio.h: ../../shared/include/gpio.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/gpio.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/gpio.h
+
 $(PROJECT_INCLUDE)/bsp/irq-generic.h: ../../shared/include/irq-generic.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/irq-generic.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/irq-generic.h
@@ -153,6 +157,10 @@ PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/memory.h
 $(PROJECT_INCLUDE)/bsp/timer.h: include/timer.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/timer.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/timer.h
+
+$(PROJECT_INCLUDE)/bsp/tegra124-gpio.h: include/tegra124-gpio.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/tegra124-gpio.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/tegra124-gpio.h
 
 $(PROJECT_INCLUDE)/bsp/cmdline.h: include/cmdline.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/cmdline.h

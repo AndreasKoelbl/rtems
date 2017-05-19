@@ -9,6 +9,7 @@
 #include <bsp.h>
 #include <bspopts.h>
 #include <bsp/car.h>
+#include <bsp/tegra124-gpio.h>
 #include <bsp/console.h>
 #include <bsp/timer.h>
 #include <bsp/arm-cp15-start.h>
@@ -74,6 +75,14 @@ const arm_cp15_start_section_config arm_cp15_start_mmu_config_table[] = {
   }, {
     .begin = (uint32_t) TIMER_BASE,
     .end = (uint32_t) (TIMER_BASE + 0x1000),
+    .flags = ARMV7_MMU_DEVICE
+  }, {
+    .begin = (uint32_t) GPIO_BASE,
+    .end = (uint32_t) (GPIO_BASE + 0x1000),
+    .flags = ARMV7_MMU_DEVICE
+  }, {
+    .begin = (uint32_t) PINMUX_AUX,
+    .end = (uint32_t) (PINMUX_AUX + 0x1000),
     .flags = ARMV7_MMU_DEVICE
   }, {
 #if NS8250_USE_SECONDARY_CONSOLE == 1
