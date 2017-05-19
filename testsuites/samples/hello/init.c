@@ -15,6 +15,7 @@
 #include <rtems/test.h>
 
 #include <bsp.h> /* for device driver prototypes */
+#include <bsp/bootcard.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,6 +33,8 @@ rtems_task Init(
   rtems_print_printer_printf(&rtems_test_printer);
   rtems_test_begin();
   printf( "Hello World\n" );
+  printf( "Pointer to commandlines: %p\n", bsp_boot_cmdline);
+  printf( "cmdline: %s\n", bsp_boot_cmdline);
   rtems_test_end();
   exit( 0 );
 }
