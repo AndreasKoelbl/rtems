@@ -6,7 +6,6 @@
  * http://www.rtems.org/license/LICENSE.
  */
 
-#include <bspopts.h>
 #include <stdint.h>
 #include <bsp/car.h>
 

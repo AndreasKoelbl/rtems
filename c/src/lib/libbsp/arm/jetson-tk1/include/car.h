@@ -9,6 +9,8 @@
 #ifndef LIBBSP_ARM_JETSONTK1_CAR_H
 #define LIBBSP_ARM_JETSONTK1_CAR_H
 
+#include <bspopts.h>
+
 #define CAR ( (void *) 0x60006000 )
 
 /* UART clock source (fixed): PLLC_OUT0 */

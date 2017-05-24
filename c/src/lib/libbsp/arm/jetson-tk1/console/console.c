@@ -13,6 +13,7 @@
 #include <rtems/bspIo.h>
 
 #include <bsp.h>
+#include <bspopts.h>
 #include <bsp/car.h>
 #include <bsp/console.h>
 #include <bsp/fatal.h>
