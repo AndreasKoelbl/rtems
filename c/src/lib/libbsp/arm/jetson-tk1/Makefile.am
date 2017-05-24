@@ -36,11 +36,14 @@ include_bsp_HEADERS += ../shared/include/arm-gic-regs.h
 include_bsp_HEADERS += ../shared/include/arm-gic-tm27.h
 include_bsp_HEADERS += ../shared/include/arm-release-id.h
 
+include_bsp_HEADERS += ../shared/include/arm-cache-l1.h
+include_bsp_HEADERS += ../shared/armv467ar-basic-cache/cache_.h
 include_bsp_HEADERS += include/car.h
 include_bsp_HEADERS += include/console.h
 include_bsp_HEADERS += include/irq.h
 include_bsp_HEADERS += include/memory.h
 include_bsp_HEADERS += include/timer.h
+include_bsp_HEADERS += include/cmdline.h
 
 ###############################################################################
 # Data                                                       #
@@ -48,7 +51,7 @@ include_bsp_HEADERS += include/timer.h
 
 noinst_LIBRARIES = libbspstart.a
 
-libbspstart_a_SOURCES = ../shared/start/start.S
+libbspstart_a_SOURCES = start/start.S
 
 project_lib_DATA = start.$(OBJEXT)
 
@@ -80,11 +83,9 @@ libbsp_a_SOURCES += ../shared/arm-cp15-set-ttb-entries.c
 
 # Cache
 libbsp_a_SOURCES += ../../../libcpu/shared/src/cache_manager.c
-libbsp_a_SOURCES += ../shared/include/arm-cache-l1.h
-libbsp_a_SOURCES += ../shared/armv467ar-basic-cache/cache_.h
 libbsp_a_CPPFLAGS += -I$(srcdir)/../shared/armv467ar-basic-cache
 
-# Clock and reset
+# Clock
 libbsp_a_SOURCES += clock/clockdrv.c ../../../shared/clockdrv_shell.h
 libbsp_a_SOURCES += clock/car.c
 
@@ -121,6 +122,7 @@ libbsp_a_SOURCES += ../shared/mminit.c
 
 # misc
 libbsp_a_SOURCES += misc/timer.c
+libbsp_a_SOURCES += misc/cmdline.c
 
 
 ###############################################################################

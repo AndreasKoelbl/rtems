@@ -17,6 +17,21 @@ RTEMS_BSPOPTS_HELP([NS8250_CONSOLE_USE_INTERRUPTS],[Use interrupt driven mode fo
 RTEMS_BSPOPTS_SET([NS8250_USE_SECONDARY_CONSOLE],[*],[0])
 RTEMS_BSPOPTS_HELP([NS8250_USE_SECONDARY_CONSOLE],[Enable a secondary console called /dev/ttyS1 using the UART A which is located at Pin 41 (TX) and Pin 44 (RX) on the J3A2])
 
+RTEMS_BSPOPTS_SET([MEMORY_SIZE],[*],[0x4000000])
+RTEMS_BSPOPTS_HELP([MEMORY_SIZE],[Set the amount of memory the application can
+use])
+
+RTEMS_BSPOPTS_SET([TEGRA_BASE],[*],[0x82000000])
+RTEMS_BSPOPTS_HELP([TEGRA_BASE],[Base load address])
+
+AC_DEFUN([TEGRA_LINKCMD],[
+AC_ARG_VAR([$1],[$2; default $3])dnl
+[$1]=[$]{[$1]:-[$3]}
+])
+
+TEGRA_LINKCMD([MEMORY_SIZE],[Begin of RAM region],[${MEMORY_SIZE}])
+TEGRA_LINKCMD([TEGRA_BASE],[Base load address],[${TEGRA_BASE}])
+
 AM_CONDITIONAL(HAS_SMP,[test "$rtems_cv_HAS_SMP" = "yes"])
 
 RTEMS_BSP_CLEANUP_OPTIONS(0, 0)
