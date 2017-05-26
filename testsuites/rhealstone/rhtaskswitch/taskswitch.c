@@ -17,6 +17,7 @@ rtems_task Init( rtems_task_argument ignored );
 
 rtems_id           Task_id[2];
 rtems_name         Task_name[2];
+uint32_t           meas_values[BENCHMARKS];
 uint32_t           loop_overhead;
 uint32_t           dir_overhead;
 unsigned long      count1, count2;
@@ -26,21 +27,33 @@ rtems_task Task02( rtems_task_argument ignored )
 {
   uint32_t telapsed;
 
-  /* All overhead accounted for now, we can begin benchmark */
-  benchmark_timer_initialize();
-
   for ( count1 = 0; count1 < BENCHMARKS - 1; count1++ ) {
+    /* All overhead accounted for now, we can begin benchmark */
+    benchmark_timer_initialize();
     rtems_task_wake_after( RTEMS_YIELD_PROCESSOR );
+    telapsed = benchmark_timer_read();
+    meas_values[count1] = telapsed;
   }
 
-  telapsed = benchmark_timer_read();
+  telapsed = 0;
+  for ( count1 = 0; count1 < BENCHMARKS - 1; count1++ ) {
+    telapsed += meas_values[count1];
+    printf("%" PRId32 "\n", meas_values[count1]);
+  }
+  printf("Total time spent: %lu\n", telapsed);
+  printf("Number task switches: %d\n", (BENCHMARKS * 2) - 1);
+  printf("Loop overhead: %lu\n", loop_overhead);
+  printf("timer_read Overhead: %lu\n", dir_overhead);
+
   put_time(
      "Rhealstone: Task switch",
      telapsed,
      ( BENCHMARKS * 2 ) - 1,   /* ( BENCHMARKS * 2 ) - 1 total benchmarks */
      loop_overhead,            /* Overhead of loop */
+     /* loop_overhead + dir_overhead would be correct */
      dir_overhead              /* Overhead of rtems_task_wake_after directive */
   );
+
 
   TEST_END();
   rtems_test_exit( 0 );
@@ -93,9 +106,6 @@ rtems_task Init( rtems_task_argument ignored )
 
   /* find overhead of routine (no task switches) */
   benchmark_timer_initialize();
-  for ( count1 = 0; count1 < BENCHMARKS - 1; count1++ ) {
-    /* rtems_task_wake_after( RTEMS_YIELD_PROCESSOR ) */
-  }
   for ( count2 = 0; count2 < BENCHMARKS; count2++ ) {
     /* rtems_task_wake_after( RTEMS_YIELD_PROCESSOR ) */
   }
