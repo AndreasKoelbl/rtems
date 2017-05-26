@@ -14,7 +14,7 @@
 const char rtems_test_name[] = "RHMLATENCY";
 
 #define MESSAGE_SIZE (sizeof(long) * 4)
-#define BENCHMARKS 50000
+#define BENCHMARKS 100000
 
 rtems_task Init( rtems_task_argument ignored );
 rtems_task Task01( rtems_task_argument ignored );

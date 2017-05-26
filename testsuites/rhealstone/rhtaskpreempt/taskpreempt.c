@@ -9,7 +9,7 @@
 
 const char rtems_test_name[] = "RHTASKPREEMPT";
 
-#define BENCHMARKS 50000   /* Number of benchmarks to run and average over */
+#define BENCHMARKS 100000   /* Number of benchmarks to run and average over */
 
 rtems_task Task02( rtems_task_argument ignored );
 rtems_task Task01( rtems_task_argument ignored );

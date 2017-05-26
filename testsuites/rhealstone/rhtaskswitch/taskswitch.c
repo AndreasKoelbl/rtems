@@ -7,7 +7,7 @@
 #include <timesys.h>
 #include <rtems/btimer.h>
 
-#define BENCHMARKS 50000
+#define BENCHMARKS 100000
 
 const char rtems_test_name[] = "RHTASKSWITCH";
 

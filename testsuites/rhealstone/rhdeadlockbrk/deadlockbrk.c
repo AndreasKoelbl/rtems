@@ -9,7 +9,7 @@
 
 const char rtems_test_name[] = "RHDEADLOCKBRK";
 
-#define BENCHMARKS 20000
+#define BENCHMARKS 100000
 
 rtems_task Task01( rtems_task_argument ignored );
 rtems_task Task02( rtems_task_argument ignored );

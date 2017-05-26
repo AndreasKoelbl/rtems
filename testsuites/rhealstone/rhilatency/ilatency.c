@@ -36,7 +36,7 @@
 
 const char rtems_test_name[] = "RHILATENCY";
 
-#define BENCHMARKS 50000
+#define BENCHMARKS 100000
 
 rtems_task Task_1(
   rtems_task_argument argument
