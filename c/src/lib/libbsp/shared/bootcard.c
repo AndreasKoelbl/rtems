@@ -61,7 +61,7 @@ RTEMS_SYSINIT_ITEM(
  *  the system while maximizing shared code and keeping BSP code in C
  *  as much as possible.
  */
-void boot_card(
+void __attribute__ ((weak)) boot_card(
   const char *cmdline
 )
 {
