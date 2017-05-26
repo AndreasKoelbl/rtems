@@ -99,16 +99,20 @@ rtems_task Task_1(
 {
   Install_tm27_vector( Isr_handler ) ;
   Interrupt_nest = 0;
+  Interrupt_enter_time = 0;
+  unsigned int i;
 
   /* Benchmark code */
-  benchmark_timer_initialize();
-  /* goes to Isr_handler */
-  Cause_tm27_intr();
+  for (i = 0; i < BENCHMARKS; i++) {
+    benchmark_timer_initialize();
+    /* goes to Isr_handler */
+    Cause_tm27_intr();
+  }
 
   put_time(
     "Rhealstone: Interrupt Latency",
     Interrupt_enter_time,
-    1,                             /* Only Rhealstone that isn't an average */
+    BENCHMARKS,
     timer_overhead,
     0
   );
@@ -122,6 +126,6 @@ rtems_isr Isr_handler(
 )
 {
   /* See how long it took system to recognize interrupt */
-  Interrupt_enter_time = benchmark_timer_read();
+  Interrupt_enter_time += benchmark_timer_read();
   Clear_tm27_intr();
 }
