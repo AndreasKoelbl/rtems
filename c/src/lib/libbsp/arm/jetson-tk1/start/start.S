@@ -55,7 +55,7 @@
 	.extern bsp_start_init_registers_vfp
 #endif
 
-#ifdef BSP_START_IN_HYP_SUPPORT
+#if BSP_START_IN_HYP_SUPPORT == 1
 	.extern	bsp_start_arm_drop_hyp_mode
 	.globl	bsp_start_hyp_vector_table_begin
 #endif
@@ -131,7 +131,7 @@ handler_addr_fiq:
 
 bsp_start_vector_table_end:
 
-#ifdef BSP_START_IN_HYP_SUPPORT
+#if BSP_START_IN_HYP_SUPPORT == 1
 bsp_start_hyp_vector_table_begin:
 	ldr	pc, handler_addr_hyp_reset
 	ldr	pc, handler_addr_hyp_undef
@@ -203,7 +203,7 @@ _start:
 #endif
 
 	mrs	r4, cpsr	/* save original procesor status value  */
-#ifdef BSP_START_IN_HYP_SUPPORT
+#if BSP_START_IN_HYP_SUPPORT == 1
 	orr	r0, r4, #(ARM_PSR_I | ARM_PSR_F)
 	msr	cpsr, r4
 
