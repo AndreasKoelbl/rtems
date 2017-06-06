@@ -38,12 +38,12 @@ rtems_task Task02( rtems_task_argument ignored )
   telapsed = 0;
   for ( count1 = 0; count1 < BENCHMARKS - 1; count1++ ) {
     telapsed += meas_values[count1];
-    printf("%" PRId32 "\n", meas_values[count1]);
+    //printf("%" PRId32 "\n", meas_values[count1]);
   }
   printf("Total time spent: %lu\n", telapsed);
   printf("Number task switches: %d\n", (BENCHMARKS * 2) - 1);
   printf("Loop overhead: %lu\n", loop_overhead);
-  printf("timer_read Overhead: %lu\n", dir_overhead);
+  printf("dir overhead: %lu\n", dir_overhead);
 
   put_time(
      "Rhealstone: Task switch",
@@ -56,6 +56,7 @@ rtems_task Task02( rtems_task_argument ignored )
 
 
   TEST_END();
+  bsp_reset();
   rtems_test_exit( 0 );
 }
 
@@ -112,9 +113,14 @@ rtems_task Init( rtems_task_argument ignored )
   loop_overhead = benchmark_timer_read();
 
   /* find overhead of rtems_task_wake_after call (no task switches) */
-  benchmark_timer_initialize();
-  rtems_task_wake_after( RTEMS_YIELD_PROCESSOR );
-  dir_overhead = benchmark_timer_read();
+  int i;
+  dir_overhead = 0;
+  for(i=0;i<1000;i++) {
+    benchmark_timer_initialize();
+    rtems_task_wake_after( RTEMS_YIELD_PROCESSOR );
+    dir_overhead += benchmark_timer_read();
+  }
+  dir_overhead /= 1000;
 
   status = rtems_task_start( Task_id[0], Task01, 0);
   directive_failed( status, "rtems_task_start of TA01" );
