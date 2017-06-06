@@ -54,6 +54,7 @@ void BSP_START_TEXT_SECTION bsp_start_hook_0( void )
     arm_cp15_instruction_cache_invalidate();
     arm_cp15_branch_predictor_invalidate_all();
     arm_cp15_tlb_invalidate();
+    arm_cp15_flush_prefetch_buffer();
   }
 
   foo();
