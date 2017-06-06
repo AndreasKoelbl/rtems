@@ -1,7 +1,7 @@
 MEMORY {
-  RAM_MMU     (AIW) : ORIGIN = 0x0, LENGTH = 2048M
   RAM         (AIW) : ORIGIN = @TEGRA_BASE@, LENGTH = @MEMORY_SIZE@ - 4096
-  CMD         (AW) : ORIGIN = @TEGRA_BASE@ + @MEMORY_SIZE@ - 4096, LENGTH = 4096
+  CMD         (AW) : ORIGIN = @TEGRA_BASE@ + @MEMORY_SIZE@ - 4k - 64k, LENGTH = 4k
+  RAM_MMU     (AIW) : ORIGIN = @TEGRA_BASE@ + @MEMORY_SIZE@ - 64k, LENGTH = 64k
 }
 
 bsp_processor_count = DEFINED (bsp_processor_count) ? bsp_processor_count : 1;
