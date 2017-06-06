@@ -28,6 +28,11 @@ static void foo(void)
 void BSP_START_TEXT_SECTION bsp_start_hook_0( void )
 {
   uint32_t ctrl;
+  register unsigned int sp asm("sp");
+  register unsigned int lr asm("lr");
+
+  printk("sp: %x\n", sp);
+  printk("lr: %x\n", lr);
 
   arm_cp15_set_vector_base_address(bsp_vector_table_begin);
 
@@ -38,7 +43,7 @@ void BSP_START_TEXT_SECTION bsp_start_hook_0( void )
   ctrl = arm_cp15_get_control();
 
   if (ctrl & (ARM_CP15_CTRL_I | ARM_CP15_CTRL_C | ARM_CP15_CTRL_M | ARM_CP15_CTRL_A | ARM_CP15_CTRL_Z)) {
-    printk("deactivating MMU...\n");
+    //printk("deactivating MMU...\n");
     if (ctrl & (ARM_CP15_CTRL_C | ARM_CP15_CTRL_M)) {
       arm_cp15_data_cache_clean_all_levels();
       arm_cp15_data_cache_invalidate_all_levels();
@@ -52,15 +57,15 @@ void BSP_START_TEXT_SECTION bsp_start_hook_0( void )
   }
 
   foo();
+  printk("sp: %x\n", sp);
+  printk("lr: %x\n", lr);
 }
 
 void BSP_START_TEXT_SECTION bsp_start_hook_1( void )
 {
-  uint32_t ctrl;
-
-  bsp_start_copy_sections();
   printk("Before init\n");
+  bsp_start_copy_sections();
   /* Access is to ttb is too far, > 4kB -> not turning mmu off */
-  bsp_memory_management_initialize();
+  //bsp_memory_management_initialize();
   bsp_start_clear_bss();
 }
