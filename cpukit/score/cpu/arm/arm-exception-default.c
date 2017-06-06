@@ -21,5 +21,7 @@
 
 void _ARM_Exception_default( CPU_Exception_frame *frame )
 {
+  _CPU_Exception_frame_print(frame);
+
   rtems_fatal( RTEMS_FATAL_SOURCE_EXCEPTION, (rtems_fatal_code) frame );
 }
