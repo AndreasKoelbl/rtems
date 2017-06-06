@@ -358,7 +358,7 @@ bsp_vector_table_copy_done:
 	bl	bsp_start_hook_1
 
 	/* Branch to boot card */
-	ldr r0, bsp_cmdline_location
+	mov r0, #0
 	bl	boot_card
 
 twiddle:
@@ -367,9 +367,6 @@ twiddle:
 	bl	bsp_reset
 
 	b	twiddle
-
-bsp_cmdline_location:
-	.word BSP_CMDLINE_LOCATION
 
 #elif defined(ARM_MULTILIB_ARCH_V7M)
 
