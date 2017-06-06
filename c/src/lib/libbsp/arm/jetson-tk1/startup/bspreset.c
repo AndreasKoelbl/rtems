@@ -6,10 +6,8 @@
  * http://www.rtems.org/license/LICENSE.
  */
 
-#include <bsp/bootcard.h>
-#include <bsp/memory.h>
 #include <bsp.h>
-#include <rtems.h>
+#include <bsp/memory.h>
 
 #define APB_MISC_BASE ( (void*) 0x70000000 )
 #define PMC_BASE (APB_MISC_BASE + 0xE400)
