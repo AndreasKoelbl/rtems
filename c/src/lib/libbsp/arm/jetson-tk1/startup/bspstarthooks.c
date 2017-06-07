@@ -28,11 +28,6 @@ static void foo(void)
 void BSP_START_TEXT_SECTION bsp_start_hook_0( void )
 {
   uint32_t ctrl;
-  register unsigned int sp asm("sp");
-  register unsigned int lr asm("lr");
-
-  printk("sp: %x\n", sp);
-  printk("lr: %x\n", lr);
 
   arm_cp15_set_vector_base_address(bsp_vector_table_begin);
 
@@ -56,10 +51,7 @@ void BSP_START_TEXT_SECTION bsp_start_hook_0( void )
     arm_cp15_tlb_invalidate();
     arm_cp15_flush_prefetch_buffer();
   }
-
-  foo();
-  printk("sp: %x\n", sp);
-  printk("lr: %x\n", lr);
+#endif
 }
 
 void BSP_START_TEXT_SECTION bsp_start_hook_1( void )
