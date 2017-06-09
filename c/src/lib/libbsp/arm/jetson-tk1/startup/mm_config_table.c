@@ -23,7 +23,8 @@
  * and rest is used for writeable section
  */
 
-const arm_cp15_start_section_config arm_cp15_start_mmu_config_table[] = {
+BSP_START_DATA_SECTION const arm_cp15_start_section_config
+arm_cp15_start_mmu_config_table[] = {
   {
     .begin = (uint32_t) bsp_section_fast_text_begin,
     .end = (uint32_t) bsp_section_fast_text_end,
@@ -42,7 +43,7 @@ const arm_cp15_start_section_config arm_cp15_start_mmu_config_table[] = {
     .flags = ARMV7_MMU_DATA_READ_ONLY_CACHED
   }, {
     .begin = (uint32_t) bsp_translation_table_base,
-    .end = (uint32_t) bsp_translation_table_base + 0x4000,
+    .end = (uint32_t) bsp_translation_table_base + 0x10000,
     .flags = ARMV7_MMU_DATA_READ_WRITE_CACHED
   }, {
     .begin = (uint32_t) bsp_section_fast_data_begin,
