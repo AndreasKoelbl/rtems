@@ -32,8 +32,23 @@ void BSP_START_TEXT_SECTION bsp_start_hook_0( void )
 void BSP_START_TEXT_SECTION bsp_start_hook_1( void )
 {
   uint32_t sctlr;
+  /*
+   * Do not use bsp_vector_table_begin == 0, since this will get optimized away.
+  */
+  if (bsp_vector_table_end != bsp_vector_table_size) {
 
-  sctlr = arm_cp15_get_control();
+    /*
+     * For now we assume that every Cortex-A9 MPCore has the Security Extensions.
+     * Later it might be necessary to evaluate the ID_PFR1 register.
+     */
+    arm_cp15_set_vector_base_address(bsp_vector_table_begin);
+
+    sctlr = arm_cp15_get_control();
+    sctlr &= ~ARM_CP15_CTRL_V;
+    arm_cp15_set_control(sctlr);
+  }
+
+  printk("Hello\n");
 
   /*
    * Current U-boot loader seems to start kernel image
@@ -50,11 +65,12 @@ void BSP_START_TEXT_SECTION bsp_start_hook_1( void )
       arm_cp15_data_cache_clean_all_levels();
     }
     arm_cp15_flush_prefetch_buffer();
+    rtems_cache_invalidate_entire_data();
+    arm_cp15_instruction_cache_invalidate();
     sctlr &= ~ ( ARM_CP15_CTRL_I | ARM_CP15_CTRL_C | ARM_CP15_CTRL_M | ARM_CP15_CTRL_A );
     arm_cp15_set_control( sctlr );
   }
 
-  arm_cp15_instruction_cache_invalidate();
   /*
    * The care should be taken there that no shared levels
    * are invalidated by secondary CPUs in SMP case.
@@ -68,20 +84,15 @@ void BSP_START_TEXT_SECTION bsp_start_hook_1( void )
   arm_cp15_tlb_invalidate();
   arm_cp15_flush_prefetch_buffer();
 
-//  printk("Before init\n");
-//  arm_a9mpcore_start_hook_1();
+  arm_cp15_set_translation_table_base_control_register(0);
   bsp_start_copy_sections();
-//  zynq_setup_mmu_and_cache();
-
-#if !defined(RTEMS_SMP) \
-  && (defined(BSP_DATA_CACHE_ENABLED) \
-    || defined(BSP_INSTRUCTION_CACHE_ENABLED))
-  /* Enable unified L2 cache */
-  rtems_cache_enable_data();
-#endif
+  bsp_memory_management_initialize();
 
   sctlr = arm_cp15_get_control();
-  bsp_start_clear_bss();
-  sctlr |= ARM_CP15_CTRL_I | ARM_CP15_CTRL_C | ARM_CP15_CTRL_M | ARM_CP15_CTRL_A;
+  /* Enable Cache, MMU, Alignment check, Branch predictor and Access Flag */
+  sctlr |= ARM_CP15_CTRL_I | ARM_CP15_CTRL_C | ARM_CP15_CTRL_M | ARM_CP15_CTRL_A
+        | ARM_CP15_CTRL_Z | ARM_CP15_CTRL_AFE;
   arm_cp15_set_control( sctlr );
+  bsp_start_clear_bss();
+  foo();
 }

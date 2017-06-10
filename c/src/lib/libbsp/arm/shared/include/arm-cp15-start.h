@@ -158,11 +158,6 @@ arm_cp15_start_setup_translation_table_and_enable_mmu_and_cache(
     config_table,
     config_count
   );
-
-  /* Enable MMU and cache */
-  ctrl |= ARM_CP15_CTRL_I | ARM_CP15_CTRL_C | ARM_CP15_CTRL_M;
-
-  arm_cp15_set_control(ctrl);
 }
 
 BSP_START_TEXT_SECTION static inline uint32_t
