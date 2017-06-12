@@ -24,6 +24,19 @@ extern "C" {
 #define BSP_GPIO_BANK_COUNT 8
 #define BSP_GPIO_PIN_COUNT ( BSP_GPIO_PINS_PER_BANK * BSP_GPIO_BANK_COUNT )
 
+/* Data synchronization barrier */
+static inline void dsb(void)
+{
+    asm volatile("dsb" : : : "memory");
+}
+
+/* Instruction synchronization barrier */
+static inline void isb(void)
+{
+    asm volatile("isb" : : : "memory");
+}
+
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
