@@ -25,6 +25,7 @@
 #define LIBCPU_SHARED_ARM_CP15_H
 
 #include <rtems.h>
+#include <rtems/bspIo.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -287,6 +288,8 @@ arm_cp15_get_control(void)
 ARM_CP15_TEXT_SECTION static inline void
 arm_cp15_set_control(uint32_t val)
 {
+  /* I don't know why this is needed */
+  printk("");
   ARM_SWITCH_REGISTERS;
 
   __asm__ volatile (

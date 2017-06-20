@@ -28,6 +28,7 @@
 #include <libcpu/arm-cp15.h>
 #include <bsp/start.h>
 #include <bsp/linker-symbols.h>
+#include <rtems/bspIo.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -119,7 +120,7 @@ arm_cp15_start_set_translation_table_entries(
   }
 }
 
-BSP_START_TEXT_SECTION static inline void
+BSP_START_TEXT_SECTION static __attribute__((always_inline)) void
 arm_cp15_start_setup_translation_table(
   uint32_t *ttb,
   uint32_t client_domain,
@@ -158,6 +159,13 @@ arm_cp15_start_setup_translation_table_and_enable_mmu_and_cache(
     config_table,
     config_count
   );
+  /* Enable MMU and cache */
+  ctrl |= ARM_CP15_CTRL_I | ARM_CP15_CTRL_C | ARM_CP15_CTRL_M;
+
+  _ARM_Instruction_synchronization_barrier();
+  _ARM_Data_synchronization_barrier();
+  _ARM_Data_memory_barrier();
+  arm_cp15_set_control(ctrl);
 }
 
 BSP_START_TEXT_SECTION static inline uint32_t

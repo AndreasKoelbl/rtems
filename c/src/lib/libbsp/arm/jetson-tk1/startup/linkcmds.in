@@ -1,12 +1,13 @@
 MEMORY {
-  RAM         (AIW) : ORIGIN = @TEGRA_BASE@, LENGTH = @MEMORY_SIZE@ - 16k
-  RAM_MMU     (AIW) : ORIGIN = @TEGRA_BASE@ + @MEMORY_SIZE@ - 16k, LENGTH = 16k
+  VECTOR      (AIW) : ORIGIN = @TEGRA_BASE@, LENGTH = 16k
+  RAM         (AIW) : ORIGIN = @TEGRA_BASE@ + 16k, LENGTH = @MEMORY_SIZE@ - 32k
+  RAM_MMU     (AIW) : ORIGIN = @TEGRA_BASE@ + @MEMORY_SIZE@ - 32k, LENGTH = 16k
 }
 
 bsp_processor_count = DEFINED (bsp_processor_count) ? bsp_processor_count : 1;
 
 REGION_ALIAS ("REGION_START",          RAM);
-REGION_ALIAS ("REGION_VECTOR",         RAM);
+REGION_ALIAS ("REGION_VECTOR",         VECTOR);
 REGION_ALIAS ("REGION_TEXT",           RAM);
 REGION_ALIAS ("REGION_TEXT_LOAD",      RAM);
 REGION_ALIAS ("REGION_RODATA",         RAM);
@@ -26,7 +27,6 @@ REGION_ALIAS ("REGION_NOCACHE_LOAD",   RAM);
 bsp_stack_irq_size = DEFINED (bsp_stack_irq_size) ? bsp_stack_irq_size : 4096;
 bsp_stack_abt_size = DEFINED (bsp_stack_abt_size) ? bsp_stack_abt_size : 1024;
 
-bsp_vector_table_in_start_section = 1;
 bsp_section_robarrier_align = DEFINED (bsp_section_robarrier_align) ? bsp_section_robarrier_align : 1M;
 
 bsp_translation_table_base = ORIGIN (RAM_MMU);

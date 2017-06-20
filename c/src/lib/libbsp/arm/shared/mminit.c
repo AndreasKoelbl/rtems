@@ -15,11 +15,17 @@
 
 BSP_START_TEXT_SECTION void bsp_memory_management_initialize(void)
 {
-
+#if defined(__ARM_ARCH_7A__)
   uint32_t ctrl = arm_cp15_start_setup_mmu_and_cache(
     0,
     ARM_CP15_CTRL_AFE | ARM_CP15_CTRL_S | ARM_CP15_CTRL_XP
   );
+#else
+  uint32_t ctrl = arm_cp15_start_setup_mmu_and_cache(
+    0,
+    ARM_CP15_CTRL_AFE | ARM_CP15_CTRL_Z | ARM_CP15_CTRL_A
+  );
+#endif
 
   arm_cp15_start_setup_translation_table_and_enable_mmu_and_cache(
     ctrl,
